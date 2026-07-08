@@ -1,0 +1,955 @@
+---
+import '../../styles/global.css';
+
+// Type reference strings in frontmatter to avoid JSX parsing of angle-bracket generics
+const optT    = 'Option<T>';
+const optFloat = 'Option<float>';
+
+const codeSample = `type AirQuality = {
+  station: string,
+  pm10:    Option<float>,
+}
+
+v data = load("data.csv") :: AirQuality
+  |> cast("pm10", "float")
+  |> filter(pm10 > 50)
+  |> groupBy("station")
+  |> mean("pm10")`;
+
+const cliWorkflow = `x1zz new my-project   # scaffold project + sample CSV
+cd my-project
+x1zz import data.csv  # auto-infer schema → write type block
+x1zz run main.xzz     # compile + execute pipeline`;
+---
+
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="x1zzLang — A Rust-based DSL platform exploring data analysis accessibility. Visual IDE: graphical pipeline editor for .xzz workflows." />
+  <title>x1zz // PORTFOLIO</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" />
+</head>
+<body class="bg-black text-white min-h-screen flex flex-col" style="font-family: var(--font-sans);">
+
+  <!-- ─── HEADER ───────────────────────────────────────────────────────────── -->
+  <header class="w-full border-b border-zinc-800 px-6 py-4 grid grid-cols-3 items-center gap-4">
+
+    <!-- Left: breadcrumb -->
+    <div class="flex items-center gap-2">
+      <a href="/" class="text-xs tracking-widest text-zinc-500 hover:text-white transition-colors duration-150" style="font-family: var(--font-mono);">x1zz</a>
+      <span class="text-zinc-700 text-xs" style="font-family: var(--font-mono);">/</span>
+      <span class="text-xs tracking-widest text-white" style="font-family: var(--font-mono);">PORTFOLIO</span>
+    </div>
+
+    <!-- Center: slogan -->
+    <div class="flex justify-center">
+      <span class="text-xs font-semibold tracking-widest text-white uppercase text-center" style="font-family: var(--font-mono);">
+        <span class="lang-en">The combination of art and technology</span>
+        <span class="lang-kr">예술과 기술의 결합</span>
+      </span>
+    </div>
+
+    <!-- Right: language toggle -->
+    <div class="flex justify-end">
+      <button
+        id="lang-toggle"
+        aria-label="Toggle language"
+        class="text-xs font-semibold tracking-widest border border-zinc-600 text-white hover:border-white transition-all duration-150 px-3 py-1 cursor-pointer"
+        style="font-family: var(--font-mono);"
+      >
+        <span class="lang-en">EN → KR</span>
+        <span class="lang-kr">KR → EN</span>
+      </button>
+    </div>
+
+  </header>
+
+  <!-- ─── HERO ─────────────────────────────────────────────────────────────── -->
+  <section class="w-full px-6 pt-20 pb-16 flex flex-col items-center">
+
+    <!-- Signature cutout title -->
+    <div class="relative w-full max-w-4xl flex items-center justify-center">
+      <div class="absolute w-full border-t border-zinc-800"></div>
+      <h1 class="relative z-10 bg-black px-8 text-4xl md:text-5xl font-bold tracking-tighter text-white select-none" style="font-family: var(--font-mono);">
+        PORTFOLIO
+      </h1>
+    </div>
+
+    <!-- Version / badge row -->
+    <div class="mt-8 flex flex-wrap justify-center gap-2">
+      <span class="text-xs border border-zinc-700 px-2 py-0.5 text-zinc-400" style="font-family: var(--font-mono);">v0.2.8</span>
+      <span class="text-xs border border-zinc-700 px-2 py-0.5 text-zinc-400" style="font-family: var(--font-mono);">.xzz</span>
+      <span class="text-xs border border-zinc-700 px-2 py-0.5 text-zinc-400" style="font-family: var(--font-mono);">Rust + Polars</span>
+      <span class="text-xs border border-zinc-700 px-2 py-0.5 text-zinc-400" style="font-family: var(--font-mono);">Apache-2.0</span>
+      <span class="text-xs border border-green-900 text-green-500 px-2 py-0.5" style="font-family: var(--font-mono);">3.84× vs pandas</span>
+    </div>
+
+    <!-- Intro text -->
+    <div class="mt-8 max-w-4xl w-full">
+      <p class="text-sm font-medium leading-relaxed text-white lang-en">
+        A complete ecosystem combining a Rust-based DSL compiler and a graphical pipeline IDE —
+        exploring data analysis accessibility through scripting-level ergonomics and compiled-core performance.
+        <span class="text-white font-bold" style="font-family: var(--font-mono);">x1zzLang</span> at the core.
+        <span class="text-white font-bold" style="font-family: var(--font-mono);">Visual IDE</span> at the surface.
+      </p>
+      <p class="text-sm font-medium leading-relaxed text-white lang-kr">
+        Rust 기반 DSL 컴파일러와 그래픽 파이프라인 IDE로 구성된 완전한 생태계 —
+        스크립트의 편리함과 컴파일러의 성능을 결합한 데이터 분석 DSL 플랫폼.
+        <span class="text-white font-bold" style="font-family: var(--font-mono);">x1zzLang</span> 이 코어를,
+        <span class="text-white font-bold" style="font-family: var(--font-mono);">Visual IDE</span> 가 인터페이스를 담당합니다.
+      </p>
+    </div>
+
+  </section>
+
+  <!-- ─── MAIN ──────────────────────────────────────────────────────────────── -->
+  <main class="flex-1 w-full max-w-4xl mx-auto px-6 pb-24 space-y-20">
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- § 1  CORE ENGINE                                                     -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section>
+      <div class="border-b border-zinc-800 pb-3 mb-10">
+        <span class="text-xs font-semibold tracking-widest text-white uppercase" style="font-family: var(--font-mono);">
+          <span class="lang-en">// 01 — X1ZZLANG · CORE ENGINE</span>
+          <span class="lang-kr">// 01 — X1ZZLANG · 코어 엔진</span>
+        </span>
+      </div>
+
+      <div class="space-y-6">
+
+        <!-- Overview card -->
+        <div class="border border-zinc-800 p-6 rounded">
+          <h2 class="text-lg font-bold mb-4 text-white" style="font-family: var(--font-mono);">
+            <span class="lang-en">A Rust-based DSL for Data Analysis</span>
+            <span class="lang-kr">데이터 분석을 위한 Rust 기반 DSL</span>
+          </h2>
+          <p class="text-sm font-medium leading-relaxed text-white mb-3 lang-en">
+            x1zzLang is a domain-specific language that compiles
+            <code class="font-bold" style="font-family: var(--font-mono);">.xzz</code> scripts into optimized
+            Polars LazyFrame execution plans through a Rust-based compiler pipeline.
+            Schema is declared upfront in the type system, and null-safety is enforced at the type level via
+            <code class="font-bold" style="font-family: var(--font-mono);">{optT}</code> — no runtime surprises.
+          </p>
+          <p class="text-sm font-medium leading-relaxed text-white mb-3 lang-kr">
+            x1zzLang은
+            <code class="font-bold" style="font-family: var(--font-mono);">.xzz</code> 스크립트를 Rust
+            컴파일러 파이프라인으로 최적화된 Polars LazyFrame 실행 계획으로 컴파일하는 도메인 특화 언어입니다.
+            스키마를 타입 시스템에서 사전에 선언하고,
+            <code class="font-bold" style="font-family: var(--font-mono);">{optT}</code>를 통해 타입 수준에서
+            널 안전성을 강제합니다 — 런타임 예외 없음.
+          </p>
+          <div class="border-t border-zinc-800 pt-4 mt-4 flex flex-wrap gap-4 text-xs text-zinc-500" style="font-family: var(--font-mono);">
+            <span>Language design</span>
+            <span class="text-zinc-700">·</span>
+            <span>Compiler engineering</span>
+            <span class="text-zinc-700">·</span>
+            <span>Type system research</span>
+            <span class="text-zinc-700">·</span>
+            <span>8th Korea CodeFair 2026</span>
+          </div>
+        </div>
+
+        <!-- Python vs x1zzLang comparison -->
+        <div class="border border-zinc-800 p-6 rounded">
+          <h3 class="text-xs font-bold text-white mb-4 uppercase tracking-wider" style="font-family: var(--font-mono);">
+            <span class="lang-en">// COMPARISON — PANDAS VS X1ZZLANG</span>
+            <span class="lang-kr">// 비교 — PANDAS VS X1ZZLANG</span>
+          </h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <!-- Python side -->
+            <div class="border border-zinc-800 rounded p-4">
+              <div class="flex items-center gap-2 mb-3">
+                <span class="text-xs font-bold text-zinc-500 uppercase tracking-wider" style="font-family: var(--font-mono);">Python · pandas</span>
+              </div>
+              <pre class="text-xs leading-relaxed text-zinc-400 overflow-x-auto" style="font-family: var(--font-mono);">import pandas as pd
+
+df = pd.read_csv("data.csv")
+df = df[df["pm10"] > 50]
+result = df.groupby("station")["pm10"].mean()
+print(result)</pre>
+              <p class="text-xs text-zinc-600 mt-3 lang-en" style="font-family: var(--font-mono);">// Requires install. Nulls manual. Types at runtime.</p>
+              <p class="text-xs text-zinc-600 mt-3 lang-kr" style="font-family: var(--font-mono);">// 설치 필요. 수동 널 처리. 런타임 타입 오류.</p>
+            </div>
+
+            <!-- x1zzLang side -->
+            <div class="border border-zinc-800 rounded p-4 bg-zinc-950">
+              <div class="flex items-center gap-2 mb-3">
+                <span class="text-xs font-bold text-white uppercase tracking-wider" style="font-family: var(--font-mono);">x1zzLang · .xzz</span>
+                <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></span>
+              </div>
+              <pre class="text-xs leading-relaxed text-zinc-300 overflow-x-auto" style="font-family: var(--font-mono);">{codeSample}</pre>
+              <p class="text-xs text-zinc-500 mt-3 lang-en" style="font-family: var(--font-mono);">// No imports. Schema upfront. Null-safe via {optT}.</p>
+              <p class="text-xs text-zinc-500 mt-3 lang-kr" style="font-family: var(--font-mono);">// 임포트 없음. 스키마 사전 선언. {optT} 널 안전.</p>
+            </div>
+          </div>
+
+          <!-- comparison table -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs" style="font-family: var(--font-mono);">
+              <thead>
+                <tr class="border-b border-zinc-800">
+                  <th class="text-left py-2 pr-4 text-zinc-500 font-semibold uppercase tracking-wider"></th>
+                  <th class="text-left py-2 pr-4 text-zinc-500 font-semibold uppercase tracking-wider lang-en">Python (pandas)</th>
+                  <th class="text-left py-2 pr-4 text-zinc-500 font-semibold uppercase tracking-wider lang-kr">Python (pandas)</th>
+                  <th class="text-left py-2 text-white font-semibold uppercase tracking-wider">x1zzLang</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-zinc-900">
+                <tr>
+                  <td class="py-2 pr-4 text-zinc-500 lang-en">Library deps</td>
+                  <td class="py-2 pr-4 text-zinc-500 lang-kr">라이브러리 의존성</td>
+                  <td class="py-2 pr-4 text-zinc-400 lang-en">pandas, numpy</td>
+                  <td class="py-2 pr-4 text-zinc-400 lang-kr">pandas, numpy</td>
+                  <td class="py-2 text-green-500">None (built-in)</td>
+                </tr>
+                <tr>
+                  <td class="py-2 pr-4 text-zinc-500 lang-en">Type validation</td>
+                  <td class="py-2 pr-4 text-zinc-500 lang-kr">타입 검증</td>
+                  <td class="py-2 pr-4 text-zinc-400 lang-en">Runtime</td>
+                  <td class="py-2 pr-4 text-zinc-400 lang-kr">런타임</td>
+                  <td class="py-2 text-green-500 lang-en">Schema declaration time</td>
+                  <td class="py-2 text-green-500 lang-kr">스키마 선언 시점</td>
+                </tr>
+                <tr>
+                  <td class="py-2 pr-4 text-zinc-500 lang-en">Null handling</td>
+                  <td class="py-2 pr-4 text-zinc-500 lang-kr">널 처리</td>
+                  <td class="py-2 pr-4 text-zinc-400 lang-en">Manual NaN checks</td>
+                  <td class="py-2 pr-4 text-zinc-400 lang-kr">수동 NaN 확인</td>
+                  <td class="py-2 text-green-500 lang-en">{optT} in type definition</td>
+                  <td class="py-2 text-green-500 lang-kr">타입 정의의 {optT}</td>
+                </tr>
+                <tr>
+                  <td class="py-2 pr-4 text-zinc-500 lang-en">Env setup</td>
+                  <td class="py-2 pr-4 text-zinc-500 lang-kr">환경 설정</td>
+                  <td class="py-2 pr-4 text-zinc-400 lang-en">pip install + venv</td>
+                  <td class="py-2 pr-4 text-zinc-400 lang-kr">pip install + venv</td>
+                  <td class="py-2 text-green-500 lang-en">Single binary</td>
+                  <td class="py-2 text-green-500 lang-kr">단일 바이너리</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- CLI quick start -->
+        <div class="border border-zinc-800 p-6 rounded bg-zinc-950">
+          <div class="flex items-start gap-3">
+            <span class="text-xs font-bold text-white shrink-0 mt-0.5" style="font-family: var(--font-mono);">//</span>
+            <div class="w-full">
+              <p class="text-xs font-bold text-white mb-3 uppercase tracking-wider" style="font-family: var(--font-mono);">
+                <span class="lang-en">QUICK START — CLI WORKFLOW</span>
+                <span class="lang-kr">빠른 시작 — CLI 워크플로우</span>
+              </p>
+              <pre class="text-xs leading-relaxed text-zinc-300 overflow-x-auto" style="font-family: var(--font-mono);">{cliWorkflow}</pre>
+              <div class="mt-4 flex flex-wrap gap-3 text-xs text-zinc-600" style="font-family: var(--font-mono);">
+                <span class="lang-en">// From scaffold to execution in 3 commands. No virtual environments. No dependency management.</span>
+                <span class="lang-kr">// 3개의 명령어로 스캐폴딩부터 실행까지. 가상환경 설정 불필요. 의존성 관리 불필요.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- § 2  ARCHITECTURE                                                    -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section>
+      <div class="border-b border-zinc-800 pb-3 mb-10">
+        <span class="text-xs font-semibold tracking-widest text-white uppercase" style="font-family: var(--font-mono);">
+          <span class="lang-en">// 02 — ARCHITECTURE · DEPENDENCY ISOLATION</span>
+          <span class="lang-kr">// 02 — 아키텍처 · 의존성 격리</span>
+        </span>
+      </div>
+
+      <div class="space-y-6">
+
+        <!-- Crate tree -->
+        <div class="border border-zinc-800 p-6 rounded">
+          <h3 class="text-xs font-bold text-white mb-4 uppercase tracking-wider" style="font-family: var(--font-mono);">
+            <span class="lang-en">// CARGO WORKSPACE STRUCTURE</span>
+            <span class="lang-kr">// 카고 워크스페이스 구조</span>
+          </h3>
+          <pre class="text-xs leading-relaxed text-zinc-400 overflow-x-auto" style="font-family: var(--font-mono);">x1zz (CLI binary)          ~2–5 MB
+  │  clap · indicatif · colored · csv · anyhow · encoding_rs
+  │  NO Polars  ·  NO Tokio
+  │
+  ├── x1zz-compiler     Lexer → Parser → Codegen → Emitter
+  │   └── x1zz-core     Shared AST / Token / Error (serde only)
+  │
+  └── [subprocess spawn] ──► x1zz-runner     ~30+ MB
+                              └── x1zz-exec  Polars LazyFrame runtime</pre>
+          <div class="mt-4 border-t border-zinc-800 pt-4">
+            <p class="text-xs text-zinc-500 lang-en" style="font-family: var(--font-mono);">
+              // The CLI stays small (~2–5 MB) by never linking Polars. When <code class="text-zinc-400">x1zz run</code> is called,
+              it spawns <code class="text-zinc-400">x1zz-runner</code> as a subprocess — carrying all Polars dependencies independently.
+              Communication uses only CLI arguments — no IPC protocol.
+            </p>
+            <p class="text-xs text-zinc-500 lang-kr" style="font-family: var(--font-mono);">
+              // CLI는 Polars를 링크하지 않아 ~2–5 MB로 유지됩니다. <code class="text-zinc-400">x1zz run</code> 호출 시 <code class="text-zinc-400">x1zz-runner</code>가
+              서브프로세스로 스폰되어 Polars 의존성을 독립적으로 처리합니다. IPC 프로토콜 없이 CLI 인수만으로 통신합니다.
+            </p>
+          </div>
+        </div>
+
+        <!-- Crate responsibilities table -->
+        <div class="border border-zinc-800 p-6 rounded">
+          <h3 class="text-xs font-bold text-white mb-4 uppercase tracking-wider" style="font-family: var(--font-mono);">
+            <span class="lang-en">// CRATE RESPONSIBILITIES</span>
+            <span class="lang-kr">// 크레이트 역할</span>
+          </h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs" style="font-family: var(--font-mono);">
+              <thead>
+                <tr class="border-b border-zinc-800">
+                  <th class="text-left py-2 pr-6 text-zinc-500 font-semibold uppercase tracking-wider">Crate</th>
+                  <th class="text-left py-2 pr-6 text-zinc-500 font-semibold uppercase tracking-wider lang-en">Role</th>
+                  <th class="text-left py-2 pr-6 text-zinc-500 font-semibold uppercase tracking-wider lang-kr">역할</th>
+                  <th class="text-left py-2 text-zinc-500 font-semibold uppercase tracking-wider lang-en">Heavy deps</th>
+                  <th class="text-left py-2 text-zinc-500 font-semibold uppercase tracking-wider lang-kr">주요 의존성</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-zinc-900">
+                <tr>
+                  <td class="py-2 pr-6 text-white">x1zz (CLI)</td>
+                  <td class="py-2 pr-6 text-zinc-400 lang-en">Argument parsing, import, new, emit, check</td>
+                  <td class="py-2 pr-6 text-zinc-400 lang-kr">인수 파싱, import, new, emit, check</td>
+                  <td class="py-2 text-zinc-600 lang-en">None</td>
+                  <td class="py-2 text-zinc-600 lang-kr">없음</td>
+                </tr>
+                <tr>
+                  <td class="py-2 pr-6 text-white">x1zz-core</td>
+                  <td class="py-2 pr-6 text-zinc-400 lang-en">Shared AST, Token, Error types</td>
+                  <td class="py-2 pr-6 text-zinc-400 lang-kr">공유 AST, 토큰, 에러 타입</td>
+                  <td class="py-2 text-zinc-600">serde only</td>
+                </tr>
+                <tr>
+                  <td class="py-2 pr-6 text-white">x1zz-compiler</td>
+                  <td class="py-2 pr-6 text-zinc-400 lang-en">Lexer / Parser / Codegen / Emitter</td>
+                  <td class="py-2 pr-6 text-zinc-400 lang-kr">렉서 / 파서 / 코드젠 / 이미터</td>
+                  <td class="py-2 text-zinc-600 lang-en">None</td>
+                  <td class="py-2 text-zinc-600 lang-kr">없음</td>
+                </tr>
+                <tr>
+                  <td class="py-2 pr-6 text-white">x1zz-exec</td>
+                  <td class="py-2 pr-6 text-zinc-400 lang-en">Polars execution engine</td>
+                  <td class="py-2 pr-6 text-zinc-400 lang-kr">Polars 실행 엔진</td>
+                  <td class="py-2 text-white font-bold">Polars, encoding_rs</td>
+                </tr>
+                <tr>
+                  <td class="py-2 pr-6 text-white">x1zz-runner</td>
+                  <td class="py-2 pr-6 text-zinc-400 lang-en">Execution binary (spawned by CLI)</td>
+                  <td class="py-2 pr-6 text-zinc-400 lang-kr">실행 바이너리 (CLI가 스폰)</td>
+                  <td class="py-2 text-zinc-400">via x1zz-exec</td>
+                </tr>
+                <tr>
+                  <td class="py-2 pr-6 text-white">x1zz-server</td>
+                  <td class="py-2 pr-6 text-zinc-400 lang-en">REST API server</td>
+                  <td class="py-2 pr-6 text-zinc-400 lang-kr">REST API 서버</td>
+                  <td class="py-2 text-zinc-400">axum, tokio</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Binary size tradeoff -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="border border-zinc-800 p-5 rounded text-center">
+            <code class="text-xs font-bold text-white block mb-2" style="font-family: var(--font-mono);">x1zz (CLI)</code>
+            <div class="text-3xl font-bold text-white mb-2" style="font-family: var(--font-mono);">~2–5<span class="text-lg text-zinc-500 ml-1">MB</span></div>
+            <p class="text-xs text-zinc-500 lang-en" style="font-family: var(--font-mono);">Compiler, schema inference,<br/>project scaffolding</p>
+            <p class="text-xs text-zinc-500 lang-kr" style="font-family: var(--font-mono);">컴파일러, 스키마 추론,<br/>프로젝트 스캐폴딩</p>
+          </div>
+          <div class="border border-zinc-800 p-5 rounded text-center">
+            <code class="text-xs font-bold text-white block mb-2" style="font-family: var(--font-mono);">x1zz-runner</code>
+            <div class="text-3xl font-bold text-white mb-2" style="font-family: var(--font-mono);">30+<span class="text-lg text-zinc-500 ml-1">MB</span></div>
+            <p class="text-xs text-zinc-500 lang-en" style="font-family: var(--font-mono);">Polars execution engine<br/>(subprocess)</p>
+            <p class="text-xs text-zinc-500 lang-kr" style="font-family: var(--font-mono);">Polars 실행 엔진<br/>(서브프로세스)</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- § 3  BENCHMARK                                                       -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section>
+      <div class="border-b border-zinc-800 pb-3 mb-10">
+        <span class="text-xs font-semibold tracking-widest text-white uppercase" style="font-family: var(--font-mono);">
+          <span class="lang-en">// 03 — BENCHMARK · X1ZZLANG VS PANDAS</span>
+          <span class="lang-kr">// 03 — 벤치마크 · X1ZZLANG VS PANDAS</span>
+        </span>
+      </div>
+
+      <div class="space-y-6">
+
+        <!-- Headline stat -->
+        <div class="border border-zinc-800 p-6 rounded grid grid-cols-1 sm:grid-cols-3 gap-6 items-center">
+          <div class="sm:col-span-2">
+            <p class="text-sm font-medium leading-relaxed text-white mb-3 lang-en">
+              Benchmark against an equivalent pandas pipeline on a
+              <strong class="font-bold">3.4M-row Seoul air quality dataset</strong>.
+              Performance comes primarily from the Polars LazyFrame backend which applies
+              query optimization before execution — measuring end-to-end pipeline throughput,
+              not compiler overhead.
+            </p>
+            <p class="text-sm font-medium leading-relaxed text-white mb-3 lang-kr">
+              340만 행의 서울 대기질 데이터셋을 사용한 동등한 pandas 파이프라인 대비 벤치마크.
+              Polars LazyFrame 백엔드가 실행 전 쿼리 최적화를 적용하여 성능을 끌어올립니다.
+              컴파일러 오버헤드가 아닌 종단간 파이프라인 처리량을 측정한 결과입니다.
+            </p>
+            <div class="flex items-center gap-2 text-xs text-zinc-500 mt-4" style="font-family: var(--font-mono);">
+              <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500"></span>
+              <span>benches/run_benchmark.py · benches/benchmark_pipeline.xzz</span>
+            </div>
+          </div>
+          <div class="flex flex-col items-center justify-center border border-zinc-800 rounded p-6">
+            <span class="text-5xl font-bold text-white" style="font-family: var(--font-mono);">3.84×</span>
+            <span class="text-xs text-green-500 mt-1 uppercase tracking-widest" style="font-family: var(--font-mono);">faster than pandas</span>
+            <span class="text-xs text-zinc-600 mt-2" style="font-family: var(--font-mono);">3.4M rows · Seoul AQ</span>
+          </div>
+        </div>
+
+        <!-- Benchmark image -->
+        <div class="border border-zinc-800 rounded overflow-hidden">
+          <div class="px-4 py-2 border-b border-zinc-800 flex items-center gap-2">
+            <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></span>
+            <span class="text-xs text-zinc-500" style="font-family: var(--font-mono);">benches/x1zzLang_benchmark2.png</span>
+          </div>
+          <img
+            src="/x1zzLang_benchmark2 (1).png"
+            alt="x1zzLang Benchmark: 3.84× faster than pandas on a 3.4M-row dataset"
+            class="w-full h-auto object-contain bg-zinc-950"
+            loading="lazy"
+          />
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- § 4  FEATURES & STATUS                                               -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section>
+      <div class="border-b border-zinc-800 pb-3 mb-10">
+        <span class="text-xs font-semibold tracking-widest text-white uppercase" style="font-family: var(--font-mono);">
+          <span class="lang-en">// 04 — FEATURES & STATUS</span>
+          <span class="lang-kr">// 04 — 기능 및 상태</span>
+        </span>
+      </div>
+
+      <div class="border border-zinc-800 rounded overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs" style="font-family: var(--font-mono);">
+            <thead>
+              <tr class="border-b border-zinc-800 bg-zinc-950">
+                <th class="text-left px-4 py-3 text-zinc-500 font-semibold uppercase tracking-wider lang-en">Feature</th>
+                <th class="text-left px-4 py-3 text-zinc-500 font-semibold uppercase tracking-wider lang-kr">기능</th>
+                <th class="text-left px-4 py-3 text-zinc-500 font-semibold uppercase tracking-wider lang-en">Description</th>
+                <th class="text-left px-4 py-3 text-zinc-500 font-semibold uppercase tracking-wider lang-kr">설명</th>
+                <th class="text-left px-4 py-3 text-zinc-500 font-semibold uppercase tracking-wider lang-en">Status</th>
+                <th class="text-left px-4 py-3 text-zinc-500 font-semibold uppercase tracking-wider lang-kr">상태</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-900">
+              <tr class="hover:bg-zinc-950 transition-colors duration-100">
+                <td class="px-4 py-3 text-white lang-en">x1zz run</td>
+                <td class="px-4 py-3 text-white lang-kr">x1zz run</td>
+                <td class="px-4 py-3 text-zinc-400 lang-en">Compile and execute .xzz pipeline</td>
+                <td class="px-4 py-3 text-zinc-400 lang-kr">.xzz 파이프라인 컴파일 및 실행</td>
+                <td class="px-4 py-3 lang-en"><span class="text-green-500">Stable</span></td>
+                <td class="px-4 py-3 lang-kr"><span class="text-green-500">안정</span></td>
+              </tr>
+              <tr class="hover:bg-zinc-950 transition-colors duration-100">
+                <td class="px-4 py-3 text-white lang-en">x1zz import</td>
+                <td class="px-4 py-3 text-white lang-kr">x1zz import</td>
+                <td class="px-4 py-3 text-zinc-400 lang-en">Auto-infer CSV schema → generate type block</td>
+                <td class="px-4 py-3 text-zinc-400 lang-kr">CSV 스키마 자동 추론 → 타입 블록 생성</td>
+                <td class="px-4 py-3 lang-en"><span class="text-green-500">Stable</span></td>
+                <td class="px-4 py-3 lang-kr"><span class="text-green-500">안정</span></td>
+              </tr>
+              <tr class="hover:bg-zinc-950 transition-colors duration-100">
+                <td class="px-4 py-3 text-white lang-en">x1zz new</td>
+                <td class="px-4 py-3 text-white lang-kr">x1zz new</td>
+                <td class="px-4 py-3 text-zinc-400 lang-en">Scaffold project with sample CSV and example</td>
+                <td class="px-4 py-3 text-zinc-400 lang-kr">샘플 CSV와 예제로 프로젝트 스캐폴딩</td>
+                <td class="px-4 py-3 lang-en"><span class="text-green-500">Stable</span></td>
+                <td class="px-4 py-3 lang-kr"><span class="text-green-500">안정</span></td>
+              </tr>
+              <tr class="hover:bg-zinc-950 transition-colors duration-100">
+                <td class="px-4 py-3 text-white lang-en">x1zz emit rust</td>
+                <td class="px-4 py-3 text-white lang-kr">x1zz emit rust</td>
+                <td class="px-4 py-3 text-zinc-400 lang-en">Transpile .xzz → Rust source (Polars LazyFrame)</td>
+                <td class="px-4 py-3 text-zinc-400 lang-kr">.xzz를 Polars LazyFrame Rust 소스로 트랜스파일</td>
+                <td class="px-4 py-3 lang-en"><span class="text-green-500">Stable</span></td>
+                <td class="px-4 py-3 lang-kr"><span class="text-green-500">안정</span></td>
+              </tr>
+              <tr class="hover:bg-zinc-950 transition-colors duration-100">
+                <td class="px-4 py-3 text-white lang-en">Option&lt;T&gt; type system</td>
+                <td class="px-4 py-3 text-white lang-kr">Option&lt;T&gt; 타입 시스템</td>
+                <td class="px-4 py-3 text-zinc-400 lang-en">Null-safe column declarations, fillNull operator</td>
+                <td class="px-4 py-3 text-zinc-400 lang-kr">널 안전 컬럼 선언, fillNull 연산자</td>
+                <td class="px-4 py-3 lang-en"><span class="text-green-500">Stable</span></td>
+                <td class="px-4 py-3 lang-kr"><span class="text-green-500">안정</span></td>
+              </tr>
+              <tr class="hover:bg-zinc-950 transition-colors duration-100">
+                <td class="px-4 py-3 text-white lang-en">Built-in chart {}</td>
+                <td class="px-4 py-3 text-white lang-kr">내장 chart {}</td>
+                <td class="px-4 py-3 text-zinc-400 lang-en">Render results as bar / line / pie / scatter</td>
+                <td class="px-4 py-3 text-zinc-400 lang-kr">bar / line / pie / scatter 차트 렌더링</td>
+                <td class="px-4 py-3 lang-en"><span class="text-green-500">Stable</span></td>
+                <td class="px-4 py-3 lang-kr"><span class="text-green-500">안정</span></td>
+              </tr>
+              <tr class="hover:bg-zinc-950 transition-colors duration-100">
+                <td class="px-4 py-3 text-white lang-en">EUC-KR CSV support</td>
+                <td class="px-4 py-3 text-white lang-kr">EUC-KR CSV 지원</td>
+                <td class="px-4 py-3 text-zinc-400 lang-en">Auto-detect and decode CP949 Korean CSV files</td>
+                <td class="px-4 py-3 text-zinc-400 lang-kr">CP949 인코딩 한글 CSV 자동 감지 및 디코딩</td>
+                <td class="px-4 py-3 lang-en"><span class="text-green-500">Stable</span></td>
+                <td class="px-4 py-3 lang-kr"><span class="text-green-500">안정</span></td>
+              </tr>
+              <tr class="hover:bg-zinc-950 transition-colors duration-100">
+                <td class="px-4 py-3 text-white lang-en">x1zz check</td>
+                <td class="px-4 py-3 text-white lang-kr">x1zz check</td>
+                <td class="px-4 py-3 text-zinc-400 lang-en">Static analysis via Neural Query Planner</td>
+                <td class="px-4 py-3 text-zinc-400 lang-kr">Neural Query Planner 기반 정적 분석</td>
+                <td class="px-4 py-3 lang-en"><span class="text-zinc-400">Experimental</span></td>
+                <td class="px-4 py-3 lang-kr"><span class="text-zinc-400">실험적</span></td>
+              </tr>
+              <tr class="hover:bg-zinc-950 transition-colors duration-100">
+                <td class="px-4 py-3 text-white lang-en">x1zz sde</td>
+                <td class="px-4 py-3 text-white lang-kr">x1zz sde</td>
+                <td class="px-4 py-3 text-zinc-400 lang-en">Synthetic data generation engine integration</td>
+                <td class="px-4 py-3 text-zinc-400 lang-kr">합성 데이터 생성 엔진 통합</td>
+                <td class="px-4 py-3 lang-en"><span class="text-zinc-600">Preview</span></td>
+                <td class="px-4 py-3 lang-kr"><span class="text-zinc-600">프리뷰</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- § 5  VISUAL IDE                                                      -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section>
+      <div class="border-b border-zinc-800 pb-3 mb-10">
+        <span class="text-xs font-semibold tracking-widest text-white uppercase" style="font-family: var(--font-mono);">
+          <span class="lang-en">// 05 — X1ZZLANG VISUAL IDE</span>
+          <span class="lang-kr">// 05 — X1ZZLANG 비주얼 IDE</span>
+        </span>
+      </div>
+
+      <div class="space-y-6">
+
+        <!-- Overview -->
+        <div class="border border-zinc-800 p-6 rounded">
+          <h2 class="text-lg font-bold mb-4 text-white" style="font-family: var(--font-mono);">
+            <span class="lang-en">Graphical Pipeline Builder for .xzz</span>
+            <span class="lang-kr">.xzz를 위한 그래픽 파이프라인 빌더</span>
+          </h2>
+          <p class="text-sm font-medium leading-relaxed text-white mb-3 lang-en">
+            A visual IDE for designing data pipelines and generating/executing x1zzLang code.
+            Build complex data transformation workflows by connecting nodes on a canvas — no code required.
+            The DAG configuration is transpiled into <code class="font-bold" style="font-family: var(--font-mono);">.xzz</code>
+            source code in real-time and sent to the backend for execution via the x1zzLang REST API.
+          </p>
+          <p class="text-sm font-medium leading-relaxed text-white mb-3 lang-kr">
+            데이터 파이프라인을 시각적으로 디자인하고 x1zzLang 코드를 생성/실행할 수 있는 그래픽 IDE.
+            캔버스 위에 노드를 연결하여 복잡한 데이터 변환 워크플로우를 구축할 수 있으며, 코드 작성이 불필요합니다.
+            DAG 구성이 실시간으로 <code class="font-bold" style="font-family: var(--font-mono);">.xzz</code> 소스 코드로
+            트랜스파일되어 x1zzLang REST API를 통해 백엔드로 전송됩니다.
+          </p>
+          <div class="border-t border-zinc-800 pt-4 mt-4 flex flex-wrap gap-4 text-xs text-zinc-500" style="font-family: var(--font-mono);">
+            <span>React 18 · Vite</span>
+            <span class="text-zinc-700">·</span>
+            <span>@xyflow/react</span>
+            <span class="text-zinc-700">·</span>
+            <span>i18next</span>
+            <span class="text-zinc-700">·</span>
+            <span>Lucide React</span>
+            <span class="text-zinc-700">·</span>
+            <span>x1zzLang engine (Rust + Polars)</span>
+          </div>
+        </div>
+
+        <!-- Screenshot -->
+        <div class="border border-zinc-800 rounded overflow-hidden">
+          <div class="px-4 py-2 border-b border-zinc-800 flex items-center gap-2">
+            <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></span>
+            <span class="text-xs text-zinc-500" style="font-family: var(--font-mono);">x1zzLang Visual IDE — DAG Pipeline Canvas</span>
+          </div>
+          <img
+            src="/screenshot_visual_ide.png"
+            alt="x1zzLang Visual IDE — graphical DAG pipeline editor"
+            class="w-full h-auto object-contain bg-zinc-950"
+            loading="lazy"
+          />
+        </div>
+
+        <!-- Transpilation pipeline -->
+        <div class="border border-zinc-800 p-6 rounded bg-zinc-950">
+          <div class="flex items-start gap-3">
+            <span class="text-xs font-bold text-white shrink-0 mt-0.5" style="font-family: var(--font-mono);">//</span>
+            <div class="w-full">
+              <p class="text-xs font-bold text-white mb-4 uppercase tracking-wider" style="font-family: var(--font-mono);">
+                <span class="lang-en">TRANSPILATION PIPELINE</span>
+                <span class="lang-kr">트랜스파일 파이프라인</span>
+              </p>
+              <div class="flex flex-wrap items-center gap-2 text-xs" style="font-family: var(--font-mono);">
+                <span class="border border-zinc-700 px-3 py-1.5 text-white font-bold">Visual DAG</span>
+                <span class="text-zinc-600">→</span>
+                <span class="border border-zinc-700 px-3 py-1.5 text-zinc-300">x1zzTranspiler<br/>(dagWalker)</span>
+                <span class="text-zinc-600">→</span>
+                <span class="border border-zinc-700 px-3 py-1.5 text-white font-bold">.xzz source</span>
+                <span class="text-zinc-600">→</span>
+                <span class="border border-zinc-700 px-3 py-1.5 text-zinc-300">Backend<br/>/execute</span>
+                <span class="text-zinc-600">→</span>
+                <span class="border border-green-900 px-3 py-1.5 text-green-500 font-bold">Results</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Operators + features grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- 9 operators -->
+          <div class="border border-zinc-800 p-5 rounded">
+            <h3 class="text-xs font-bold text-white mb-4 uppercase tracking-wider" style="font-family: var(--font-mono);">
+              <span class="lang-en">// 9 BUILT-IN OPERATORS</span>
+              <span class="lang-kr">// 9개 내장 연산자</span>
+            </h3>
+            <div class="space-y-2 text-xs" style="font-family: var(--font-mono);">
+              <div class="flex items-center gap-2">
+                <span class="text-green-500 shrink-0">◆</span>
+                <span class="text-white">File Input</span>
+                <span class="text-zinc-600 lang-en">— CSV/Excel with schema inference</span>
+                <span class="text-zinc-600 lang-kr">— 스키마 추론 CSV/Excel</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-green-500 shrink-0">◆</span>
+                <span class="text-white">Filter</span>
+                <span class="text-zinc-600 lang-en">— Filter rows by condition</span>
+                <span class="text-zinc-600 lang-kr">— 조건에 따라 행 필터</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-green-500 shrink-0">◆</span>
+                <span class="text-white">Select</span>
+                <span class="text-zinc-600 lang-en">— Select specific columns</span>
+                <span class="text-zinc-600 lang-kr">— 특정 열 선택</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-green-500 shrink-0">◆</span>
+                <span class="text-white">Group By</span>
+                <span class="text-zinc-600 lang-en">— Group &amp; aggregate</span>
+                <span class="text-zinc-600 lang-kr">— 그룹화 및 집계</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-green-500 shrink-0">◆</span>
+                <span class="text-white">Count</span>
+                <span class="text-zinc-600 lang-en">— Count rows</span>
+                <span class="text-zinc-600 lang-kr">— 행 수 계산</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-green-500 shrink-0">◆</span>
+                <span class="text-white">Sort</span>
+                <span class="text-zinc-600 lang-en">— Sort by column(s)</span>
+                <span class="text-zinc-600 lang-kr">— 열로 정렬</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-green-500 shrink-0">◆</span>
+                <span class="text-white">Take</span>
+                <span class="text-zinc-600 lang-en">— Top N rows</span>
+                <span class="text-zinc-600 lang-kr">— 상위 N개 행</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-green-500 shrink-0">◆</span>
+                <span class="text-white">Drop Null</span>
+                <span class="text-zinc-600 lang-en">— Remove null rows</span>
+                <span class="text-zinc-600 lang-kr">— 결측치 행 제거</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-green-500 shrink-0">◆</span>
+                <span class="text-white">Fill Null</span>
+                <span class="text-zinc-600 lang-en">— Fill nulls with value</span>
+                <span class="text-zinc-600 lang-kr">— 결측치를 값으로 채움</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Key features -->
+          <div class="border border-zinc-800 p-5 rounded">
+            <h3 class="text-xs font-bold text-white mb-4 uppercase tracking-wider" style="font-family: var(--font-mono);">
+              <span class="lang-en">// KEY FEATURES</span>
+              <span class="lang-kr">// 주요 기능</span>
+            </h3>
+            <ul class="space-y-3 text-xs" style="font-family: var(--font-mono);">
+              <li class="flex items-start gap-2">
+                <span class="text-zinc-600 shrink-0 mt-0.5">→</span>
+                <span class="text-zinc-400 lang-en">Drag-and-drop visual DAG canvas</span>
+                <span class="text-zinc-400 lang-kr">드래그 앤 드롭 DAG 캔버스</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-zinc-600 shrink-0 mt-0.5">→</span>
+                <span class="text-zinc-400 lang-en">Real-time .xzz code generation</span>
+                <span class="text-zinc-400 lang-kr">실시간 .xzz 코드 생성</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-zinc-600 shrink-0 mt-0.5">→</span>
+                <span class="text-zinc-400 lang-en">One-click execution + table results</span>
+                <span class="text-zinc-400 lang-kr">원클릭 실행 + 테이블 결과</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-zinc-600 shrink-0 mt-0.5">→</span>
+                <span class="text-zinc-400 lang-en">Tab-based multi-workflow management</span>
+                <span class="text-zinc-400 lang-kr">탭 기반 멀티 워크플로우</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-zinc-600 shrink-0 mt-0.5">→</span>
+                <span class="text-zinc-400 lang-en">Undo / Redo + auto-save</span>
+                <span class="text-zinc-400 lang-kr">실행 취소 / 재실행 + 자동 저장</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-zinc-600 shrink-0 mt-0.5">→</span>
+                <span class="text-zinc-400 lang-en">Export .xzz · Container grouping</span>
+                <span class="text-zinc-400 lang-kr">.xzz 내보내기 · 컨테이너 그룹핑</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-zinc-600 shrink-0 mt-0.5">→</span>
+                <span class="text-zinc-400 lang-en">Bilingual UI (Korean / English)</span>
+                <span class="text-zinc-400 lang-kr">한영 이중언어 UI</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- § 6  ROADMAP                                                         -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section>
+      <div class="border-b border-zinc-800 pb-3 mb-10">
+        <span class="text-xs font-semibold tracking-widest text-white uppercase" style="font-family: var(--font-mono);">
+          <span class="lang-en">// 06 — ROADMAP</span>
+          <span class="lang-kr">// 06 — 로드맵</span>
+        </span>
+      </div>
+
+      <div class="border border-zinc-800 rounded overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs" style="font-family: var(--font-mono);">
+            <thead>
+              <tr class="border-b border-zinc-800 bg-zinc-950">
+                <th class="text-left px-4 py-3 text-zinc-500 font-semibold uppercase tracking-wider lang-en">Phase</th>
+                <th class="text-left px-4 py-3 text-zinc-500 font-semibold uppercase tracking-wider lang-kr">단계</th>
+                <th class="text-left px-4 py-3 text-zinc-500 font-semibold uppercase tracking-wider lang-en">Goal</th>
+                <th class="text-left px-4 py-3 text-zinc-500 font-semibold uppercase tracking-wider lang-kr">목표</th>
+                <th class="text-left px-4 py-3 text-zinc-500 font-semibold uppercase tracking-wider lang-en">Status</th>
+                <th class="text-left px-4 py-3 text-zinc-500 font-semibold uppercase tracking-wider lang-kr">상태</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-900">
+              <tr class="hover:bg-zinc-950 transition-colors duration-100">
+                <td class="px-4 py-3 text-zinc-500 lang-en">Phase 1</td>
+                <td class="px-4 py-3 text-zinc-500 lang-kr">1단계</td>
+                <td class="px-4 py-3 text-white lang-en">DSL syntax, type system, compiler pipeline</td>
+                <td class="px-4 py-3 text-white lang-kr">DSL 문법, 타입 시스템, 컴파일러 파이프라인</td>
+                <td class="px-4 py-3 lang-en"><span class="text-green-500">Complete</span></td>
+                <td class="px-4 py-3 lang-kr"><span class="text-green-500">완료</span></td>
+              </tr>
+              <tr class="hover:bg-zinc-950 transition-colors duration-100">
+                <td class="px-4 py-3 text-zinc-500 lang-en">Phase 2</td>
+                <td class="px-4 py-3 text-zinc-500 lang-kr">2단계</td>
+                <td class="px-4 py-3 text-white lang-en">Polars integration, CLI tooling, chart output</td>
+                <td class="px-4 py-3 text-white lang-kr">Polars 통합, CLI 도구, 차트 출력</td>
+                <td class="px-4 py-3 lang-en"><span class="text-green-500">Complete</span></td>
+                <td class="px-4 py-3 lang-kr"><span class="text-green-500">완료</span></td>
+              </tr>
+              <tr class="hover:bg-zinc-950 transition-colors duration-100">
+                <td class="px-4 py-3 text-zinc-500 lang-en">Phase 3</td>
+                <td class="px-4 py-3 text-zinc-500 lang-kr">3단계</td>
+                <td class="px-4 py-3 text-white lang-en">Visual IDE, graphical pipeline editor</td>
+                <td class="px-4 py-3 text-white lang-kr">Visual IDE, 그래픽 파이프라인 에디터</td>
+                <td class="px-4 py-3 lang-en"><span class="text-green-500">Complete</span></td>
+                <td class="px-4 py-3 lang-kr"><span class="text-green-500">완료</span></td>
+              </tr>
+              <tr class="hover:bg-zinc-950 transition-colors duration-100">
+                <td class="px-4 py-3 text-zinc-500 lang-en">Phase 4</td>
+                <td class="px-4 py-3 text-zinc-500 lang-kr">4단계</td>
+                <td class="px-4 py-3 text-white lang-en">More operators, join improvements, schema evolution</td>
+                <td class="px-4 py-3 text-white lang-kr">추가 연산자, 조인 개선, 스키마 진화</td>
+                <td class="px-4 py-3 lang-en"><span class="text-zinc-400">In progress</span></td>
+                <td class="px-4 py-3 lang-kr"><span class="text-zinc-400">진행 중</span></td>
+              </tr>
+              <tr class="hover:bg-zinc-950 transition-colors duration-100">
+                <td class="px-4 py-3 text-zinc-500 lang-en">Phase 5</td>
+                <td class="px-4 py-3 text-zinc-500 lang-kr">5단계</td>
+                <td class="px-4 py-3 text-white lang-en">Natural language query interface (NQP), AI-augmented analysis</td>
+                <td class="px-4 py-3 text-white lang-kr">자연어 쿼리 인터페이스(NQP), AI 증강 분석</td>
+                <td class="px-4 py-3 lang-en"><span class="text-zinc-600">Experimental</span></td>
+                <td class="px-4 py-3 lang-kr"><span class="text-zinc-600">실험적</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- § 7  ECOSYSTEM SUMMARY                                               -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <section>
+      <div class="border-b border-zinc-800 pb-3 mb-10">
+        <span class="text-xs font-semibold tracking-widest text-white uppercase" style="font-family: var(--font-mono);">
+          <span class="lang-en">// 07 — ECOSYSTEM OVERVIEW</span>
+          <span class="lang-kr">// 07 — 생태계 개요</span>
+        </span>
+      </div>
+
+      <div class="border border-zinc-800 p-6 rounded space-y-6">
+
+        <div>
+          <p class="text-sm font-medium leading-relaxed text-white lang-en">
+            x1zzLang and x1zzLang Visual IDE form a complete, end-to-end ecosystem for data pipeline development.
+            Scripting convenience at the surface. Rust-compiled performance at the core.
+            From visual design to 3.84× faster execution — a unified approach to data analysis accessibility.
+          </p>
+          <p class="text-sm font-medium leading-relaxed text-white lang-kr">
+            x1zzLang과 x1zzLang Visual IDE는 데이터 파이프라인 개발을 위한 완전한 종단간 생태계를 구성합니다.
+            표면의 스크립팅 편의성. 코어의 Rust 컴파일 성능.
+            비주얼 디자인부터 3.84배 빠른 실행까지 — 데이터 분석 접근성을 위한 통합 접근법.
+          </p>
+        </div>
+
+        <!-- 3-step flow -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="border border-zinc-800 p-5 rounded text-center">
+            <div class="text-2xl font-bold text-white mb-2" style="font-family: var(--font-mono);">01</div>
+            <p class="text-xs font-bold text-white uppercase tracking-wider mb-1" style="font-family: var(--font-mono);">
+              <span class="lang-en">DESIGN</span>
+              <span class="lang-kr">디자인</span>
+            </p>
+            <p class="text-xs text-zinc-600" style="font-family: var(--font-mono);">
+              <span class="lang-en">Visual IDE canvas</span>
+              <span class="lang-kr">Visual IDE 캔버스</span>
+            </p>
+          </div>
+          <div class="border border-zinc-800 p-5 rounded text-center">
+            <div class="text-2xl font-bold text-white mb-2" style="font-family: var(--font-mono);">02</div>
+            <p class="text-xs font-bold text-white uppercase tracking-wider mb-1" style="font-family: var(--font-mono);">
+              <span class="lang-en">TRANSPILE</span>
+              <span class="lang-kr">트랜스파일</span>
+            </p>
+            <p class="text-xs text-zinc-600" style="font-family: var(--font-mono);">
+              <span class="lang-en">DAG → .xzz code</span>
+              <span class="lang-kr">DAG → .xzz 코드</span>
+            </p>
+          </div>
+          <div class="border border-zinc-800 p-5 rounded text-center">
+            <div class="text-2xl font-bold text-white mb-2" style="font-family: var(--font-mono);">03</div>
+            <p class="text-xs font-bold text-white uppercase tracking-wider mb-1" style="font-family: var(--font-mono);">
+              <span class="lang-en">EXECUTE</span>
+              <span class="lang-kr">실행</span>
+            </p>
+            <p class="text-xs text-zinc-600" style="font-family: var(--font-mono);">
+              <span class="lang-en">Rust / Polars backend</span>
+              <span class="lang-kr">Rust / Polars 백엔드</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Links -->
+        <div class="border-t border-zinc-800 pt-5 flex flex-wrap gap-4">
+          <a
+            href="https://github.com/ax1sofficially-alt/x1zzLang"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="group flex items-center gap-2 border border-zinc-700 px-4 py-2 text-xs text-white hover:border-white transition-all duration-150"
+            style="font-family: var(--font-mono);"
+          >
+            <span class="text-zinc-500 group-hover:text-white transition-colors duration-150">↗</span>
+            x1zzLang
+            <span class="text-zinc-600 group-hover:text-zinc-400 transition-colors duration-150 lang-en">on GitHub</span>
+            <span class="text-zinc-600 group-hover:text-zinc-400 transition-colors duration-150 lang-kr">GitHub</span>
+          </a>
+          <a
+            href="https://github.com/ax1sofficially-alt/x1zzLang-visual-ide"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="group flex items-center gap-2 border border-zinc-700 px-4 py-2 text-xs text-white hover:border-white transition-all duration-150"
+            style="font-family: var(--font-mono);"
+          >
+            <span class="text-zinc-500 group-hover:text-white transition-colors duration-150">↗</span>
+            x1zzLang Visual IDE
+            <span class="text-zinc-600 group-hover:text-zinc-400 transition-colors duration-150 lang-en">on GitHub</span>
+            <span class="text-zinc-600 group-hover:text-zinc-400 transition-colors duration-150 lang-kr">GitHub</span>
+          </a>
+        </div>
+
+        <div class="border-t border-zinc-800 pt-4">
+          <p class="text-xs font-medium text-zinc-600 lang-en" style="font-family: var(--font-mono);">
+            // Contributing: Issues open · PRs suspended until October 2026 (8th Korea CodeFair evaluation period) · Apache-2.0 License
+          </p>
+          <p class="text-xs font-medium text-zinc-600 lang-kr" style="font-family: var(--font-mono);">
+            // 기여: 이슈 오픈 중 · PR은 2026년 10월까지 보류 (제8회 한국 코드페어 심사 기간) · Apache-2.0 라이선스
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ─── FOOTER ────────────────────────────────────────────────────────────── -->
+  <footer class="w-full border-t border-zinc-800 px-6 py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+
+    <div class="flex items-center gap-4 text-xs font-semibold text-white" style="font-family: var(--font-mono);">
+      <span>x1zz.com</span>
+      <span class="text-zinc-600">|</span>
+      <span>BUILD_001</span>
+      <span class="text-zinc-600">|</span>
+      <a href="/" class="text-zinc-500 hover:text-white transition-colors duration-150">
+        <span class="lang-en">← Back to main</span>
+        <span class="lang-kr">← 메인으로</span>
+      </a>
+    </div>
+
+    <div class="text-xs font-semibold text-white lang-en" style="font-family: var(--font-mono);">
+      The present desires a brilliant future. The brilliant future desires the present.
+    </div>
+    <div class="text-xs font-semibold text-white lang-kr" style="font-family: var(--font-mono);">
+      현재는 찬란한 미래를 원하고, 찬란한 미래는 현재를 원한다.
+    </div>
+
+  </footer>
+
+  <!-- ─── Language Toggle ────────────────────────────────────────────────────── -->
+  <script>
+    (function () {
+      var btn = document.getElementById('lang-toggle');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        var html = document.documentElement;
+        var current = html.getAttribute('data-lang') || 'en';
+        html.setAttribute('data-lang', current === 'en' ? 'kr' : 'en');
+        html.setAttribute('lang', current === 'en' ? 'ko' : 'en');
+      });
+    })();
+  </script>
+
+</body>
+</html>

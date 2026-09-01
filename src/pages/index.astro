@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import GithubIcon from '../components/GithubIcon.astro';
 
 const xazzPipeline = ['Lexer', 'Parser', 'Type Checker', 'Typed IR', 'Codegen', 'Runtime'];
 
@@ -69,9 +70,17 @@ const findings = [
     <a href="/" class="text-lg font-bold tracking-tight text-fg" style="font-family: var(--font-mono);">
       x1zz<span class="text-accent">.</span>
     </a>
-    <nav class="flex items-center gap-4 text-sm">
+    <nav class="flex items-center gap-3 text-sm">
       <a href="/portfolio" class="text-mut hover:text-fg transition-colors">portfolio</a>
-      <a href="https://github.com/x1zzdev/Xazz" target="_blank" rel="noopener noreferrer" class="text-mut hover:text-fg transition-colors">github ↗</a>
+      <a
+        href="https://github.com/x1zzdev/Xazz"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-2 border border-line2 text-fg px-3 py-1.5 hover:border-accent hover:text-accent transition-colors"
+        style="font-family: var(--font-mono); font-size: 0.8rem;"
+      >
+        <GithubIcon size={15} /> GitHub
+      </a>
       <button
         id="lang-toggle"
         aria-label="Toggle language"
@@ -296,7 +305,9 @@ const findings = [
     <section class="pb-16">
       <div class="flex flex-wrap items-center gap-3">
         <a href="mailto:ax1s@x1zz.com" class="btn">ax1s@x1zz.com</a>
-        <a href="https://github.com/x1zzdev/Xazz" target="_blank" rel="noopener noreferrer" class="btn btn-ghost">GitHub <span aria-hidden="true">↗</span></a>
+        <a href="https://github.com/x1zzdev/Xazz" target="_blank" rel="noopener noreferrer" class="btn">
+          <GithubIcon size={15} /> GitHub
+        </a>
         <a href="/portfolio" class="btn btn-ghost">portfolio</a>
       </div>
     </section>
@@ -306,6 +317,9 @@ const findings = [
       <div class="flex items-center gap-5">
         <span class="text-fg" style="font-family: var(--font-mono);">x1zz.com</span>
         <a href="/writing" class="text-mut hover:text-accent transition-colors" style="font-family: var(--font-mono);">writing</a>
+        <a href="https://github.com/x1zzdev/Xazz" target="_blank" rel="noopener noreferrer" class="text-mut hover:text-accent transition-colors inline-flex items-center gap-1.5" style="font-family: var(--font-mono);">
+          <GithubIcon size={14} /> github
+        </a>
       </div>
       <span class="text-dim" style="font-family: var(--font-mono);">© 2026</span>
     </footer>

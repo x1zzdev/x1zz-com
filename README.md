@@ -1,46 +1,44 @@
-# Astro Starter Kit: Basics
+# x1zz.com
+
+Personal site of Sewoo Jang — compilers and data pipeline tools in Rust.
+
+## Structure
+
+```
+src/
+  layouts/Layout.astro    shared head, SEO meta, fonts, lang persistence
+  pages/
+    index.astro           landing: hero, featured Xazz, projects, research
+    portfolio/index.astro IDE-style project log
+    writing/index.astro   engineering notes
+   404.astro
+  styles/global.css        design tokens + components
+public/                   favicons, robots.txt, sitemap.xml, assets
+```
+
+## Development
 
 ```sh
-npm create astro@latest -- --template basics
+npm install
+npm run dev        # local server
+npm run build      # static build to dist/
+npm run preview    # preview the build
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+The dev server is managed in the background:
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
+```sh
+npx astro dev --background
+npx astro dev status
+npx astro dev logs
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+## Deploy
 
-## 🧞 Commands
+Cloudflare Pages — the build output directory is `dist` (see `wrangler.json`).
 
-All commands are run from the root of the project, from a terminal:
+## Language
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+The site defaults to English. `localStorage['x1zz-lang']` remembers the
+KR/EN choice across visits. English and Korean strings live side by side as
+`lang-en` / `lang-kr` spans; a plain-CSS toggle shows one set at a time.

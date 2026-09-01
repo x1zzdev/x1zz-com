@@ -1,0 +1,27 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="404 — x1zz"
+  description="Page not found."
+  lang="en"
+  dataLang="en"
+  path="/404"
+>
+  <div class="flex-1 flex flex-col items-center justify-center px-6 py-24">
+    <p class="text-sm font-semibold text-accent mb-4" style="font-family: var(--font-mono);">404</p>
+    <h1 class="text-3xl font-bold text-fg mb-4">
+      <span class="lang-en">This page doesn't exist.</span>
+      <span class="lang-kr">이 페이지는 없습니다.</span>
+    </h1>
+    <p class="text-sub mb-8">
+      <span class="lang-en">The link may be old, or the address was mistyped.</span>
+      <span class="lang-kr">링크가 오래됐거나 주소가 잘못 입력됐을 수 있습니다.</span>
+    </p>
+    <div class="flex flex-wrap items-center gap-3">
+      <a href="/" class="btn">x1zz.com</a>
+      <a href="/portfolio" class="btn btn-ghost">portfolio</a>
+    </div>
+  </div>
+</Layout>

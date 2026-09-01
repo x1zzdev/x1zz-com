@@ -532,8 +532,10 @@ const irOpt = `// xazz-compiler/src/opt.rs
       btn.addEventListener('click', function () {
         var html = document.documentElement;
         var current = html.getAttribute('data-lang') || 'en';
-        html.setAttribute('data-lang', current === 'en' ? 'kr' : 'en');
-        html.setAttribute('lang', current === 'en' ? 'ko' : 'en');
+        var next = current === 'en' ? 'kr' : 'en';
+        html.setAttribute('data-lang', next);
+        html.setAttribute('lang', next === 'en' ? 'en' : 'ko');
+        try { localStorage.setItem('x1zz-lang', next); } catch (e) {}
       });
     })();
 

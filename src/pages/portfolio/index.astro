@@ -1,870 +1,659 @@
 ---
-import '../../styles/global.css';
+import Layout from '../../layouts/Layout.astro';
 
-const optT    = 'Option<T>';
-const optFloat = 'Option<float>';
-
-const codeSample = `type AirQuality = {
-  station: string,
-  pm10:    Option<float>,
+const xazzDemo = `type AirData = {
+  station:  string,
+  temp:     float,
+  pm10:     Option<float>,
 }
 
-v data = load("data.csv") :: AirQuality
-  |> cast("pm10", "float")
-  |> filter(pm10 > 50)
-  |> groupBy("station")
-  |> mean("pm10")`;
+v dataset = load("air_data.csv") :: AirData
+    |> fillNull("pm10", strategy: "mean")
+    |> select(["station", "temp", "pm10"])
 
-const cliWorkflow = `x1zz new my-project   # 프로젝트 + 샘플 CSV 생성
-cd my-project
-x1zz import data.csv  # 스키마 자동 추론 → 타입 블록 작성
-x1zz run main.xzz     # 컴파일 + 실행`;
+model AirPredictor {
+  Dense(64) -> ReLU() -> Dense(1)
+}
+
+v trained = dataset
+    |> train(AirPredictor, target: "pm10", epochs: 10)`;
+
+const xazzRust = `use polars::prelude::*;
+
+fn main() -> PolarsResult<()> {
+    let mut df = LazyCsvReader::new("air_data.csv")
+        .finish()?
+        .fill_null(FillNullStrategy::Mean)
+        .select([col("station"), col("temp"), col("pm10")]);
+    // ... tensor handoff to Burn, training, predict
+    Ok(())
+}`;
+
+const tree = `xazz (CLI binary)                ~2-5 MB
+  clap · csv · anyhow · encoding_rs
+  NO Polars · NO Tokio
+
+  xazz-core          AST · Token · Error · Typed IR (serde only)
+  xazz-compiler      Lexer -> Parser -> Checker -> Typed IR
+                     -> Opt -> Emitter + guardrail
+  xazz-exec          Polars + Burn runtime (heavy deps isolated)
+  xazz-runner        subprocess bridge (std only, timeout)`;
+
+const irOpt = `// xazz-compiler/src/opt.rs
+// 1. fold_constants   8 / 2 -> 4.0 (div-by-zero preserved)
+// 2. merge_selects    select([a,b]) |> select([a]) -> select([a])
+// 3. pushdown_filters filter before select/withColumn when safe`;
 ---
 
-<!DOCTYPE html>
-<html lang="ko" data-lang="kr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="x1zzLang 포트폴리오 — Rust 기반 데이터 분석 DSL 플랫폼. 장서우 (Sewoo Jang)" />
-  <title>x1zz // PORTFOLIO · 장서우</title>
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="icon" href="/favicon.ico" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" />
-</head>
-<body class="bg-black text-white min-h-screen flex flex-col" style="font-family: var(--font-sans);">
+<Layout
+  title="x1zz // portfolio · Sewoo Jang"
+  description="Portfolio of Sewoo Jang — a high-school student building compilers and data pipeline tools in Rust."
+  lang="en"
+  dataLang="en"
+>
+  <div class="flex flex-col h-dvh overflow-hidden bg-canvas">
 
-  <!-- ─── HEADER ───────────────────────────────────────────────────────────── -->
-  <header class="w-full border-b border-zinc-800 px-6 py-4 grid grid-cols-3 items-center gap-4">
-
-    <div class="flex items-center gap-2">
-      <a href="/" class="text-sm tracking-widest text-white hover:underline transition-colors duration-150" style="font-family: var(--font-mono);">x1zz</a>
-      <span class="text-white text-sm" style="font-family: var(--font-mono);">/</span>
-      <span class="text-sm tracking-widest text-white" style="font-family: var(--font-mono);">PORTFOLIO</span>
+    <!-- ── TITLE BAR ─────────────────────────────────────────── -->
+    <div class="flex items-center gap-3 px-3 h-11 border-b border-line bg-raised shrink-0 select-none">
+      <div class="flex items-center gap-1.5">
+        <span class="term-dot" style="background:#E06C6C"></span>
+        <span class="term-dot" style="background:#E8B35B"></span>
+        <span class="term-dot" style="background:#00FFA3"></span>
+      </div>
+      <div class="mx-auto flex items-center gap-2 text-[0.8rem] tracking-wide" style="font-family: var(--font-mono);">
+        <a href="/" class="text-fg hover:text-accent transition-colors">x1zz</a>
+        <span class="text-dim">//</span>
+        <span class="text-fg">portfolio</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <a href="https://github.com/x1zzdev/Xazz" target="_blank" rel="noopener noreferrer" class="hidden sm:inline text-xs text-mut hover:text-fg transition-colors" style="font-family: var(--font-mono);">github ↗</a>
+        <button
+          id="lang-toggle"
+          aria-label="Toggle language"
+          class="btn btn-ghost text-[0.8rem] px-3 py-1 cursor-pointer"
+        >
+          <span class="lang-en">EN → KR</span>
+          <span class="lang-kr">KR → EN</span>
+        </button>
+      </div>
     </div>
 
-    <div class="flex justify-center">
-      <span class="text-sm font-semibold tracking-widest text-white uppercase text-center" style="font-family: var(--font-mono);">
-        <span class="lang-en">The combination of art and technology</span>
-        <span class="lang-kr">예술과 기술의 결합</span>
-      </span>
-    </div>
+    <div class="flex flex-1 min-h-0">
 
-    <div class="flex justify-end">
-      <button
-        id="lang-toggle"
-        aria-label="Toggle language"
-        class="text-sm font-semibold tracking-widest border border-white text-white hover:bg-white hover:text-black transition-all duration-150 px-3 py-1 cursor-pointer"
-        style="font-family: var(--font-mono);"
-      >
-        <span class="lang-en">EN → KR</span>
-        <span class="lang-kr">KR → EN</span>
-      </button>
-    </div>
+      <!-- ── SIDEBAR ─────────────────────────────────────────── -->
+      <aside class="hidden lg:flex w-64 shrink-0 flex-col border-r border-line bg-panel min-h-0">
+        <div class="px-4 h-10 flex items-center text-xs tracking-widest text-mut border-b border-line" style="font-family: var(--font-mono);">
+          <span class="lang-en">FILES</span><span class="lang-kr">파일</span>
+        </div>
+        <div class="flex-1 overflow-y-auto py-2" style="font-family: var(--font-mono);">
+          <div class="tree-item active" data-file="readme" style="padding-left:1.2rem"><span class="text-accent">■</span> README.md</div>
 
-  </header>
+          <div class="tree-dir" data-dir="projects" data-label="projects/">▾ projects/</div>
+          <div id="dir-projects">
+            <div class="tree-item" data-file="proj-xazz" style="padding-left:2rem"><span class="text-accent">■</span> Xazz.md</div>
+            <div class="tree-item" data-file="proj-x1zzlang" style="padding-left:2rem"><span class="text-accent2">■</span> x1zzLang.md</div>
+            <div class="tree-item" data-file="proj-py2xzz" style="padding-left:2rem"><span class="text-accent2">■</span> py2xzz.md</div>
+            <div class="tree-item" data-file="proj-llm" style="padding-left:2rem"><span class="text-warn">■</span> llm-pcag-research.md</div>
+          </div>
 
-  <!-- ─── HERO ─────────────────────────────────────────────────────────────── -->
-  <section class="w-full px-6 pt-20 pb-16 flex flex-col items-center">
+          <div class="tree-dir" data-dir="logs" data-label="logs/">▾ engineering-logs/</div>
+          <div id="dir-logs">
+            <div class="tree-item" data-file="log-security" style="padding-left:2rem"><span class="text-danger">■</span> security-guardrail.md</div>
+            <div class="tree-item" data-file="log-ir" style="padding-left:2rem"><span class="text-accent2">■</span> typed-ir.md</div>
+            <div class="tree-item" data-file="log-deps" style="padding-left:2rem"><span class="text-accent">■</span> dependency-isolation.md</div>
+          </div>
 
-    <div class="relative w-full max-w-4xl flex items-center justify-center">
-      <div class="absolute w-full border-t border-zinc-800"></div>
-      <h1 class="relative z-10 bg-black px-8 text-5xl md:text-6xl font-bold tracking-tighter text-white select-none" style="font-family: var(--font-mono);">
-        PORTFOLIO
-      </h1>
-    </div>
+          <div class="tree-item" data-file="bench" style="padding-left:1.2rem; margin-top:0.4rem; border-top:1px solid var(--color-line); padding-top:0.5rem;"><span class="text-accent">■</span> benchmarks.md</div>
+          <div class="tree-item" data-file="sandbox" style="padding-left:1.2rem"><span class="text-accent">■</span> demo.xzz</div>
+        </div>
+      </aside>
 
-    <div class="mt-5 flex items-center gap-3">
-      <span class="text-base font-bold text-white" style="font-family: var(--font-mono);">장서우</span>
-      <span class="text-white" style="font-family: var(--font-mono);">·</span>
-      <span class="text-base text-white" style="font-family: var(--font-mono);">Sewoo Jang</span>
-    </div>
+      <!-- ── MAIN ────────────────────────────────────────────── -->
+      <main class="flex-1 min-w-0 flex flex-col bg-canvas">
 
-    <div class="mt-6 flex flex-wrap justify-center gap-2">
-      <span class="text-sm border border-white px-2 py-0.5 text-white" style="font-family: var(--font-mono);">v0.2.8</span>
-      <span class="text-sm border border-white px-2 py-0.5 text-white" style="font-family: var(--font-mono);">.xzz</span>
-      <span class="text-sm border border-white px-2 py-0.5 text-white" style="font-family: var(--font-mono);">Rust + Polars</span>
-      <span class="text-sm border border-white px-2 py-0.5 text-white" style="font-family: var(--font-mono);">Apache-2.0</span>
-      <span class="text-sm border border-green-500 text-green-400 px-2 py-0.5 font-bold" style="font-family: var(--font-mono);">3.84× vs pandas</span>
-    </div>
+        <div class="flex items-stretch border-b border-line bg-panel shrink-0 h-10 select-none">
+          <div id="tab-bar" class="flex items-stretch overflow-x-auto min-w-0 flex-1"></div>
+          <div class="lg:hidden flex items-center px-2 shrink-0">
+            <select id="file-select" class="bg-panel border border-line text-fg text-sm px-2 py-1 outline-none" style="font-family: var(--font-mono);">
+              <option value="readme">README.md</option>
+              <option value="proj-xazz">projects/Xazz.md</option>
+              <option value="proj-x1zzlang">projects/x1zzLang.md</option>
+              <option value="proj-py2xzz">projects/py2xzz.md</option>
+              <option value="proj-llm">projects/llm-pcag-research.md</option>
+              <option value="log-security">logs/security-guardrail.md</option>
+              <option value="log-ir">logs/typed-ir.md</option>
+              <option value="log-deps">logs/dependency-isolation.md</option>
+              <option value="bench">benchmarks.md</option>
+              <option value="sandbox">demo.xzz</option>
+            </select>
+          </div>
+        </div>
 
-    <div class="mt-8 max-w-4xl w-full">
-      <p class="text-base font-medium leading-relaxed text-white lang-en">
-        Rust-based DSL compiler (<span class="font-bold" style="font-family: var(--font-mono);">x1zzLang</span>) and graphical pipeline editor (<span class="font-bold" style="font-family: var(--font-mono);">Visual IDE</span>) — a data analysis platform combining scripting ergonomics with compiled performance.
-      </p>
-      <p class="text-base font-medium leading-relaxed text-white lang-kr">
-        Rust 기반 DSL 컴파일러(<span class="font-bold" style="font-family: var(--font-mono);">x1zzLang</span>)와 그래픽 파이프라인 편집기(<span class="font-bold" style="font-family: var(--font-mono);">Visual IDE</span>)로 구성된 데이터 분석 DSL 플랫폼.
-      </p>
-    </div>
+        <div class="flex-1 overflow-y-auto min-h-0">
 
-  </section>
+          <!-- ═══ README.md ═══ -->
+          <div id="pane-readme" class="tab-pane markdown-body max-w-3xl mx-auto px-6 md:px-10 py-10">
+            <h1>README.md</h1>
 
-  <!-- ─── GITHUB LINKS (상단 접근성) ────────────────────────────────────────── -->
-  <div class="w-full max-w-4xl mx-auto px-6 mb-12">
-    <div class="flex flex-wrap items-center justify-center gap-4">
-      <a href="https://github.com/ax1sofficially-alt/x1zzLang" target="_blank" rel="noopener noreferrer"
-        class="group flex items-center gap-2 border border-white px-4 py-2 text-sm text-white hover:bg-white hover:text-black transition-all duration-150"
-        style="font-family: var(--font-mono);">
-        <span>↗</span> x1zzLang
-        <span class="lang-en">on GitHub</span>
-        <span class="lang-kr">GitHub</span>
-      </a>
-      <a href="https://github.com/ax1sofficially-alt/x1zzLang-visual-ide" target="_blank" rel="noopener noreferrer"
-        class="group flex items-center gap-2 border border-white px-4 py-2 text-sm text-white hover:bg-white hover:text-black transition-all duration-150"
-        style="font-family: var(--font-mono);">
-        <span>↗</span> x1zzLang Visual IDE
-        <span class="lang-en">on GitHub</span>
-        <span class="lang-kr">GitHub</span>
-      </a>
+            <h2><span class="lang-en">About</span><span class="lang-kr">소개</span></h2>
+            <p class="lang-en">
+              I'm <strong>Sewoo Jang</strong>, a high-school student in Korea. I build data pipeline tools in Rust —
+              a language family that compiles <code>.xzz</code> scripts into Polars execution plans, backed by compilers written from scratch.
+            </p>
+            <p class="lang-kr">
+              안녕하세요, <strong>장서우</strong>입니다. 한국의 고등학생이고, Rust로 데이터 파이프라인 도구를 만듭니다.
+              <code>.xzz</code> 스크립트를 Polars 실행 계획으로 컴파일하는 언어와, 처음부터 직접 쓴 컴파일러들을 개발하고 있어요.
+            </p>
+
+            <h2><span class="lang-en">Focus</span><span class="lang-kr">주요 분야</span></h2>
+            <ul>
+              <li class="lang-en">Compiler engineering — lexer, parser, type checker, typed IR, codegen</li>
+              <li class="lang-kr">컴파일러 엔지니어링 — 렉서, 파서, 타입 체커, Typed IR, 코드 생성</li>
+              <li class="lang-en">Null-safe type systems (<code>Option&lt;T&gt;</code>) and static analysis</li>
+              <li class="lang-kr">널 안전 타입 시스템(<code>Option&lt;T&gt;</code>)과 정적 분석</li>
+              <li class="lang-en">Dependency-isolated CLI architecture</li>
+              <li class="lang-kr">의존성 격리 CLI 아키텍처</li>
+            </ul>
+
+            <h2><span class="lang-en">What's in this workspace</span><span class="lang-kr">이 워크스페이스 구성</span></h2>
+            <ul>
+              <li class="lang-en"><code>projects/</code> — what I built and why</li>
+              <li class="lang-kr"><code>projects/</code> — 만든 것과 만든 이유</li>
+              <li class="lang-en"><code>engineering-logs/</code> — write-ups on specific problems I solved</li>
+              <li class="lang-kr"><code>engineering-logs/</code> — 특정 문제를 해결한 과정 기록</li>
+              <li class="lang-en"><code>benchmarks.md</code> — performance numbers, with honest caveats</li>
+              <li class="lang-kr"><code>benchmarks.md</code> — 성능 수치, 한계도 함께</li>
+              <li class="lang-en"><code>demo.xzz</code> — the language, side by side with its transpiled Rust</li>
+              <li class="lang-kr"><code>demo.xzz</code> — 언어 문법과 트랜스파일된 Rust 비교</li>
+            </ul>
+
+            <h2><span class="lang-en">Contact</span><span class="lang-kr">연락처</span></h2>
+            <div class="flex flex-wrap gap-3 mt-2">
+              <a href="https://github.com/x1zzdev/Xazz" target="_blank" rel="noopener noreferrer" class="btn">github ↗</a>
+              <a href="mailto:ax1s@x1zz.com" class="btn">ax1s@x1zz.com</a>
+            </div>
+          </div>
+
+          <!-- ═══ projects/Xazz.md ═══ -->
+          <div id="pane-proj-xazz" class="tab-pane markdown-body hidden max-w-3xl mx-auto px-6 md:px-10 py-10">
+            <h1>projects/Xazz.md</h1>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="chip on">Rust-based DSL compiler</span><span class="chip">Rust 2024</span><span class="chip">Polars + Burn</span>
+              <span class="chip">Apache-2.0</span>
+            </div>
+
+            <h2><span class="lang-en">What it is</span><span class="lang-kr">무엇인가</span></h2>
+            <p class="lang-en">
+              An AI pipeline DSL. One <code>.xzz</code> script covers preprocessing, model training, and security policy —
+              compiled to a <strong>typed IR</strong>, then lowered to Polars (data) and Burn (deep learning).
+            </p>
+            <p class="lang-kr">
+              AI 파이프라인 DSL입니다. 하나의 <code>.xzz</code> 스크립트로 전처리, 모델 학습, 보안 정책까지 다루고,
+              <strong>타입드 IR</strong>로 컴파일한 뒤 Polars(데이터)와 Burn(딥러닝)으로 하강시킵니다.
+            </p>
+
+            <h2><span class="lang-en">Why it exists</span><span class="lang-kr">만든 이유</span></h2>
+            <p class="lang-en">Python owns AI prototyping, but at pipeline scale three costs appear:</p>
+            <p class="lang-kr">Python이 AI 프로토타이핑을 지배하지만, 파이프라인 규모에서 세 가지 비용이 발생합니다.</p>
+            <ul>
+              <li class="lang-en">Type and NaN errors crash at runtime, often mid-training → Xazz checks them at compile time, with <code>line:col</code> diagnostics and did-you-mean hints.</li>
+              <li class="lang-kr">타입·NaN 에러가 런타임(종종 학습 도중)에 터짐 → Xazz는 컴파일 타임에 <code>line:col</code> 진단과 did-you-mean 힌트로 잡습니다.</li>
+              <li class="lang-en">Data crosses language walls (pandas → NumPy → PyTorch) → Apache Arrow buffers are handed directly to Burn; the remaining copies are explicit in the memory model.</li>
+              <li class="lang-kr">데이터가 언어 경계(pandas → NumPy → PyTorch)를 건너며 복사됨 → Apache Arrow 버퍼를 Burn에 직접 전달하고, 남는 복사 지점을 명시화했습니다.</li>
+              <li class="lang-en">No security layer in the pipeline → policy-as-code guardrails, differential privacy, and a SHA-256 audit log are part of the runtime.</li>
+              <li class="lang-kr">파이프라인에 보안 계층이 없음 → 폴리시 애즈 코드 가드레일, 차등 프라이버시, SHA-256 감사 로그를 런타임에 포함했습니다.</li>
+            </ul>
+
+            <h2><span class="lang-en">How it's built</span><span class="lang-kr">구조</span></h2>
+            <p class="lang-en">All of this is written from scratch in Rust — nothing wraps an existing library:</p>
+            <p class="lang-kr">모두 Rust로 처음부터 작성했고, 기존 라이브러리를 감싼 래퍼가 아닙니다.</p>
+            <ul>
+              <li class="lang-en">lexer → parser → static checker → <strong>typed IR</strong> → optimizer → emitter</li>
+              <li class="lang-kr">렉서 → 파서 → 정적 체커 → <strong>타입드 IR</strong> → 옵티마이저 → 이미터</li>
+              <li class="lang-en">IR consumed once by the runtime (no double parse)</li>
+              <li class="lang-kr">런타임이 IR을 한 번만 소비(이중 파싱 없음)</li>
+              <li class="lang-en">CLI stays 2–5 MB; Polars and Burn live behind a subprocess boundary</li>
+              <li class="lang-kr">CLI는 2–5 MB 유지, Polars와 Burn은 서브프로세스 경계 뒤에 격리</li>
+            </ul>
+
+            <pre><code>{xazzDemo}</code></pre>
+
+            <div class="flex flex-wrap gap-3 mt-2">
+              <a href="https://github.com/x1zzdev/Xazz" target="_blank" rel="noopener noreferrer" class="btn">Xazz on GitHub ↗</a>
+            </div>
+          </div>
+
+          <!-- ═══ projects/x1zzLang.md ═══ -->
+          <div id="pane-proj-x1zzlang" class="tab-pane markdown-body hidden max-w-3xl mx-auto px-6 md:px-10 py-10">
+            <h1>projects/x1zzLang.md</h1>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="chip on">data pipeline DSL</span><span class="chip">Rust · Polars</span><span class="chip">Apache-2.0</span>
+            </div>
+
+            <h2><span class="lang-en">Lineage</span><span class="lang-kr">계보</span></h2>
+            <p class="lang-en">
+              The original data-pipeline DSL that evolved into Xazz. It compiles <code>.xzz</code> scripts into
+              optimized Polars LazyFrame execution plans. The project was primarily an exercise in language design,
+              compiler engineering, and type system research.
+            </p>
+            <p class="lang-kr">
+              Xazz로 성장한 최초의 데이터 파이프라인 DSL입니다. <code>.xzz</code> 스크립트를 최적화된 Polars LazyFrame
+              실행 계획으로 컴파일합니다. 언어 설계, 컴파일러 엔지니어링, 타입 시스템 연구가 목적이었습니다.
+            </p>
+
+            <h2><span class="lang-en">What it demonstrates</span><span class="lang-kr">보여주는 것</span></h2>
+            <ul>
+              <li class="lang-en">A declarative pipeline DSL with a null-safe <code>Option&lt;T&gt;</code> type system</li>
+              <li class="lang-kr">널 안전 <code>Option&lt;T&gt;</code> 타입 시스템을 가진 선언형 파이프라인 DSL</li>
+              <li class="lang-en">Auto schema inference (<code>x1zz import</code>), EUC-KR/CP949 CSV decoding</li>
+              <li class="lang-kr">자동 스키마 추론(<code>x1zz import</code>), EUC-KR/CP949 CSV 디코딩</li>
+              <li class="lang-en">Dependency isolation — the CLI never links Polars (2–5 MB)</li>
+              <li class="lang-kr">의존성 격리 — CLI는 Polars를 링크하지 않음 (2–5 MB)</li>
+            </ul>
+          </div>
+
+          <!-- ═══ projects/py2xzz.md ═══ -->
+          <div id="pane-proj-py2xzz" class="tab-pane markdown-body hidden max-w-3xl mx-auto px-6 md:px-10 py-10">
+            <h1>projects/py2xzz.md</h1>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="chip">Rust · serde</span><span class="chip">Pandas / PyTorch → .xzz</span>
+            </div>
+
+            <h2><span class="lang-en">What it is</span><span class="lang-kr">무엇인가</span></h2>
+            <p class="lang-en">
+              A Rust CLI tool that converts Python data and deep-learning pipelines (pandas / PyTorch) into
+              <code>.xzz</code> scripts. Hand-porting is repetitive; this does it automatically.
+            </p>
+            <p class="lang-kr">
+              Python 데이터·딥러닝 파이프라인(pandas / PyTorch)을 <code>.xzz</code> 스크립트로 변환하는 Rust CLI 도구입니다.
+              수동 이식은 반복적이라 자동화했습니다.
+            </p>
+
+            <h2><span class="lang-en">How it works</span><span class="lang-kr">동작 방식</span></h2>
+            <pre><code>Python source ─▶ parser ─▶ xazz-core AST ─▶ emitter ─▶ .xzz</code></pre>
+            <ul>
+              <li class="lang-en">A self-contained Python 3 lexer/parser, mirroring the <code>ast</code> module spec</li>
+              <li class="lang-kr">Python 3 <code>ast</code> 모듈 스펙을 미러링한 자체 렉서/파서</li>
+              <li class="lang-en">pandas chains → pipeline ops; <code>nn.Module</code> → model declarations</li>
+              <li class="lang-kr">pandas 체인 → 파이프라인 연산, <code>nn.Module</code> → 모델 선언</li>
+              <li class="lang-en">A span map keeps original Python line/column positions for diagnostics</li>
+              <li class="lang-kr">스팬 맵이 원본 Python 위치를 보존해 진단에 사용</li>
+            </ul>
+          </div>
+
+          <!-- ═══ projects/llm-pcag-research.md ═══ -->
+          <div id="pane-proj-llm" class="tab-pane markdown-body hidden max-w-3xl mx-auto px-6 md:px-10 py-10">
+            <h1>projects/llm-pcag-research.md</h1>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="chip on">PCAG</span><span class="chip">Python · NumPy · SymPy</span>
+            </div>
+
+            <h2><span class="lang-en">The question</span><span class="lang-kr">질문</span></h2>
+            <p class="lang-en">
+              Quantizing weights (FP16 → INT8 → INT4) is the standard answer to LLM inference cost.
+              How much energy does it actually save — and does the saving hold up as precision drops?
+            </p>
+            <p class="lang-kr">
+              가중치 양자화(FP16 → INT8 → INT4)는 LLM 추론 비용에 대한 표준 해법입니다.
+              실제로 에너지를 얼마나 아끼고, 정밀도가 낮아질수록 절감 효과는 유지될까요?
+            </p>
+
+            <h2><span class="lang-en">What the metric shows</span><span class="lang-kr">지표가 보여주는 것</span></h2>
+            <div id="formula-pcag" class="text-center text-lg text-fg py-3 my-4 overflow-x-auto"></div>
+            <ul>
+              <li class="lang-en">PCAG collapses monotonically: INT8 20.8 → INT4 10.4 → INT3 4.8</li>
+              <li class="lang-kr">PCAG는 단조 감소: INT8 20.8 → INT4 10.4 → INT3 4.8</li>
+              <li class="lang-en">A power wall at INT4→INT3 (slope 5.68/bit, −54.4% cliff), verified by three independent paths</li>
+              <li class="lang-kr">INT4→INT3에 파워 월(기울기 5.68/bit, −54.4% 급락), 세 경로로 검증</li>
+              <li class="lang-en">The inflection root is structurally independent of amplitude</li>
+              <li class="lang-kr">변곡점은 진폭과 구조적으로 독립</li>
+            </ul>
+
+            <h2><span class="lang-en">Current status</span><span class="lang-kr">현재 상태</span></h2>
+            <p class="lang-en">
+              The analysis is literature-anchored reference data (<code>Source=Reference-Literature</code>),
+              since this was done without GPU access. The GPU measurement harness is written and in progress.
+            </p>
+            <p class="lang-kr">
+              GPU가 없는 환경이라 분석은 문헌 기반 참조값(<code>Source=Reference-Literature</code>)입니다.
+              GPU 측정 하네스는 작성되어 진행 중입니다.
+            </p>
+
+            <div class="flex flex-wrap gap-3 mt-2">
+              <a href="https://github.com/ax1s-x1zz/llm-pcag-research" target="_blank" rel="noopener noreferrer" class="btn">research repo ↗</a>
+            </div>
+          </div>
+
+          <!-- ═══ logs/security-guardrail.md ═══ -->
+          <div id="pane-log-security" class="tab-pane markdown-body hidden max-w-3xl mx-auto px-6 md:px-10 py-10">
+            <h1>engineering-logs/security-guardrail.md</h1>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="chip on"><span class="text-danger">●</span> high</span>
+              <span class="chip"><span class="text-accent">●</span> shipped · stable</span>
+            </div>
+
+            <h2><span class="lang-en">Problem</span><span class="lang-kr">문제</span></h2>
+            <p class="lang-en">
+              A data pipeline DSL had no security story: PII and secrets could flow from CSV to output, and nothing
+              stopped a pipeline from reading <code>/etc/passwd</code>. The type checker answers "does this code run?"
+              — but nobody asked "is it safe to run this code?"
+            </p>
+            <p class="lang-kr">
+              데이터 파이프라인 DSL에는 보안이 없었습니다. PII와 시크릿이 CSV에서 출력까지 그대로 흐를 수 있었고,
+              <code>/etc/passwd</code>를 읽는 것도 막을 수 없었어요. 타입 체커는 "이 코드가 돌아가나?"를 답하지만,
+              "이 코드를 돌려도 안전한가?"를 묻는 사람은 없었습니다.
+            </p>
+
+            <h2><span class="lang-en">Approach</span><span class="lang-kr">접근</span></h2>
+            <p class="lang-en">
+              A policy-as-code layer in <code>xazz-compiler</code> scans before execution and is <strong>fail-closed</strong>:
+              if the policy can't be loaded, execution is refused. Scanners are hand-rolled — normalized exact match,
+              not substring matching.
+            </p>
+            <p class="lang-kr">
+              <code>xazz-compiler</code>에 폴리시 애즈 코드 계층을 두고 실행 전에 스캔하며, <strong>fail-closed</strong>입니다.
+              정책을 못 불러오면 실행을 거부합니다. 스캐너는 직접 구현했고, 부분 문자열이 아닌 정규화 후 정확 일치를 씁니다.
+            </p>
+            <ul>
+              <li class="lang-en">RRN: form + checksum validated — a checksum mismatch is not flagged</li>
+              <li class="lang-kr">주민번호: 형식 + 체크섬 검증 — 체크섬이 틀리면 탐지하지 않음</li>
+              <li class="lang-en">Cards: 13–19 digits + Luhn + issuer prefix; timestamps and order numbers excluded</li>
+              <li class="lang-kr">카드: 13–19자리 + Luhn + 발급사 접두사; 타임스탬프·주문번호는 제외</li>
+              <li class="lang-en">Three gate points — the final one sits inside <code>xazz-exec</code>, the only place Polars runs</li>
+              <li class="lang-kr">3중 게이트 — 마지막 게이트는 Polars가 실행되는 유일한 곳인 <code>xazz-exec</code> 내부</li>
+            </ul>
+          </div>
+
+          <!-- ═══ logs/typed-ir.md ═══ -->
+          <div id="pane-log-ir" class="tab-pane markdown-body hidden max-w-3xl mx-auto px-6 md:px-10 py-10">
+            <h1>engineering-logs/typed-ir.md</h1>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="chip on"><span class="text-accent2">●</span> info</span>
+              <span class="chip"><span class="text-accent">●</span> shipped · v0.3.0</span>
+            </div>
+
+            <h2><span class="lang-en">Problem</span><span class="lang-kr">문제</span></h2>
+            <p class="lang-en">
+              The first version interpreted the raw AST twice — the CLI re-parsed source, then the runtime re-parsed
+              the AST against Polars/Burn. Two passes, two chances to diverge.
+            </p>
+            <p class="lang-kr">
+              초기 버전은 원시 AST를 두 번 해석했습니다. CLI가 소스를 다시 파싱하고, 런타임이 AST를 Polars/Burn에 다시 매핑했어요.
+              두 번 해석하니 두 번 어긋날 수 있었습니다.
+            </p>
+
+            <h2><span class="lang-en">Fix</span><span class="lang-kr">해결</span></h2>
+            <p class="lang-en">
+              A single <strong>typed IR</strong>: <code>.xzz</code> compiles to it once, the runtime consumes it once.
+              An optimizer on the IR is meaning-preserving and backend-independent.
+            </p>
+            <p class="lang-kr">
+              단일 <strong>타입드 IR</strong>로 정리했습니다. <code>.xzz</code>는 IR로 한 번 컴파일되고, 런타임은 IR을 한 번만 소비합니다.
+              IR 위의 옵티마이저는 의미를 보존하며 백엔드와 무관합니다.
+            </p>
+            <pre><code>{irOpt}</code></pre>
+          </div>
+
+          <!-- ═══ logs/dependency-isolation.md ═══ -->
+          <div id="pane-log-deps" class="tab-pane markdown-body hidden max-w-3xl mx-auto px-6 md:px-10 py-10">
+            <h1>engineering-logs/dependency-isolation.md</h1>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="chip on"><span class="text-accent">●</span> medium</span>
+              <span class="chip"><span class="text-accent">●</span> shipped · stable</span>
+            </div>
+
+            <h2><span class="lang-en">Problem</span><span class="lang-kr">문제</span></h2>
+            <p class="lang-en">
+              The CLI linked Polars directly, so a <code>--help</code> command shipped ~35 MB of binary the CLI never used.
+            </p>
+            <p class="lang-kr">
+              CLI가 Polars를 직접 링크해서, <code>--help</code> 한 번에 쓸 일 없는 ~35 MB 바이너리가 배포됐습니다.
+            </p>
+
+            <h2><span class="lang-en">Fix</span><span class="lang-kr">해결</span></h2>
+            <p class="lang-en">
+              A Cargo workspace with hard rules: the CLI never links Polars/Tokio; execution runs in a spawned subprocess.
+              Communication is CLI arguments only — no IPC protocol.
+            </p>
+            <p class="lang-kr">
+              카고 워크스페이스에 명확한 규칙을 세웠습니다. CLI는 Polars/Tokio를 절대 링크하지 않고, 실행은 스폰된 서브프로세스에서 합니다.
+              통신은 CLI 인자뿐이고 IPC 프로토콜이 없습니다.
+            </p>
+            <pre><code>{tree}</code></pre>
+            <ul>
+              <li class="lang-en">CLI: ~2–5 MB (was ~35 MB)</li>
+              <li class="lang-kr">CLI: ~2–5 MB (이전 ~35 MB)</li>
+              <li class="lang-en">The runner enforces an execution timeout and resolves the engine without PATH fallback (fail-closed)</li>
+              <li class="lang-kr">러너가 실행 타임아웃을 적용하고, PATH 폴백 없이 엔진을 찾음(fail-closed)</li>
+            </ul>
+          </div>
+
+          <!-- ═══ benchmarks.md ═══ -->
+          <div id="pane-bench" class="tab-pane markdown-body hidden max-w-3xl mx-auto px-6 md:px-10 py-10">
+            <h1>benchmarks.md</h1>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="chip on">Xazz 2.62×</span><span class="chip on">x1zzLang 3.84×</span>
+            </div>
+
+            <h2><span class="lang-en">Xazz vs pandas</span><span class="lang-kr">Xazz vs pandas</span></h2>
+            <p class="lang-en">
+              Same 4-stage pipeline (drop nulls → dual filter → group-by aggregates → fill + count) on Seoul
+              air-quality data, median of 3 runs after warmup, wall-clock timing.
+            </p>
+            <p class="lang-kr">
+              동일한 4단계 파이프라인(널 제거 → 이중 필터 → 그룹별 집계 → 채우기·카운트)을 서울 대기질 데이터로,
+              워밍업 후 3회 중앙값, 벽시계 시간으로 측정했습니다.
+            </p>
+            <div class="overflow-x-auto">
+              <table class="tbl">
+                <thead><tr><th class="lang-en">Scale</th><th class="lang-kr">규모</th><th>pandas</th><th>Xazz</th><th class="lang-en">Speedup</th><th class="lang-kr">배속</th></tr></thead>
+                <tbody>
+                  <tr><td class="lang-en">228K rows</td><td class="lang-kr">22.8만 행</td><td>726 ms</td><td>277 ms</td><td class="text-accent">2.62×</td><td class="text-accent">2.62×</td></tr>
+                  <tr><td class="lang-en">4.09M rows</td><td class="lang-kr">409만 행</td><td>4,489 ms</td><td>2,324 ms</td><td class="text-accent">1.93×</td><td class="text-accent">1.93×</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="lang-en">
+              The gap narrows as data grows, and the small-scale number includes a pandas interpreter-boot penalty —
+              1.93× at 4.09M rows is the robust figure. Polars' multithreading also trades higher peak RSS for latency.
+            </p>
+            <p class="lang-kr">
+              데이터가 커질수록 격차는 줄어들고, 소규모 수치에는 pandas 인터프리터 부팅 비용이 포함되어 있어
+              409만 행의 1.93×가 더 견고한 수치입니다. Polars 멀티스레딩은 지연 시간 대신 최대 RSS를 높이는 트레이드오프도 있습니다.
+            </p>
+
+            <h2><span class="lang-en">x1zzLang vs pandas</span><span class="lang-kr">x1zzLang vs pandas</span></h2>
+            <p class="lang-en">
+              Up to <strong>3.84×</strong> on a 3.4M-row Seoul air-quality dataset, from Polars LazyFrame query
+              optimization before execution.
+            </p>
+            <p class="lang-kr">
+              340만 행 서울 대기질 데이터셋에서 최대 <strong>3.84배</strong>. Polars LazyFrame의 실행 전 쿼리 최적화 덕분입니다.
+            </p>
+            <div class="border border-line overflow-hidden">
+              <div class="px-4 py-2 border-b border-line text-sm text-mut" style="font-family: var(--font-mono);">benches/x1zzLang_benchmark2.png</div>
+              <img src="/x1zzLang_benchmark2 (1).png" alt="x1zzLang benchmark 3.84x faster than pandas" class="w-full h-auto object-contain bg-canvas" loading="lazy" />
+            </div>
+          </div>
+
+          <!-- ═══ sandbox/demo.xzz ═══ -->
+          <div id="pane-sandbox" class="tab-pane hidden max-w-4xl mx-auto px-6 md:px-10 py-10">
+            <div class="markdown-body">
+              <h1>demo.xzz</h1>
+              <p class="lang-en">
+                The language on the left, its transpiled Rust on the right.
+              </p>
+              <p class="lang-kr">
+                왼쪽은 언어 문법, 오른쪽은 트랜스파일된 Rust입니다.
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-6">
+              <div class="terminal">
+                <div class="terminal-titlebar">
+                  <span class="term-dot" style="background:#00FFA3"></span>
+                  <span class="ml-1 text-sm text-sub" style="font-family: var(--font-mono);">demo.xzz</span>
+                </div>
+                <pre class="px-5 py-4 text-[0.82rem] leading-[1.7] overflow-x-auto" data-highlight="xzz" style="font-family: var(--font-mono);"></pre>
+              </div>
+              <div class="terminal">
+                <div class="terminal-titlebar">
+                  <span class="term-dot" style="background:#38C8FF"></span>
+                  <span class="ml-1 text-sm text-sub" style="font-family: var(--font-mono);">demo.rs</span>
+                </div>
+                <pre class="px-5 py-4 text-[0.82rem] leading-[1.7] overflow-x-auto" data-highlight="rust" style="font-family: var(--font-mono);"></pre>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- status bar -->
+        <div class="flex items-center justify-between px-4 h-7 border-t border-line bg-raised text-xs statusbar shrink-0 select-none" style="font-family: var(--font-mono);">
+          <span class="text-mut">
+            <span class="lang-en">Sewoo Jang · Systems / Compiler Engineer</span>
+            <span class="lang-kr">장서우 · 시스템 / 컴파일러 엔지니어</span>
+          </span>
+          <span class="text-accent">●</span>
+        </div>
+
+      </main>
     </div>
   </div>
 
-  <!-- ─── MAIN ──────────────────────────────────────────────────────────────── -->
-  <main class="flex-1 w-full max-w-4xl mx-auto px-6 pb-24 space-y-20">
+  <script slot="head" is:inline defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <link slot="head" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
 
-    <!-- ════════════════════════════════════════════════ -->
-    <!-- § 01  CORE ENGINE                               -->
-    <!-- ════════════════════════════════════════════════ -->
-    <section>
-      <div class="border-b border-zinc-800 pb-3 mb-10">
-        <span class="text-sm font-semibold tracking-widest text-white uppercase" style="font-family: var(--font-mono);">
-          <span class="lang-en">// 01 — X1ZZLANG · CORE ENGINE</span>
-          <span class="lang-kr">// 01 — X1ZZLANG · 코어 엔진</span>
-        </span>
-      </div>
-
-      <div class="space-y-6">
-
-        <div class="border border-zinc-800 p-6 rounded">
-          <h2 class="text-xl font-bold mb-4 text-white" style="font-family: var(--font-mono);">
-            <span class="lang-en">A Rust-based DSL for Data Analysis</span>
-            <span class="lang-kr">데이터 분석을 위한 Rust 기반 DSL</span>
-          </h2>
-          <p class="text-base font-medium leading-relaxed text-white mb-3 lang-en">
-            x1zzLang compiles <code class="font-bold" style="font-family: var(--font-mono);">.xzz</code> scripts into optimized Polars LazyFrame execution plans through a Rust-based compiler pipeline. Schema is declared upfront, and null-safety is enforced at the type level via <code class="font-bold" style="font-family: var(--font-mono);">{optT}</code>.
-          </p>
-          <p class="text-base font-medium leading-relaxed text-white mb-3 lang-kr">
-            x1zzLang은 <code class="font-bold" style="font-family: var(--font-mono);">.xzz</code> 스크립트를 Rust 컴파일러 파이프라인으로 최적화된 Polars LazyFrame 실행 계획으로 컴파일합니다. 스키마를 타입 시스템에서 사전 선언하고, <code class="font-bold" style="font-family: var(--font-mono);">{optT}</code>를 통해 타입 수준에서 널 안전성을 강제합니다.
-          </p>
-          <div class="border-t border-zinc-800 pt-4 mt-4">
-            <span class="text-sm text-white" style="font-family: var(--font-mono);">
-              <span class="lang-en">Language design · Compiler engineering · Type system research · 8th Korea CodeFair 2026</span>
-              <span class="lang-kr">언어 설계 · 컴파일러 엔지니어링 · 타입 시스템 연구 · 제8회 한국 코드페어 2026</span>
-            </span>
-          </div>
-        </div>
-
-        <!-- Python vs x1zzLang comparison -->
-        <div class="border border-zinc-800 p-6 rounded">
-          <h3 class="text-sm font-bold text-white mb-5 uppercase tracking-wider" style="font-family: var(--font-mono);">
-            <span class="lang-en">// COMPARISON — PANDAS VS X1ZZLANG</span>
-            <span class="lang-kr">// 비교 — PANDAS VS X1ZZLANG</span>
-          </h3>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div class="border border-zinc-800 rounded p-4">
-              <div class="mb-3">
-                <span class="text-sm font-bold text-white uppercase tracking-wider" style="font-family: var(--font-mono);">Python · pandas</span>
-              </div>
-              <pre class="text-sm leading-relaxed text-white overflow-x-auto" style="font-family: var(--font-mono);">import pandas as pd
-
-df = pd.read_csv("data.csv")
-df = df[df["pm10"] > 50]
-result = df.groupby("station")["pm10"].mean()
-print(result)</pre>
-              <p class="text-sm text-white mt-3 lang-en" style="font-family: var(--font-mono);">// 라이브러리 설치 필요. 수동 널 처리. 런타임 타입 검증.</p>
-              <p class="text-sm text-white mt-3 lang-kr" style="font-family: var(--font-mono);">// 라이브러리 설치 필요. 수동 널 처리. 런타임 타입 검증.</p>
-            </div>
-
-            <div class="border border-zinc-800 rounded p-4 bg-zinc-950">
-              <div class="flex items-center gap-2 mb-3">
-                <span class="text-sm font-bold text-white uppercase tracking-wider" style="font-family: var(--font-mono);">x1zzLang · .xzz</span>
-                <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></span>
-              </div>
-              <pre class="text-sm leading-relaxed text-white overflow-x-auto" style="font-family: var(--font-mono);">{codeSample}</pre>
-              <p class="text-sm text-white mt-3 lang-en" style="font-family: var(--font-mono);">// 설치 불필요. 스키마 사전 선언. {optT} 타입 수준 널 안전.</p>
-              <p class="text-sm text-white mt-3 lang-kr" style="font-family: var(--font-mono);">// 설치 불필요. 스키마 사전 선언. {optT} 타입 수준 널 안전.</p>
-            </div>
-          </div>
-
-          <div class="overflow-x-auto">
-            <table class="w-full text-sm" style="font-family: var(--font-mono);">
-              <thead>
-                <tr class="border-b border-zinc-800">
-                  <th class="text-left py-2 pr-6 text-white font-bold uppercase tracking-wider lang-en">항목</th>
-                  <th class="text-left py-2 pr-6 text-white font-bold uppercase tracking-wider lang-kr">항목</th>
-                  <th class="text-left py-2 pr-6 text-white font-bold uppercase tracking-wider">Python (pandas)</th>
-                  <th class="text-left py-2 text-white font-bold uppercase tracking-wider">x1zzLang</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-zinc-900">
-                <tr>
-                  <td class="py-2.5 pr-6 text-white lang-en">Library deps</td>
-                  <td class="py-2.5 pr-6 text-white lang-kr">라이브러리 의존성</td>
-                  <td class="py-2.5 pr-6 text-white">pandas, numpy</td>
-                  <td class="py-2.5 text-green-400 font-bold">없음 (내장)</td>
-                </tr>
-                <tr>
-                  <td class="py-2.5 pr-6 text-white lang-en">Type validation</td>
-                  <td class="py-2.5 pr-6 text-white lang-kr">타입 검증 시점</td>
-                  <td class="py-2.5 pr-6 text-white lang-en">Runtime</td>
-                  <td class="py-2.5 pr-6 text-white lang-kr">런타임</td>
-                  <td class="py-2.5 text-green-400 font-bold lang-en">Schema declaration time</td>
-                  <td class="py-2.5 text-green-400 font-bold lang-kr">스키마 선언 시점</td>
-                </tr>
-                <tr>
-                  <td class="py-2.5 pr-6 text-white lang-en">Null handling</td>
-                  <td class="py-2.5 pr-6 text-white lang-kr">널 처리</td>
-                  <td class="py-2.5 pr-6 text-white lang-en">Manual NaN checks</td>
-                  <td class="py-2.5 pr-6 text-white lang-kr">수동 NaN 체크</td>
-                  <td class="py-2.5 text-green-400 font-bold">{optT} 타입 선언</td>
-                </tr>
-                <tr>
-                  <td class="py-2.5 pr-6 text-white lang-en">Env setup</td>
-                  <td class="py-2.5 pr-6 text-white lang-kr">환경 설정</td>
-                  <td class="py-2.5 pr-6 text-white">pip install + venv</td>
-                  <td class="py-2.5 text-green-400 font-bold lang-en">Single binary</td>
-                  <td class="py-2.5 text-green-400 font-bold lang-kr">단일 바이너리</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- CLI quick start -->
-        <div class="border border-zinc-800 p-6 rounded bg-zinc-950">
-          <p class="text-sm font-bold text-white mb-3 uppercase tracking-wider" style="font-family: var(--font-mono);">
-            <span class="lang-en">// QUICK START — CLI</span>
-            <span class="lang-kr">// 빠른 시작 — CLI</span>
-          </p>
-          <pre class="text-sm leading-relaxed text-white overflow-x-auto" style="font-family: var(--font-mono);">{cliWorkflow}</pre>
-          <p class="text-sm text-white mt-4 lang-en" style="font-family: var(--font-mono);">// No virtual environment. No dependency management. 3 commands to execution.</p>
-          <p class="text-sm text-white mt-4 lang-kr" style="font-family: var(--font-mono);">// 가상환경 불필요. 의존성 관리 불필요. 3개 명령으로 실행까지.</p>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- ════════════════════════════════════════════════ -->
-    <!-- § 02  ARCHITECTURE                              -->
-    <!-- ════════════════════════════════════════════════ -->
-    <section>
-      <div class="border-b border-zinc-800 pb-3 mb-10">
-        <span class="text-sm font-semibold tracking-widest text-white uppercase" style="font-family: var(--font-mono);">
-          <span class="lang-en">// 02 — ARCHITECTURE · DEPENDENCY ISOLATION</span>
-          <span class="lang-kr">// 02 — 아키텍처 · 의존성 격리</span>
-        </span>
-      </div>
-
-      <div class="space-y-6">
-
-        <div class="border border-zinc-800 p-6 rounded">
-          <h3 class="text-sm font-bold text-white mb-4 uppercase tracking-wider" style="font-family: var(--font-mono);">
-            <span class="lang-en">// CARGO WORKSPACE</span>
-            <span class="lang-kr">// 카고 워크스페이스</span>
-          </h3>
-          <pre class="text-sm leading-relaxed text-white overflow-x-auto" style="font-family: var(--font-mono);">x1zz (CLI binary)          ~2–5 MB
-  │  clap · indicatif · colored · csv · anyhow · encoding_rs
-  │  NO Polars  ·  NO Tokio
-  │
-  ├── x1zz-compiler     Lexer → Parser → Codegen → Emitter
-  │   └── x1zz-core     Shared AST / Token / Error (serde only)
-  │
-  └── [subprocess spawn] ──► x1zz-runner     ~30+ MB
-                              └── x1zz-exec  Polars LazyFrame runtime</pre>
-          <div class="mt-5 border-t border-zinc-800 pt-4">
-            <p class="text-base text-white leading-relaxed lang-en">
-              CLI binary never links Polars (~2–5 MB). <code class="font-bold" style="font-family: var(--font-mono);">x1zz run</code> spawns <code class="font-bold" style="font-family: var(--font-mono);">x1zz-runner</code> as a subprocess carrying all Polars dependencies. Communication via CLI arguments only — no IPC protocol.
-            </p>
-            <p class="text-base text-white leading-relaxed lang-kr">
-              CLI 바이너리는 Polars를 직접 링크하지 않아 ~2–5 MB를 유지합니다. <code class="font-bold" style="font-family: var(--font-mono);">x1zz run</code> 호출 시 <code class="font-bold" style="font-family: var(--font-mono);">x1zz-runner</code>를 서브프로세스로 스폰하여 Polars 의존성을 처리합니다. IPC 프로토콜 없이 CLI 인수만 사용합니다.
-            </p>
-          </div>
-        </div>
-
-        <div class="border border-zinc-800 p-6 rounded">
-          <h3 class="text-sm font-bold text-white mb-4 uppercase tracking-wider" style="font-family: var(--font-mono);">
-            <span class="lang-en">// CRATE RESPONSIBILITIES</span>
-            <span class="lang-kr">// 크레이트 역할 분담</span>
-          </h3>
-          <div class="overflow-x-auto">
-            <table class="w-full text-sm" style="font-family: var(--font-mono);">
-              <thead>
-                <tr class="border-b border-zinc-800">
-                  <th class="text-left py-2.5 pr-6 text-white font-bold uppercase tracking-wider">Crate</th>
-                  <th class="text-left py-2.5 pr-6 text-white font-bold uppercase tracking-wider lang-en">Role</th>
-                  <th class="text-left py-2.5 pr-6 text-white font-bold uppercase tracking-wider lang-kr">역할</th>
-                  <th class="text-left py-2.5 text-white font-bold uppercase tracking-wider lang-en">Deps</th>
-                  <th class="text-left py-2.5 text-white font-bold uppercase tracking-wider lang-kr">의존성</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-zinc-900">
-                <tr>
-                  <td class="py-2.5 pr-6 text-white font-bold">x1zz (CLI)</td>
-                  <td class="py-2.5 pr-6 text-white lang-en">Argument parsing, import, new, emit, check</td>
-                  <td class="py-2.5 pr-6 text-white lang-kr">인수 파싱, import, new, emit, check</td>
-                  <td class="py-2.5 text-white lang-en">None</td>
-                  <td class="py-2.5 text-white lang-kr">없음</td>
-                </tr>
-                <tr>
-                  <td class="py-2.5 pr-6 text-white font-bold">x1zz-core</td>
-                  <td class="py-2.5 pr-6 text-white lang-en">Shared AST, Token, Error types</td>
-                  <td class="py-2.5 pr-6 text-white lang-kr">공유 AST, 토큰, 에러 타입</td>
-                  <td class="py-2.5 text-white">serde only</td>
-                </tr>
-                <tr>
-                  <td class="py-2.5 pr-6 text-white font-bold">x1zz-compiler</td>
-                  <td class="py-2.5 pr-6 text-white lang-en">Lexer / Parser / Codegen / Emitter</td>
-                  <td class="py-2.5 pr-6 text-white lang-kr">렉서 / 파서 / 코드젠 / 이미터</td>
-                  <td class="py-2.5 text-white lang-en">None</td>
-                  <td class="py-2.5 text-white lang-kr">없음</td>
-                </tr>
-                <tr>
-                  <td class="py-2.5 pr-6 text-white font-bold">x1zz-exec</td>
-                  <td class="py-2.5 pr-6 text-white lang-en">Polars execution engine</td>
-                  <td class="py-2.5 pr-6 text-white lang-kr">Polars 실행 엔진</td>
-                  <td class="py-2.5 text-white font-bold">Polars, encoding_rs</td>
-                </tr>
-                <tr>
-                  <td class="py-2.5 pr-6 text-white font-bold">x1zz-runner</td>
-                  <td class="py-2.5 pr-6 text-white lang-en">Execution binary (spawned by CLI)</td>
-                  <td class="py-2.5 pr-6 text-white lang-kr">실행 바이너리 (CLI가 스폰)</td>
-                  <td class="py-2.5 text-white">via x1zz-exec</td>
-                </tr>
-                <tr>
-                  <td class="py-2.5 pr-6 text-white font-bold">x1zz-server</td>
-                  <td class="py-2.5 pr-6 text-white lang-en">REST API server (Visual IDE backend)</td>
-                  <td class="py-2.5 pr-6 text-white lang-kr">REST API 서버 (Visual IDE 백엔드)</td>
-                  <td class="py-2.5 text-white">axum, tokio</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div class="border border-zinc-800 p-5 rounded text-center">
-            <code class="text-sm font-bold text-white block mb-2" style="font-family: var(--font-mono);">x1zz (CLI)</code>
-            <div class="text-4xl font-bold text-white mb-2" style="font-family: var(--font-mono);">~2–5 <span class="text-xl">MB</span></div>
-            <p class="text-sm text-white lang-en" style="font-family: var(--font-mono);">Compiler · Schema inference · Scaffolding</p>
-            <p class="text-sm text-white lang-kr" style="font-family: var(--font-mono);">컴파일러 · 스키마 추론 · 스캐폴딩</p>
-          </div>
-          <div class="border border-zinc-800 p-5 rounded text-center">
-            <code class="text-sm font-bold text-white block mb-2" style="font-family: var(--font-mono);">x1zz-runner</code>
-            <div class="text-4xl font-bold text-white mb-2" style="font-family: var(--font-mono);">30+ <span class="text-xl">MB</span></div>
-            <p class="text-sm text-white lang-en" style="font-family: var(--font-mono);">Polars execution engine (subprocess)</p>
-            <p class="text-sm text-white lang-kr" style="font-family: var(--font-mono);">Polars 실행 엔진 (서브프로세스)</p>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- ════════════════════════════════════════════════ -->
-    <!-- § 03  BENCHMARK                                 -->
-    <!-- ════════════════════════════════════════════════ -->
-    <section>
-      <div class="border-b border-zinc-800 pb-3 mb-10">
-        <span class="text-sm font-semibold tracking-widest text-white uppercase" style="font-family: var(--font-mono);">
-          <span class="lang-en">// 03 — BENCHMARK · X1ZZLANG VS PANDAS</span>
-          <span class="lang-kr">// 03 — 벤치마크 · X1ZZLANG VS PANDAS</span>
-        </span>
-      </div>
-
-      <div class="space-y-6">
-
-        <div class="border border-zinc-800 p-6 rounded grid grid-cols-1 sm:grid-cols-3 gap-6 items-center">
-          <div class="sm:col-span-2">
-            <p class="text-base font-medium leading-relaxed text-white mb-3 lang-en">
-              Benchmark against an equivalent pandas pipeline on a <strong>3.4M-row Seoul air quality dataset</strong>. Polars LazyFrame backend applies query optimization before execution. Measurement: end-to-end pipeline throughput.
-            </p>
-            <p class="text-base font-medium leading-relaxed text-white mb-3 lang-kr">
-              <strong>서울 대기질 데이터셋 340만 행</strong> 기준 동등한 pandas 파이프라인 대비 벤치마크. Polars LazyFrame 백엔드의 실행 전 쿼리 최적화 결과입니다. 측정 기준: 종단간 파이프라인 처리량.
-            </p>
-            <div class="flex items-center gap-2 text-sm text-white mt-4" style="font-family: var(--font-mono);">
-              <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></span>
-              <span>benches/run_benchmark.py · benches/benchmark_pipeline.xzz</span>
-            </div>
-          </div>
-          <div class="flex flex-col items-center justify-center border border-zinc-800 rounded p-6">
-            <span class="text-6xl font-bold text-white" style="font-family: var(--font-mono);">3.84×</span>
-            <span class="text-sm text-green-400 mt-2 uppercase tracking-widest font-bold" style="font-family: var(--font-mono);">
-              <span class="lang-en">faster than pandas</span>
-              <span class="lang-kr">pandas 대비 빠름</span>
-            </span>
-            <span class="text-sm text-white mt-1" style="font-family: var(--font-mono);">3.4M rows · Seoul AQ</span>
-          </div>
-        </div>
-
-        <div class="border border-zinc-800 rounded overflow-hidden">
-          <div class="px-4 py-2 border-b border-zinc-800 flex items-center gap-2">
-            <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></span>
-            <span class="text-sm text-white" style="font-family: var(--font-mono);">benches/x1zzLang_benchmark2.png</span>
-          </div>
-          <img
-            src="/x1zzLang_benchmark2 (1).png"
-            alt="x1zzLang Benchmark: 3.84× faster than pandas"
-            class="w-full h-auto object-contain bg-zinc-950"
-            loading="lazy"
-          />
-        </div>
-
-      </div>
-    </section>
-
-    <!-- ════════════════════════════════════════════════ -->
-    <!-- § 04  FEATURES & STATUS                         -->
-    <!-- ════════════════════════════════════════════════ -->
-    <section>
-      <div class="border-b border-zinc-800 pb-3 mb-10">
-        <span class="text-sm font-semibold tracking-widest text-white uppercase" style="font-family: var(--font-mono);">
-          <span class="lang-en">// 04 — FEATURES & STATUS</span>
-          <span class="lang-kr">// 04 — 기능 현황</span>
-        </span>
-      </div>
-
-      <div class="border border-zinc-800 rounded overflow-hidden">
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm" style="font-family: var(--font-mono);">
-            <thead>
-              <tr class="border-b border-zinc-800 bg-zinc-950">
-                <th class="text-left px-4 py-3 text-white font-bold uppercase tracking-wider lang-en">Feature</th>
-                <th class="text-left px-4 py-3 text-white font-bold uppercase tracking-wider lang-kr">기능</th>
-                <th class="text-left px-4 py-3 text-white font-bold uppercase tracking-wider lang-en">Description</th>
-                <th class="text-left px-4 py-3 text-white font-bold uppercase tracking-wider lang-kr">설명</th>
-                <th class="text-left px-4 py-3 text-white font-bold uppercase tracking-wider lang-en">Status</th>
-                <th class="text-left px-4 py-3 text-white font-bold uppercase tracking-wider lang-kr">상태</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-zinc-900">
-              <tr class="hover:bg-zinc-950 transition-colors duration-100">
-                <td class="px-4 py-3 text-white font-bold lang-en">x1zz run</td>
-                <td class="px-4 py-3 text-white font-bold lang-kr">x1zz run</td>
-                <td class="px-4 py-3 text-white lang-en">Compile and execute .xzz pipeline</td>
-                <td class="px-4 py-3 text-white lang-kr">.xzz 파이프라인 컴파일 및 실행</td>
-                <td class="px-4 py-3 lang-en"><span class="text-green-400 font-bold">Stable</span></td>
-                <td class="px-4 py-3 lang-kr"><span class="text-green-400 font-bold">안정</span></td>
-              </tr>
-              <tr class="hover:bg-zinc-950 transition-colors duration-100">
-                <td class="px-4 py-3 text-white font-bold lang-en">x1zz import</td>
-                <td class="px-4 py-3 text-white font-bold lang-kr">x1zz import</td>
-                <td class="px-4 py-3 text-white lang-en">Auto-infer CSV schema → generate type block</td>
-                <td class="px-4 py-3 text-white lang-kr">CSV 스키마 자동 추론 → 타입 블록 생성</td>
-                <td class="px-4 py-3 lang-en"><span class="text-green-400 font-bold">Stable</span></td>
-                <td class="px-4 py-3 lang-kr"><span class="text-green-400 font-bold">안정</span></td>
-              </tr>
-              <tr class="hover:bg-zinc-950 transition-colors duration-100">
-                <td class="px-4 py-3 text-white font-bold lang-en">x1zz new</td>
-                <td class="px-4 py-3 text-white font-bold lang-kr">x1zz new</td>
-                <td class="px-4 py-3 text-white lang-en">Scaffold project with sample CSV and example</td>
-                <td class="px-4 py-3 text-white lang-kr">샘플 CSV와 예제로 프로젝트 스캐폴딩</td>
-                <td class="px-4 py-3 lang-en"><span class="text-green-400 font-bold">Stable</span></td>
-                <td class="px-4 py-3 lang-kr"><span class="text-green-400 font-bold">안정</span></td>
-              </tr>
-              <tr class="hover:bg-zinc-950 transition-colors duration-100">
-                <td class="px-4 py-3 text-white font-bold lang-en">x1zz emit rust</td>
-                <td class="px-4 py-3 text-white font-bold lang-kr">x1zz emit rust</td>
-                <td class="px-4 py-3 text-white lang-en">Transpile .xzz → Rust source (Polars LazyFrame)</td>
-                <td class="px-4 py-3 text-white lang-kr">.xzz를 Polars LazyFrame Rust 소스로 트랜스파일</td>
-                <td class="px-4 py-3 lang-en"><span class="text-green-400 font-bold">Stable</span></td>
-                <td class="px-4 py-3 lang-kr"><span class="text-green-400 font-bold">안정</span></td>
-              </tr>
-              <tr class="hover:bg-zinc-950 transition-colors duration-100">
-                <td class="px-4 py-3 text-white font-bold lang-en">Option&lt;T&gt; type system</td>
-                <td class="px-4 py-3 text-white font-bold lang-kr">Option&lt;T&gt; 타입 시스템</td>
-                <td class="px-4 py-3 text-white lang-en">Null-safe column declarations, fillNull operator</td>
-                <td class="px-4 py-3 text-white lang-kr">널 안전 컬럼 선언, fillNull 연산자</td>
-                <td class="px-4 py-3 lang-en"><span class="text-green-400 font-bold">Stable</span></td>
-                <td class="px-4 py-3 lang-kr"><span class="text-green-400 font-bold">안정</span></td>
-              </tr>
-              <tr class="hover:bg-zinc-950 transition-colors duration-100">
-                <td class="px-4 py-3 text-white font-bold lang-en">Built-in chart {}</td>
-                <td class="px-4 py-3 text-white font-bold lang-kr">내장 chart {} 블록</td>
-                <td class="px-4 py-3 text-white lang-en">bar / line / pie / scatter HTML output</td>
-                <td class="px-4 py-3 text-white lang-kr">bar / line / pie / scatter HTML 차트 출력</td>
-                <td class="px-4 py-3 lang-en"><span class="text-green-400 font-bold">Stable</span></td>
-                <td class="px-4 py-3 lang-kr"><span class="text-green-400 font-bold">안정</span></td>
-              </tr>
-              <tr class="hover:bg-zinc-950 transition-colors duration-100">
-                <td class="px-4 py-3 text-white font-bold lang-en">EUC-KR CSV</td>
-                <td class="px-4 py-3 text-white font-bold lang-kr">EUC-KR CSV 지원</td>
-                <td class="px-4 py-3 text-white lang-en">Auto-detect and decode CP949 Korean CSV</td>
-                <td class="px-4 py-3 text-white lang-kr">CP949 한글 CSV 자동 감지 및 디코딩</td>
-                <td class="px-4 py-3 lang-en"><span class="text-green-400 font-bold">Stable</span></td>
-                <td class="px-4 py-3 lang-kr"><span class="text-green-400 font-bold">안정</span></td>
-              </tr>
-              <tr class="hover:bg-zinc-950 transition-colors duration-100">
-                <td class="px-4 py-3 text-white font-bold lang-en">x1zz check (NQP)</td>
-                <td class="px-4 py-3 text-white font-bold lang-kr">x1zz check (NQP)</td>
-                <td class="px-4 py-3 text-white lang-en">Static analysis via Neural Query Planner</td>
-                <td class="px-4 py-3 text-white lang-kr">Neural Query Planner 기반 정적 분석</td>
-                <td class="px-4 py-3 lang-en"><span class="text-white">Experimental</span></td>
-                <td class="px-4 py-3 lang-kr"><span class="text-white">실험적</span></td>
-              </tr>
-              <tr class="hover:bg-zinc-950 transition-colors duration-100">
-                <td class="px-4 py-3 text-white font-bold lang-en">x1zz sde</td>
-                <td class="px-4 py-3 text-white font-bold lang-kr">x1zz sde</td>
-                <td class="px-4 py-3 text-white lang-en">Synthetic data generation engine</td>
-                <td class="px-4 py-3 text-white lang-kr">합성 데이터 생성 엔진</td>
-                <td class="px-4 py-3 lang-en"><span class="text-white">Preview</span></td>
-                <td class="px-4 py-3 lang-kr"><span class="text-white">프리뷰</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- ════════════════════════════════════════════════ -->
-    <!-- § 05  VISUAL IDE                                -->
-    <!-- ════════════════════════════════════════════════ -->
-    <section>
-      <div class="border-b border-zinc-800 pb-3 mb-10">
-        <span class="text-sm font-semibold tracking-widest text-white uppercase" style="font-family: var(--font-mono);">
-          <span class="lang-en">// 05 — X1ZZLANG VISUAL IDE</span>
-          <span class="lang-kr">// 05 — X1ZZLANG 비주얼 IDE</span>
-        </span>
-      </div>
-
-      <div class="space-y-6">
-
-        <div class="border border-zinc-800 p-6 rounded">
-          <h2 class="text-xl font-bold mb-4 text-white" style="font-family: var(--font-mono);">
-            <span class="lang-en">Graphical Pipeline Builder for .xzz</span>
-            <span class="lang-kr">.xzz를 위한 그래픽 파이프라인 편집기</span>
-          </h2>
-          <p class="text-base font-medium leading-relaxed text-white mb-3 lang-en">
-            Visual IDE for designing data pipelines and executing x1zzLang code. Connect nodes on a canvas to build transformation workflows without writing code. The DAG is transpiled into <code class="font-bold" style="font-family: var(--font-mono);">.xzz</code> source in real-time and executed via the x1zzLang REST API.
-          </p>
-          <p class="text-base font-medium leading-relaxed text-white mb-3 lang-kr">
-            데이터 파이프라인을 시각적으로 구성하고 x1zzLang 코드를 생성·실행하는 그래픽 IDE입니다. 캔버스에서 노드를 연결하여 변환 워크플로우를 구성합니다. DAG 구성이 실시간으로 <code class="font-bold" style="font-family: var(--font-mono);">.xzz</code> 소스로 트랜스파일되어 REST API를 통해 실행됩니다.
-          </p>
-          <div class="border-t border-zinc-800 pt-4 mt-4">
-            <span class="text-sm text-white" style="font-family: var(--font-mono);">React 18 · Vite · @xyflow/react · i18next · Lucide React | Backend: x1zzLang engine (Rust + Polars)</span>
-          </div>
-        </div>
-
-        <div class="border border-zinc-800 rounded overflow-hidden">
-          <div class="px-4 py-2 border-b border-zinc-800 flex items-center gap-2">
-            <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></span>
-            <span class="text-sm text-white" style="font-family: var(--font-mono);">
-              <span class="lang-en">x1zzLang Visual IDE — DAG Pipeline Canvas</span>
-              <span class="lang-kr">x1zzLang Visual IDE — DAG 파이프라인 캔버스</span>
-            </span>
-          </div>
-          <img
-            src="/screenshot_visual_ide.png"
-            alt="x1zzLang Visual IDE — graphical DAG pipeline editor"
-            class="w-full h-auto object-contain bg-zinc-950"
-            loading="lazy"
-          />
-        </div>
-
-        <div class="border border-zinc-800 p-6 rounded bg-zinc-950">
-          <p class="text-sm font-bold text-white mb-4 uppercase tracking-wider" style="font-family: var(--font-mono);">
-            <span class="lang-en">// TRANSPILATION PIPELINE</span>
-            <span class="lang-kr">// 트랜스파일 파이프라인</span>
-          </p>
-          <div class="flex flex-wrap items-center gap-2 text-sm" style="font-family: var(--font-mono);">
-            <span class="border border-white px-3 py-1.5 text-white font-bold">Visual DAG</span>
-            <span class="text-white">→</span>
-            <span class="border border-zinc-600 px-3 py-1.5 text-white">x1zzTranspiler (dagWalker)</span>
-            <span class="text-white">→</span>
-            <span class="border border-white px-3 py-1.5 text-white font-bold">.xzz source</span>
-            <span class="text-white">→</span>
-            <span class="border border-zinc-600 px-3 py-1.5 text-white">Backend /execute</span>
-            <span class="text-white">→</span>
-            <span class="border border-green-500 px-3 py-1.5 text-green-400 font-bold">Results</span>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div class="border border-zinc-800 p-5 rounded">
-            <h3 class="text-sm font-bold text-white mb-4 uppercase tracking-wider" style="font-family: var(--font-mono);">
-              <span class="lang-en">// 9 BUILT-IN OPERATORS</span>
-              <span class="lang-kr">// 9개 내장 연산자</span>
-            </h3>
-            <div class="space-y-2 text-sm" style="font-family: var(--font-mono);">
-              <div class="flex items-center gap-2">
-                <span class="text-green-400 shrink-0">◆</span>
-                <span class="text-white font-semibold">File Input</span>
-                <span class="text-white lang-en">— CSV/Excel + schema inference</span>
-                <span class="text-white lang-kr">— CSV/Excel + 스키마 추론</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-green-400 shrink-0">◆</span>
-                <span class="text-white font-semibold">Filter</span>
-                <span class="text-white lang-en">— Filter rows by condition</span>
-                <span class="text-white lang-kr">— 조건으로 행 필터</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-green-400 shrink-0">◆</span>
-                <span class="text-white font-semibold">Select</span>
-                <span class="text-white lang-en">— Select columns</span>
-                <span class="text-white lang-kr">— 열 선택</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-green-400 shrink-0">◆</span>
-                <span class="text-white font-semibold">Group By</span>
-                <span class="text-white lang-en">— Group and aggregate</span>
-                <span class="text-white lang-kr">— 그룹화 및 집계</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-green-400 shrink-0">◆</span>
-                <span class="text-white font-semibold">Count</span>
-                <span class="text-white lang-en">— Count rows</span>
-                <span class="text-white lang-kr">— 행 수 계산</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-green-400 shrink-0">◆</span>
-                <span class="text-white font-semibold">Sort</span>
-                <span class="text-white lang-en">— Sort by column(s)</span>
-                <span class="text-white lang-kr">— 열 기준 정렬</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-green-400 shrink-0">◆</span>
-                <span class="text-white font-semibold">Take</span>
-                <span class="text-white lang-en">— Top N rows</span>
-                <span class="text-white lang-kr">— 상위 N개 행</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-green-400 shrink-0">◆</span>
-                <span class="text-white font-semibold">Drop Null</span>
-                <span class="text-white lang-en">— Remove null rows</span>
-                <span class="text-white lang-kr">— 결측치 행 제거</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-green-400 shrink-0">◆</span>
-                <span class="text-white font-semibold">Fill Null</span>
-                <span class="text-white lang-en">— Fill nulls with value</span>
-                <span class="text-white lang-kr">— 결측치 값으로 채우기</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="border border-zinc-800 p-5 rounded">
-            <h3 class="text-sm font-bold text-white mb-4 uppercase tracking-wider" style="font-family: var(--font-mono);">
-              <span class="lang-en">// KEY FEATURES</span>
-              <span class="lang-kr">// 주요 기능</span>
-            </h3>
-            <ul class="space-y-3 text-sm" style="font-family: var(--font-mono);">
-              <li class="flex items-start gap-2">
-                <span class="text-white shrink-0 mt-0.5">→</span>
-                <span class="text-white lang-en">Drag-and-drop visual DAG canvas</span>
-                <span class="text-white lang-kr">드래그 앤 드롭 DAG 캔버스</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-white shrink-0 mt-0.5">→</span>
-                <span class="text-white lang-en">Real-time .xzz code generation</span>
-                <span class="text-white lang-kr">실시간 .xzz 코드 생성</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-white shrink-0 mt-0.5">→</span>
-                <span class="text-white lang-en">One-click execution with table results</span>
-                <span class="text-white lang-kr">원클릭 실행 + 테이블 결과</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-white shrink-0 mt-0.5">→</span>
-                <span class="text-white lang-en">Tab-based multi-workflow management</span>
-                <span class="text-white lang-kr">탭 기반 멀티 워크플로우 관리</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-white shrink-0 mt-0.5">→</span>
-                <span class="text-white lang-en">Undo / Redo + auto-save</span>
-                <span class="text-white lang-kr">실행 취소 / 재실행 + 자동 저장</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-white shrink-0 mt-0.5">→</span>
-                <span class="text-white lang-en">Export .xzz · Container grouping</span>
-                <span class="text-white lang-kr">.xzz 내보내기 · 컨테이너 그룹핑</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-white shrink-0 mt-0.5">→</span>
-                <span class="text-white lang-en">Bilingual UI (Korean / English)</span>
-                <span class="text-white lang-kr">한영 이중언어 UI</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- ════════════════════════════════════════════════ -->
-    <!-- § 06  ROADMAP                                   -->
-    <!-- ════════════════════════════════════════════════ -->
-    <section>
-      <div class="border-b border-zinc-800 pb-3 mb-10">
-        <span class="text-sm font-semibold tracking-widest text-white uppercase" style="font-family: var(--font-mono);">
-          <span class="lang-en">// 06 — ROADMAP</span>
-          <span class="lang-kr">// 06 — 개발 로드맵</span>
-        </span>
-      </div>
-
-      <div class="border border-zinc-800 rounded overflow-hidden">
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm" style="font-family: var(--font-mono);">
-            <thead>
-              <tr class="border-b border-zinc-800 bg-zinc-950">
-                <th class="text-left px-4 py-3 text-white font-bold uppercase tracking-wider lang-en">Phase</th>
-                <th class="text-left px-4 py-3 text-white font-bold uppercase tracking-wider lang-kr">단계</th>
-                <th class="text-left px-4 py-3 text-white font-bold uppercase tracking-wider lang-en">Goal</th>
-                <th class="text-left px-4 py-3 text-white font-bold uppercase tracking-wider lang-kr">목표</th>
-                <th class="text-left px-4 py-3 text-white font-bold uppercase tracking-wider lang-en">Status</th>
-                <th class="text-left px-4 py-3 text-white font-bold uppercase tracking-wider lang-kr">상태</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-zinc-900">
-              <tr class="hover:bg-zinc-950 transition-colors duration-100">
-                <td class="px-4 py-3 text-white lang-en">Phase 1</td>
-                <td class="px-4 py-3 text-white lang-kr">1단계</td>
-                <td class="px-4 py-3 text-white lang-en">DSL syntax, type system, compiler pipeline</td>
-                <td class="px-4 py-3 text-white lang-kr">DSL 문법, 타입 시스템, 컴파일러 파이프라인</td>
-                <td class="px-4 py-3 lang-en"><span class="text-green-400 font-bold">Complete</span></td>
-                <td class="px-4 py-3 lang-kr"><span class="text-green-400 font-bold">완료</span></td>
-              </tr>
-              <tr class="hover:bg-zinc-950 transition-colors duration-100">
-                <td class="px-4 py-3 text-white lang-en">Phase 2</td>
-                <td class="px-4 py-3 text-white lang-kr">2단계</td>
-                <td class="px-4 py-3 text-white lang-en">Polars integration, CLI tooling, chart output</td>
-                <td class="px-4 py-3 text-white lang-kr">Polars 통합, CLI 도구, 차트 출력</td>
-                <td class="px-4 py-3 lang-en"><span class="text-green-400 font-bold">Complete</span></td>
-                <td class="px-4 py-3 lang-kr"><span class="text-green-400 font-bold">완료</span></td>
-              </tr>
-              <tr class="hover:bg-zinc-950 transition-colors duration-100">
-                <td class="px-4 py-3 text-white lang-en">Phase 3</td>
-                <td class="px-4 py-3 text-white lang-kr">3단계</td>
-                <td class="px-4 py-3 text-white lang-en">Visual IDE, graphical pipeline editor</td>
-                <td class="px-4 py-3 text-white lang-kr">Visual IDE, 그래픽 파이프라인 편집기</td>
-                <td class="px-4 py-3 lang-en"><span class="text-green-400 font-bold">Complete</span></td>
-                <td class="px-4 py-3 lang-kr"><span class="text-green-400 font-bold">완료</span></td>
-              </tr>
-              <tr class="hover:bg-zinc-950 transition-colors duration-100">
-                <td class="px-4 py-3 text-white lang-en">Phase 4</td>
-                <td class="px-4 py-3 text-white lang-kr">4단계</td>
-                <td class="px-4 py-3 text-white lang-en">More operators, join, schema evolution</td>
-                <td class="px-4 py-3 text-white lang-kr">추가 연산자, 조인, 스키마 진화</td>
-                <td class="px-4 py-3 lang-en"><span class="text-white font-bold">In progress</span></td>
-                <td class="px-4 py-3 lang-kr"><span class="text-white font-bold">진행 중</span></td>
-              </tr>
-              <tr class="hover:bg-zinc-950 transition-colors duration-100">
-                <td class="px-4 py-3 text-white lang-en">Phase 5</td>
-                <td class="px-4 py-3 text-white lang-kr">5단계</td>
-                <td class="px-4 py-3 text-white lang-en">Natural language query (NQP), AI-augmented analysis</td>
-                <td class="px-4 py-3 text-white lang-kr">자연어 쿼리 인터페이스(NQP), AI 증강 분석</td>
-                <td class="px-4 py-3 lang-en"><span class="text-white">Experimental</span></td>
-                <td class="px-4 py-3 lang-kr"><span class="text-white">실험적</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- ════════════════════════════════════════════════ -->
-    <!-- § 07  ECOSYSTEM                                 -->
-    <!-- ════════════════════════════════════════════════ -->
-    <section>
-      <div class="border-b border-zinc-800 pb-3 mb-10">
-        <span class="text-sm font-semibold tracking-widest text-white uppercase" style="font-family: var(--font-mono);">
-          <span class="lang-en">// 07 — ECOSYSTEM</span>
-          <span class="lang-kr">// 07 — 생태계 구성</span>
-        </span>
-      </div>
-
-      <div class="border border-zinc-800 p-6 rounded space-y-6">
-
-        <div>
-          <p class="text-base font-medium leading-relaxed text-white lang-en">
-            x1zzLang and x1zzLang Visual IDE are an end-to-end data pipeline platform. Visual IDE generates <code class="font-bold" style="font-family: var(--font-mono);">.xzz</code> code from DAG configurations. x1zzLang compiles and executes them with Polars LazyFrame.
-          </p>
-          <p class="text-base font-medium leading-relaxed text-white lang-kr">
-            x1zzLang과 x1zzLang Visual IDE는 종단간(end-to-end) 데이터 파이프라인 플랫폼입니다. Visual IDE가 DAG 구성으로부터 <code class="font-bold" style="font-family: var(--font-mono);">.xzz</code> 코드를 생성하고, x1zzLang이 Polars LazyFrame으로 컴파일·실행합니다.
-          </p>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div class="border border-zinc-800 p-5 rounded text-center">
-            <div class="text-3xl font-bold text-white mb-2" style="font-family: var(--font-mono);">01</div>
-            <p class="text-sm font-bold text-white uppercase tracking-wider mb-1" style="font-family: var(--font-mono);">
-              <span class="lang-en">DESIGN</span>
-              <span class="lang-kr">디자인</span>
-            </p>
-            <p class="text-sm text-white" style="font-family: var(--font-mono);">Visual IDE canvas</p>
-          </div>
-          <div class="border border-zinc-800 p-5 rounded text-center">
-            <div class="text-3xl font-bold text-white mb-2" style="font-family: var(--font-mono);">02</div>
-            <p class="text-sm font-bold text-white uppercase tracking-wider mb-1" style="font-family: var(--font-mono);">
-              <span class="lang-en">TRANSPILE</span>
-              <span class="lang-kr">트랜스파일</span>
-            </p>
-            <p class="text-sm text-white" style="font-family: var(--font-mono);">DAG → .xzz code</p>
-          </div>
-          <div class="border border-zinc-800 p-5 rounded text-center">
-            <div class="text-3xl font-bold text-white mb-2" style="font-family: var(--font-mono);">03</div>
-            <p class="text-sm font-bold text-white uppercase tracking-wider mb-1" style="font-family: var(--font-mono);">
-              <span class="lang-en">EXECUTE</span>
-              <span class="lang-kr">실행</span>
-            </p>
-            <p class="text-sm text-white" style="font-family: var(--font-mono);">Rust / Polars backend</p>
-          </div>
-        </div>
-
-        <div class="border-t border-zinc-800 pt-5">
-        </div>
-
-        <div class="border-t border-zinc-800 pt-4">
-          <p class="text-sm text-white lang-en" style="font-family: var(--font-mono);">
-            // Issues open · PRs suspended until October 2026 (8th Korea CodeFair evaluation period) · Apache-2.0
-          </p>
-          <p class="text-sm text-white lang-kr" style="font-family: var(--font-mono);">
-            // 이슈 오픈 중 · PR 2026년 10월까지 보류 (제8회 한국 코드페어 심사 기간) · Apache-2.0
-          </p>
-        </div>
-
-      </div>
-    </section>
-
-  </main>
-
-  <!-- ─── FOOTER ────────────────────────────────────────────────────────────── -->
-  <footer class="w-full border-t border-zinc-800 px-6 py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-
-    <div class="flex items-center gap-4 text-sm font-semibold text-white" style="font-family: var(--font-mono);">
-      <span>x1zz.com</span>
-      <span class="text-white">|</span>
-      <span>BUILD_001</span>
-      <span class="text-white">|</span>
-      <a href="/" class="text-white hover:underline transition-colors duration-150">
-        <span class="lang-en">← Back to main</span>
-        <span class="lang-kr">← 메인으로</span>
-      </a>
-    </div>
-
-    <div class="text-sm font-semibold text-white lang-en" style="font-family: var(--font-mono);">
-      The present desires a brilliant future. The brilliant future desires the present.
-    </div>
-    <div class="text-sm font-semibold text-white lang-kr" style="font-family: var(--font-mono);">
-      현재는 찬란한 미래를 원하고, 찬란한 미래는 현재를 원한다.
-    </div>
-
-  </footer>
-
-  <!-- ─── Language Toggle ────────────────────────────────────────────────────── -->
   <script>
     (function () {
       var btn = document.getElementById('lang-toggle');
       if (!btn) return;
       btn.addEventListener('click', function () {
         var html = document.documentElement;
-        var current = html.getAttribute('data-lang') || 'kr';
+        var current = html.getAttribute('data-lang') || 'en';
         html.setAttribute('data-lang', current === 'en' ? 'kr' : 'en');
         html.setAttribute('lang', current === 'en' ? 'ko' : 'en');
       });
     })();
-  </script>
 
-</body>
-</html>
+    // file tree toggle
+    (function () {
+      document.querySelectorAll('.tree-dir').forEach(function (el) {
+        el.addEventListener('click', function () {
+          var kids = document.getElementById('dir-' + this.getAttribute('data-dir'));
+          if (!kids) return;
+          var open = kids.style.display !== 'none';
+          kids.style.display = open ? 'none' : 'block';
+          this.textContent = (open ? '▸ ' : '▾ ') + this.getAttribute('data-label');
+        });
+      });
+    })();
+
+    // tabs
+    var FILE_LABELS = {
+      readme: 'README.md',
+      'proj-xazz': 'Xazz.md',
+      'proj-x1zzlang': 'x1zzLang.md',
+      'proj-py2xzz': 'py2xzz.md',
+      'proj-llm': 'llm-pcag-research.md',
+      'log-security': 'security-guardrail.md',
+      'log-ir': 'typed-ir.md',
+      'log-deps': 'dependency-isolation.md',
+      bench: 'benchmarks.md',
+      sandbox: 'demo.xzz',
+    };
+
+    (function () {
+      var openTabs = ['readme', 'proj-xazz', 'log-security'];
+      var activeId = 'readme';
+      var bar = document.getElementById('tab-bar');
+      var select = document.getElementById('file-select');
+
+      function renderTabs() {
+        bar.innerHTML = '';
+        openTabs.forEach(function (id) {
+          var tab = document.createElement('div');
+          tab.className = 'ide-tab' + (id === activeId ? ' active' : '');
+          var label = document.createElement('span');
+          label.textContent = FILE_LABELS[id];
+          tab.appendChild(label);
+          var close = document.createElement('span');
+          close.textContent = '×';
+          close.className = 'ml-1 text-mut hover:text-fg px-0.5';
+          close.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var idx = openTabs.indexOf(id);
+            if (idx > -1) openTabs.splice(idx, 1);
+            if (activeId === id) activeId = openTabs.length ? openTabs[Math.max(0, idx - 1)] : null;
+            renderTabs();
+            show(activeId);
+          });
+          tab.appendChild(close);
+          tab.addEventListener('click', function () { activeId = id; renderTabs(); show(id); });
+          bar.appendChild(tab);
+        });
+      }
+
+      function show(id) {
+        document.querySelectorAll('.tab-pane').forEach(function (p) { p.classList.add('hidden'); });
+        if (id) document.getElementById('pane-' + id).classList.remove('hidden');
+        if (select) select.value = id || '';
+      }
+
+      function open(id) {
+        if (openTabs.indexOf(id) === -1) openTabs.push(id);
+        activeId = id;
+        renderTabs();
+        show(id);
+      }
+
+      document.querySelectorAll('.tree-item').forEach(function (el) {
+        el.addEventListener('click', function () { open(this.getAttribute('data-file')); });
+      });
+      if (select) select.addEventListener('change', function () { open(this.value); });
+
+      renderTabs();
+      show(activeId);
+    })();
+
+    // static syntax highlight
+    (function () {
+      function esc(s) {
+        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      }
+      function hl(s, kw) {
+        var out = esc(s);
+        out = out.replace(/(\/\/.*)/g, '<span style="color:#6C7484">$1</span>');
+        out = out.replace(/(&quot;.*?&quot;)/g, '<span style="color:#38C8FF">$1</span>');
+        var re = new RegExp('\\b(' + kw.join('|') + ')\\b', 'g');
+        out = out.replace(re, '<span style="color:#00FFA3">$1</span>');
+        return out;
+      }
+      var xzzEl = document.querySelector('[data-highlight="xzz"]');
+      var rustEl = document.querySelector('[data-highlight="rust"]');
+      if (xzzEl) xzzEl.innerHTML = hl(
+        'type AirData = {\n  station:  string,\n  temp:     float,\n  pm10:     Option<float>,\n}\n\nv dataset = load("air_data.csv") :: AirData\n    |> fillNull("pm10", strategy: "mean")\n\nmodel AirPredictor {\n  Dense(64) -> ReLU() -> Dense(1)\n}\n\nv trained = dataset\n    |> train(AirPredictor, target: "pm10", epochs: 10)',
+        ['type', 'v', 'string', 'float', 'Option', 'model', 'Dense', 'ReLU', 'load', 'fillNull', 'train']
+      );
+      if (rustEl) rustEl.innerHTML = hl(
+        'use polars::prelude::*;\n\nfn main() -> PolarsResult<()> {\n    let mut df = LazyCsvReader::new("air_data.csv")\n        .finish()?\n        .fill_null(FillNullStrategy::Mean)\n        .select([col("station"), col("temp"), col("pm10")]);\n    // ... tensor handoff to Burn, training, predict\n    Ok(())\n}',
+        ['use', 'fn', 'let', 'mut', 'Ok', 'PolarsResult']
+      );
+    })();
+
+    // katex
+    (function () {
+      function render() {
+        var katex = window.katex;
+        if (!katex) return;
+        var el = document.getElementById('formula-pcag');
+        if (el) katex.render('\\text{PCAG}_k = \\dfrac{(P_0-P_k)/P_0}{(A_0-A_k)/A_0}', el, { displayMode: true, throwOnError: false });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', render);
+      } else {
+        render();
+      }
+    })();
+  </script>
+</Layout>

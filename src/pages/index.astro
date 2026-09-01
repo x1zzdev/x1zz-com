@@ -1,198 +1,304 @@
 ---
-import '../styles/global.css';
+import Layout from '../layouts/Layout.astro';
+
+const xazzPipeline = ['Lexer', 'Parser', 'Type Checker', 'Typed IR', 'Codegen', 'Runtime'];
+
+const xazzCode = `type AirData = {
+  station: string,
+  temp:    float,
+  pm10:    Option<float>,
+}
+
+v dataset = load("air_data.csv") :: AirData
+    |> fillNull("pm10", strategy: "mean")
+
+model AirPredictor {
+  Dense(64) -> ReLU() -> Dense(1)
+}
+
+v trained = dataset
+    |> train(AirPredictor, target: "pm10", epochs: 10)`;
+
+const projects = [
+  {
+    name: 'x1zzLang',
+    url: 'https://github.com/x1zzdev/x1zzLang',
+    cat: 'Data pipeline DSL',
+    catKr: '데이터 파이프라인 DSL',
+    en: 'The original data-pipeline DSL that evolved into Xazz. Compiles `.xzz` into Polars LazyFrame plans with a null-safe `Option<T>` type system.',
+    kr: 'Xazz로 성장한 최초의 데이터 파이프라인 DSL입니다. `.xzz`를 Polars LazyFrame 계획으로 컴파일하고, 널 안전 `Option<T>` 타입 시스템을 갖췄습니다.',
+    stack: 'Rust · Polars · clap',
+  },
+  {
+    name: 'py2xzz',
+    url: 'https://github.com/x1zzdev/py2xzz',
+    cat: 'Transpiler',
+    catKr: '트랜스파일러',
+    en: 'A compiler pipeline from Python to `.xzz`: Python 3 is parsed with its own lexer/parser and mapped onto the xazz-core AST, then emitted back as source.',
+    kr: 'Python에서 `.xzz`로 가는 컴파일러 파이프라인입니다. 자체 렉서/파서로 Python 3를 읽어 xazz-core AST로 매핑한 뒤 소스로 출력합니다.',
+    stack: 'Rust · serde',
+  },
+  {
+    name: 'Visual IDE',
+    url: 'https://github.com/x1zzdev/x1zzLang-visual-ide',
+    cat: 'Graphical editor',
+    catKr: '그래픽 에디터',
+    en: 'A React-based editor that turns connected nodes into `.xzz` code in real time and runs it against the backend.',
+    kr: '노드를 연결하면 실시간으로 `.xzz` 코드가 생성되고 백엔드로 실행되는 React 기반 에디터입니다.',
+    stack: 'React 18 · Vite · @xyflow/react',
+  },
+];
+
+const findings = [
+  { label: 'PCAG collapse', labelKr: 'PCAG 붕괴', value: '20.8 → 10.4 → 4.8' },
+  { label: 'Power wall', labelKr: '파워 월', value: 'INT4 → INT3 · −54.4%' },
+  { label: 'Cross-model', labelKr: '모델 교차 검증', value: '4 models · all INT4→INT3' },
+  { label: 'Jevons paradox', labelKr: '제본스 역설', value: 'load grows iff E_d > 1' },
+];
 ---
 
-<!DOCTYPE html>
-<html lang="en" data-lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="x1zz — eliminating technical debt and accelerating human technological evolution through sLM + IR + Rust Engine architecture." />
-  <title>x1zz</title>
-
-  <!-- Fonts: JetBrains Mono + Inter with display=swap -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" />
-</head>
-<body class="bg-black text-white min-h-screen flex flex-col" style="font-family: var(--font-sans);">
-
-  <!-- ─── HEADER ─────────────────────────────────────────────────────────── -->
-  <header class="w-full border-b border-zinc-800 px-6 py-4 grid grid-cols-3 items-center gap-4">
-
-    <!-- Left: Status indicator -->
-    <div class="flex items-center gap-2">
-      <span class="inline-block w-2 h-2 rounded-full bg-white pulse-dot shrink-0"></span>
-      <span class="text-xs tracking-widest text-white" style="font-family: var(--font-mono);">STATUS // SYSTEM_READY</span>
-    </div>
-
-    <!-- Center: Manifesto slogan -->
-    <div class="flex justify-center">
-      <span class="text-xs font-semibold tracking-widest text-white uppercase text-center" style="font-family: var(--font-mono);">
-        The combination of art and technology
-      </span>
-    </div>
-
-    <!-- Right: Language toggle -->
-    <div class="flex justify-end">
+<Layout
+  title="x1zz — Sewoo Jang · Rust data pipeline tools"
+  description="Sewoo Jang — building compilers and data infrastructure in Rust. Xazz: a from-scratch Rust DSL compiler targeting Polars and Burn."
+  lang="en"
+  dataLang="en"
+>
+  <!-- ─── HEADER ─────────────────────────────────────────────── -->
+  <header class="w-full px-5 md:px-8 py-4 flex items-center justify-between gap-3 border-b border-line">
+    <a href="/" class="text-lg font-bold tracking-tight text-fg" style="font-family: var(--font-mono);">
+      x1zz<span class="text-accent">.</span>
+    </a>
+    <nav class="flex items-center gap-4 text-sm">
+      <a href="/portfolio" class="text-mut hover:text-fg transition-colors">portfolio</a>
+      <a href="https://github.com/x1zzdev/Xazz" target="_blank" rel="noopener noreferrer" class="text-mut hover:text-fg transition-colors">github ↗</a>
       <button
         id="lang-toggle"
         aria-label="Toggle language"
-        class="text-xs font-semibold tracking-widest border border-zinc-600 text-white hover:border-white transition-all duration-150 px-3 py-1 cursor-pointer"
-        style="font-family: var(--font-mono);"
+        class="btn btn-ghost text-[0.8rem] px-3 py-1 cursor-pointer"
       >
         <span class="lang-en">EN → KR</span>
         <span class="lang-kr">KR → EN</span>
       </button>
-    </div>
-
+    </nav>
   </header>
 
-  <!-- ─── HERO ───────────────────────────────────────────────────────────── -->
-  <section class="w-full px-6 py-20 flex flex-col items-center">
+  <main class="w-full max-w-4xl mx-auto px-5 md:px-8">
 
-    <!-- Signature 1px line with x1zz cutout -->
-    <div class="relative w-full max-w-3xl flex items-center justify-center">
-      <div class="absolute w-full border-t-[1px] border-zinc-800"></div>
-      <h1 class="relative z-10 bg-black px-8 text-6xl md:text-8xl font-bold tracking-tighter text-white select-none" style="font-family: var(--font-mono);">
-        x1zz
+    <!-- ─── HERO ─────────────────────────────────────────────── -->
+    <section class="py-16 md:py-24">
+      <p class="text-sm font-semibold text-accent mb-4" style="font-family: var(--font-mono);">
+        <span class="lang-en">Sewoo Jang</span>
+        <span class="lang-kr">장서우</span>
+      </p>
+      <h1 class="text-3xl md:text-5xl font-bold leading-tight tracking-tight text-fg mb-5">
+        <span class="lang-en">I build data pipeline tools in Rust.</span>
+        <span class="lang-kr">Rust로 데이터 파이프라인 도구를 만듭니다.</span>
       </h1>
-    </div>
-
-    <!-- Tagline -->
-    <div class="mt-10 max-w-3xl w-full">
-      <p class="text-sm font-medium leading-relaxed text-white lang-en">
-        An AI-native infrastructure primitive. We eliminate code debt at the root—injecting a
-        <span class="text-white font-bold" style="font-family: var(--font-mono);">[sLM → IR → Rust Engine]</span>
-        hybrid pipeline into early-stage ventures to unlock irreversible structural advantage.
+      <p class="text-lg text-sub leading-relaxed max-w-2xl">
+        <span class="lang-en">Focused on compilers, type systems, and data infrastructure.</span>
+        <span class="lang-kr">컴파일러, 타입 시스템, 데이터 인프라에 집중하고 있습니다.</span>
       </p>
-      <p class="text-sm font-medium leading-relaxed text-white lang-kr">
-        AI 네이티브 인프라 프리미티브. 코드 부채를 근원에서 제거합니다—
-        <span class="text-white font-bold" style="font-family: var(--font-mono);">[sLM → IR → Rust 엔진]</span>
-        하이브리드 파이프라인을 초기 스타트업에 주입하여 돌이킬 수 없는 구조적 우위를 창출합니다.
+      <p class="text-sm text-dim mt-3" style="font-family: var(--font-mono);">
+        <span class="lang-en">high-school student in Korea</span>
+        <span class="lang-kr">한국의 고등학생</span>
       </p>
-    </div>
+    </section>
 
-  </section>
+    <!-- ─── FEATURED · XAZZ ──────────────────────────────────── -->
+    <section class="pb-16 md:pb-20">
+      <div class="border-b border-line pb-3 mb-6">
+        <span class="seclabel">
+          <span class="lang-en">Featured Project</span>
+          <span class="lang-kr">대표 프로젝트</span>
+        </span>
+      </div>
 
-  <!-- ─── THREE PILLARS ─────────────────────────────────────────────────── -->
-  <main class="flex-1 w-full max-w-3xl mx-auto px-6 pb-20 space-y-6">
+      <div class="border border-line2 bg-panel">
+        <div class="p-6 md:p-8">
 
-    <!-- Section label -->
-    <div class="border-b border-zinc-800 pb-3">
-      <span class="text-xs font-semibold tracking-widest text-white uppercase" style="font-family: var(--font-mono);">
-        <span class="lang-en">// DIRECTORY_INDEX</span>
-        <span class="lang-kr">// 디렉토리 인덱스</span>
-      </span>
-    </div>
+          <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-4">
+            <h2 class="text-2xl font-bold text-fg">Xazz</h2>
+            <span class="text-sm text-accent font-semibold" style="font-family: var(--font-mono);">
+              <span class="lang-en">Rust-based DSL compiler</span>
+              <span class="lang-kr">Rust 기반 DSL 컴파일러</span>
+            </span>
+          </div>
 
-    <!-- ── Pillar 1: Xizzthesizer ─────────────────────────────────────── -->
-    <a href="/synthesizer" class="group block border border-zinc-800 p-6 rounded hover:bg-white hover:text-black transition-all duration-150">
+          <p class="text-lg text-sub leading-relaxed mb-4 lang-en">
+            A from-scratch compiler for data and ML pipelines. Its own lexer, parser, type checker, Typed IR,
+            and codegen lower one `.xzz` script to Polars (data) and Burn (deep learning).
+          </p>
+          <p class="text-lg text-sub leading-relaxed mb-4 lang-kr">
+            데이터·ML 파이프라인용 컴파일러를 처음부터 구현했습니다. 직접 만든 렉서, 파서, 타입 체커, Typed IR,
+            코드 생성을 통해 하나의 `.xzz` 스크립트를 Polars(데이터)와 Burn(딥러닝)으로 하강시킵니다.
+          </p>
 
-      <div class="flex items-center justify-between mb-4">
-        <div class="flex items-center gap-3">
-          <img src="/Xizzthesizer_logo.png" alt="Xizzthesizer" class="h-6 w-auto opacity-80 group-hover:opacity-100 group-hover:invert transition-all duration-150" />
-          <code class="text-sm font-bold text-white group-hover:text-black transition-colors duration-150" style="font-family: var(--font-mono);">/synthesizer</code>
+          <!-- pipeline -->
+          <div class="flex flex-wrap items-center gap-2 my-6 text-sm" style="font-family: var(--font-mono);">
+            {
+              xazzPipeline.map((s, i) => (
+                <span class="flex items-center gap-2">
+                  <span class={i === 5 ? 'border border-accent text-accent px-3 py-1.5 font-semibold' : 'border border-line text-sub px-3 py-1.5'}>
+                    {s}
+                  </span>
+                  {i < xazzPipeline.length - 1 && <span class="text-dim">→</span>}
+                </span>
+              ))
+            }
+          </div>
+          <p class="text-sm text-mut mb-6" style="font-family: var(--font-mono);">
+            <span class="lang-en">// compiled to a typed IR once; the runtime consumes it once</span>
+            <span class="lang-kr">// IR로 한 번 컴파일되고, 런타임은 IR을 한 번만 소비</span>
+          </p>
+
+          <div class="terminal mb-6">
+            <div class="terminal-titlebar">
+              <span class="term-dot" style="background:#E06C6C"></span>
+              <span class="term-dot" style="background:#E8B35B"></span>
+              <span class="term-dot" style="background:#00FFA3"></span>
+              <span class="ml-2 text-sm text-sub" style="font-family: var(--font-mono);">demo.xzz</span>
+            </div>
+            <pre class="px-5 py-4 text-[0.84rem] leading-[1.7] overflow-x-auto" style="font-family: var(--font-mono);">{xazzCode}</pre>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div class="flex flex-wrap gap-2">
+              <span class="chip">Rust · Polars · Burn · Axum</span>
+              <span class="chip">Apache-2.0</span>
+            </div>
+            <a href="https://github.com/x1zzdev/Xazz" target="_blank" rel="noopener noreferrer" class="btn btn-accent">GitHub <span aria-hidden="true">↗</span></a>
+          </div>
         </div>
-        <span class="text-xs font-semibold tracking-widest text-white group-hover:text-zinc-800 transition-colors duration-150" style="font-family: var(--font-mono);">
-          <span class="lang-en">[ART &amp; TECH ESSAYS]</span>
-          <span class="lang-kr">[예술 및 테크 에세이]</span>
+      </div>
+    </section>
+
+    <!-- ─── PROJECTS ─────────────────────────────────────────── -->
+    <section class="pb-16 md:pb-20">
+      <div class="border-b border-line pb-3 mb-6">
+        <span class="seclabel">
+          <span class="lang-en">Projects</span>
+          <span class="lang-kr">프로젝트</span>
         </span>
       </div>
 
-      <p class="text-sm font-medium leading-relaxed text-white group-hover:text-zinc-800 transition-colors duration-150 lang-en">
-        A digital media lab exploring the profound synthesis of technology, human philosophy, and aesthetic computing.
-      </p>
-      <p class="text-sm font-medium leading-relaxed text-white group-hover:text-zinc-800 transition-colors duration-150 lang-kr">
-        기술과 인간 철학, 그리고 미학적 컴퓨팅의 강렬한 융합을 탐구하는 디지털 미디어 랩.
-      </p>
+      <div class="space-y-4">
+        {
+          projects.map((p) => (
+            <div class="border border-line bg-panel p-6">
+              <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-2">
+                <h3 class="text-lg font-bold text-fg">{p.name}</h3>
+                <span class="text-sm text-mut" style="font-family: var(--font-mono);">
+                  <span class="lang-en">{p.cat}</span>
+                  <span class="lang-kr">{p.catKr}</span>
+                </span>
+              </div>
+              <p class="text-sub leading-relaxed mb-4 lang-en">{p.en}</p>
+              <p class="text-sub leading-relaxed mb-4 lang-kr">{p.kr}</p>
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <span class="chip">{p.stack}</span>
+                <a href={p.url} target="_blank" rel="noopener noreferrer" class="text-sm text-mut hover:text-accent transition-colors" style="font-family: var(--font-mono);">GitHub ↗</a>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </section>
 
-    </a>
+    <!-- ─── RESEARCH ─────────────────────────────────────────── -->
+    <section class="pb-16 md:pb-24">
+      <div class="border-b border-line pb-3 mb-6">
+        <span class="seclabel">
+          <span class="lang-en">Research</span>
+          <span class="lang-kr">연구</span>
+        </span>
+      </div>
 
-    <!-- ── Pillar 2: x1zzdev ──────────────────────────────────────────── -->
-    <a href="/dev" class="group block border border-zinc-800 p-6 rounded hover:bg-white hover:text-black transition-all duration-150">
-
-      <div class="flex items-center justify-between mb-4">
-        <div class="flex items-center gap-3">
-          <img src="/x1zzLang_logo_white.png" alt="x1zzLang" class="h-6 w-auto opacity-80 group-hover:opacity-100 group-hover:invert transition-all duration-150" />
-          <code class="text-sm font-bold text-white group-hover:text-black transition-colors duration-150" style="font-family: var(--font-mono);">/dev</code>
+      <div class="border border-line bg-panel p-6">
+        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-3">
+          <h3 class="text-lg font-bold text-fg">LLM-PCAG</h3>
+          <span class="text-sm text-mut" style="font-family: var(--font-mono);">
+            <span class="lang-en">energy efficiency of LLM quantization</span>
+            <span class="lang-kr">LLM 양자화의 에너지 효율</span>
+          </span>
         </div>
-        <span class="text-xs font-semibold tracking-widest text-white group-hover:text-zinc-800 transition-colors duration-150" style="font-family: var(--font-mono);">
-          <span class="lang-en">[DEVELOPMENT &amp; OPEN SOURCE]</span>
-          <span class="lang-kr">[개발 및 오픈소스]</span>
+
+        <p class="text-sub leading-relaxed mb-5 lang-en">
+          Quantifies how much energy weight quantization actually saves. The PCAG metric shows that savings
+          collapse faster than accuracy loss, and a power wall at INT4→INT3 was verified through three independent
+          paths. The Jevons paradox is proved in closed form.
+        </p>
+        <p class="text-sub leading-relaxed mb-5 lang-kr">
+          가중치 양자화가 에너지를 실제로 얼마나 아끼는지 정량화합니다. PCAG 지표로 절감 효과가 정확도 손실보다
+          먼저 붕괴함을 보이고, INT4→INT3의 파워 월을 세 경로로 검증했어요. 제본스 역설도 닫힌 형태로 증명했습니다.
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+          {
+            findings.map((f) => (
+              <div class="border border-line p-4">
+                <p class="text-xs text-mut mb-1.5" style="font-family: var(--font-mono);">
+                  <span class="lang-en">{f.label}</span>
+                  <span class="lang-kr">{f.labelKr}</span>
+                </p>
+                <p class="text-fg font-semibold" style="font-family: var(--font-mono);">{f.value}</p>
+              </div>
+            ))
+          }
+        </div>
+
+        <div id="formula-pcag" class="text-center text-lg text-fg py-3 mb-5 overflow-x-auto"></div>
+
+        <p class="text-sm text-dim mb-5" style="font-family: var(--font-mono);">
+          <span class="lang-en">current status — literature-anchored analysis · GPU measurement harness in progress</span>
+          <span class="lang-kr">현재 상태 — 문헌 기반 분석 · GPU 측정 하네스 진행 중</span>
+        </p>
+
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <span class="chip">Python · NumPy · SciPy · SymPy</span>
+          <a href="https://github.com/ax1s-x1zz/llm-pcag-research" target="_blank" rel="noopener noreferrer" class="btn">Repository <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── ABOUT ────────────────────────────────────────────── -->
+    <section class="pb-16">
+      <div class="border-b border-line pb-3 mb-6">
+        <span class="seclabel">
+          <span class="lang-en">About</span>
+          <span class="lang-kr">소개</span>
         </span>
       </div>
 
-      <p class="text-sm font-medium leading-relaxed text-white group-hover:text-zinc-800 transition-colors duration-150 lang-en">
-        Core engineering home of <code class="text-white group-hover:text-black font-bold" style="font-family: var(--font-mono);">x1zzLang</code>—a Rust-based DSL compiler running <strong class="text-white group-hover:text-black">3.84×</strong> faster than pandas via a Polars LazyFrame backend—and its graphical React-based Visual DAG Pipeline IDE.
+      <p class="text-sub leading-relaxed lang-en">
+        I study compilers and systems engineering and build them as working software. The Xazz toolchain is a
+        single family of languages — a DSL, a transpiler, and a visual editor — that share one typed AST and one
+        philosophy: move errors from runtime to compile time.
       </p>
-      <p class="text-sm font-medium leading-relaxed text-white group-hover:text-zinc-800 transition-colors duration-150 lang-kr">
-        pandas 대비 <strong class="text-white group-hover:text-black">3.84배</strong> 빠른 고성능 Rust/Polars 기반 DSL 컴파일러 <code class="text-white group-hover:text-black font-bold" style="font-family: var(--font-mono);">x1zzLang</code> 및 비주얼 DAG 파이프라인 IDE 프로젝트의 기술적 작업 증명(PoW).
+      <p class="text-sub leading-relaxed lang-kr">
+        컴파일러와 시스템 엔지니어링을 공부하고, 그것을 동작하는 소프트웨어로 만듭니다. Xazz 툴체인은 하나의 타입드 AST와
+        "에러를 런타임에서 컴파일 타임으로 옮긴다"는 철학을 공유하는 DSL, 트랜스파일러, 비주얼 에디터의 한 가족입니다.
       </p>
+    </section>
 
-    </a>
-
-    <!-- ── Pillar 3: Portfolio ─────────────────────────────────────────── -->
-    <a href="/portfolio" class="group block border border-zinc-800 p-6 rounded hover:bg-white hover:text-black transition-all duration-150">
-
-      <div class="flex items-center justify-between mb-4">
-        <code class="text-sm font-bold text-white group-hover:text-black transition-colors duration-150" style="font-family: var(--font-mono);">/portfolio</code>
-        <span class="text-xs font-semibold tracking-widest text-white group-hover:text-zinc-800 transition-colors duration-150" style="font-family: var(--font-mono);">
-          <span class="lang-en">[PORTFOLIO & SHOWCASE]</span>
-          <span class="lang-kr">[포트폴리오 및 쇼케이스]</span>
-        </span>
+    <!-- ─── CONTACT ──────────────────────────────────────────── -->
+    <section class="pb-16">
+      <div class="flex flex-wrap items-center gap-3">
+        <a href="mailto:ax1s@x1zz.com" class="btn">ax1s@x1zz.com</a>
+        <a href="https://github.com/x1zzdev/Xazz" target="_blank" rel="noopener noreferrer" class="btn btn-ghost">GitHub <span aria-hidden="true">↗</span></a>
+        <a href="/portfolio" class="btn btn-ghost">portfolio</a>
       </div>
+    </section>
 
-      <p class="text-sm font-medium leading-relaxed text-white group-hover:text-zinc-800 transition-colors duration-150 lang-en">
-        A comprehensive portfolio showcasing the <code class="text-white group-hover:text-black font-bold" style="font-family: var(--font-mono);">x1zzLang</code> ecosystem — a Rust-based DSL compiler achieving <strong class="text-white group-hover:text-black">3.84×</strong> faster than pandas, and its graphical Visual DAG Pipeline IDE.
-      </p>
-      <p class="text-sm font-medium leading-relaxed text-white group-hover:text-zinc-800 transition-colors duration-150 lang-kr">
-        <code class="text-white group-hover:text-black font-bold" style="font-family: var(--font-mono);">x1zzLang</code> 생태계의 종합 포트폴리오 — pandas 대비 <strong class="text-white group-hover:text-black">3.84배</strong> 빠른 Rust 기반 DSL 컴파일러와 비주얼 DAG 파이프라인 IDE를 소개합니다.
-      </p>
-
-    </a>
-
-    <!-- ── Pillar 4: x1zz Infra ───────────────────────────────────────── -->
-    <a href="/infra" class="group block border border-zinc-800 p-6 rounded hover:bg-white hover:text-black transition-all duration-150">
-
-      <div class="flex items-center justify-between mb-4">
-        <code class="text-sm font-bold text-white group-hover:text-black transition-colors duration-150" style="font-family: var(--font-mono);">/infra</code>
-        <span class="text-xs font-semibold tracking-widest text-white group-hover:text-zinc-800 transition-colors duration-150" style="font-family: var(--font-mono);">
-          <span class="lang-en">[INFRASTRUCTURE INVESTMENT]</span>
-          <span class="lang-kr">[인프라 투자 프로토콜]</span>
-        </span>
-      </div>
-
-      <p class="text-sm font-medium leading-relaxed text-white group-hover:text-zinc-800 transition-colors duration-150 lang-en">
-        A composable tech infrastructure protocol for lean startups. We eliminate code debt at its root, injecting <span class="text-white group-hover:text-black font-bold" style="font-family: var(--font-mono);">[sLM + IR + Rust Engine]</span> stacks into early-stage ventures in exchange for equity. Powered by x1zz.
-      </p>
-      <p class="text-sm font-medium leading-relaxed text-white group-hover:text-zinc-800 transition-colors duration-150 lang-kr">
-        <span class="text-white group-hover:text-black font-bold" style="font-family: var(--font-mono);">[sLM + 중간 계층(IR) + Rust 규칙 엔진]</span> 하이브리드 아키텍처를 주입하여 린 스타트업의 기술 장벽과 고정비를 제로로 만드는 플랫폼. 코드가 아닌 영생의 인프라로 가치를 교환합니다.
-      </p>
-
-    </a>
-
+    <!-- ─── FOOTER ───────────────────────────────────────────── -->
+    <footer class="py-8 border-t border-line flex items-center justify-between text-sm">
+      <span class="text-fg" style="font-family: var(--font-mono);">x1zz.com</span>
+      <span class="text-dim" style="font-family: var(--font-mono);">© 2026</span>
+    </footer>
   </main>
 
-  <!-- ─── FOOTER ─────────────────────────────────────────────────────────── -->
-  <footer class="w-full border-t border-zinc-800 px-6 py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+  <script slot="head" is:inline defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <link slot="head" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
 
-    <div class="flex items-center gap-4 text-xs font-semibold text-white" style="font-family: var(--font-mono);">
-      <span>x1zz.com</span>
-      <span class="text-zinc-500">|</span>
-      <span>BUILD_001</span>
-    </div>
-
-    <div class="text-xs font-semibold text-white lang-en" style="font-family: var(--font-mono);">
-      The present desires a brilliant future. The brilliant future desires the present.
-    </div>
-    <div class="text-xs font-semibold text-white lang-kr" style="font-family: var(--font-mono);">
-      현재는 찬란한 미래를 원하고, 찬란한 미래는 현재를 원한다.
-    </div>
-
-  </footer>
-
-  <!-- ─── Minimal Language Toggle Script ─────────────────────────────────── -->
   <script>
     (function () {
       var btn = document.getElementById('lang-toggle');
@@ -204,7 +310,19 @@ import '../styles/global.css';
         html.setAttribute('lang', current === 'en' ? 'ko' : 'en');
       });
     })();
-  </script>
 
-</body>
-</html>
+    (function () {
+      function render() {
+        var katex = window.katex;
+        if (!katex) return;
+        var el = document.getElementById('formula-pcag');
+        if (el) katex.render('\\text{PCAG}_k = \\dfrac{(P_0-P_k)/P_0}{(A_0-A_k)/A_0}', el, { displayMode: true, throwOnError: false });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', render);
+      } else {
+        render();
+      }
+    })();
+  </script>
+</Layout>

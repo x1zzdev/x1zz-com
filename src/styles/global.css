@@ -1,35 +1,266 @@
 @import "tailwindcss";
 
+/* ═══════════════════════════════════════════════════════════════
+   x1zz · design system
+   Restrained dark theme. Readability first.
+   Palette: #0E1013 canvas · #00FFA3 accent · #38C8FF secondary
+   ═══════════════════════════════════════════════════════════════ */
+
 @theme {
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --color-canvas:  #0E1013;
+  --color-panel:   #15171B;
+  --color-raised:  #1A1D23;
+  --color-line:    #262A31;
+  --color-line2:   #343942;
+  --color-fg:      #F2F4F8;
+  --color-sub:     #C6CBD6;
+  --color-mut:     #97A0B0;
+  --color-dim:     #6C7484;
+  --color-accent:  #00FFA3;
+  --color-accent2: #38C8FF;
+  --color-warn:    #E8B35B;
+  --color-danger:  #E06C6C;
+
+  --font-mono: 'JetBrains Mono', 'Noto Sans Mono CJK KR', 'D2Coding', ui-monospace, 'SF Mono', 'Menlo', Consolas, monospace;
+  --font-sans: 'Inter', 'Noto Sans KR', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
 @layer base {
   *, *::before, *::after {
     box-sizing: border-box;
   }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
   html, body {
-    background-color: #000000;
-    color: #ffffff;
+    background-color: var(--color-canvas);
+    color: var(--color-fg);
     margin: 0;
     padding: 0;
+    -webkit-font-smoothing: antialiased;
   }
-  a {
-    text-decoration: none;
-    color: inherit;
+
+  body {
+    font-size: 16px;
+    line-height: 1.7;
   }
+
+  a { text-decoration: none; color: inherit; }
+  img, svg, video, canvas { max-width: 100%; height: auto; }
+  h1, h2, h3, p { overflow-wrap: break-word; }
+
+  ::selection {
+    background: var(--color-accent);
+    color: #06120C;
+  }
+
+  * { scrollbar-width: thin; scrollbar-color: #343942 transparent; }
+  *::-webkit-scrollbar { width: 8px; height: 8px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+  *::-webkit-scrollbar-thumb { background: #333947; }
 }
 
-/* Language toggle visibility */
+@layer components {
+  /* ── Buttons · plain, sentence case ────────────────────────── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--color-line2);
+    padding: 0.5rem 1.1rem;
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--color-fg);
+    background: transparent;
+    cursor: pointer;
+    transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+  }
+  .btn:hover {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: #06120C;
+  }
+  .btn.btn-accent { border-color: var(--color-accent); color: var(--color-accent); }
+  .btn.btn-accent:hover { background: var(--color-accent); color: #06120C; }
+  .btn.btn-ghost { border-color: var(--color-line); color: var(--color-mut); }
+  .btn.btn-ghost:hover { color: var(--color-fg); border-color: var(--color-fg); background: transparent; }
+
+  /* ── Chips / tags ─────────────────────────────────────────── */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid var(--color-line);
+    padding: 0.22rem 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--color-mut);
+    white-space: nowrap;
+    background: rgba(255,255,255,0.02);
+  }
+  .chip.on { border-color: var(--color-accent); color: var(--color-accent); font-weight: 600; }
+
+  /* ── Code block / terminal ────────────────────────────────── */
+  .terminal {
+    background: #0B0D10;
+    border: 1px solid var(--color-line);
+    overflow: hidden;
+  }
+  .terminal-titlebar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--color-line);
+    padding: 0.55rem 0.9rem;
+  }
+
+  /* ── Data table ───────────────────────────────────────────── */
+  .tbl {
+    width: 100%;
+    font-family: var(--font-mono);
+    font-size: 0.86rem;
+    border-collapse: collapse;
+  }
+  .tbl th {
+    text-align: left;
+    padding: 0.6rem 0.9rem;
+    border-bottom: 1px solid var(--color-line2);
+    color: var(--color-mut);
+    font-weight: 600;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .tbl td {
+    padding: 0.6rem 0.9rem;
+    border-bottom: 1px solid var(--color-line);
+    color: var(--color-fg);
+    vertical-align: top;
+  }
+  .tbl tbody tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* ── Section label ────────────────────────────────────────── */
+  .seclabel {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+  .seclabel::before { content: "//"; color: var(--color-dim); }
+}
+
+/* ── Language toggle visibility ──────────────────────────────── */
 html[data-lang="en"] .lang-kr { display: none; }
 html[data-lang="kr"] .lang-en { display: none; }
 
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.2; }
+/* ── IDE file tree ───────────────────────────────────────────── */
+.tree-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.34rem 0.9rem;
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+  color: var(--color-mut);
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: background 0.1s ease, color 0.1s ease;
+  white-space: nowrap;
+}
+.tree-item:hover { color: var(--color-fg); background: rgba(255,255,255,0.03); }
+.tree-item.active {
+  color: var(--color-fg);
+  background: rgba(0,255,163,0.06);
+  border-left-color: var(--color-accent);
+}
+.tree-dir {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.34rem 0.9rem;
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+  color: var(--color-fg);
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
 }
 
-.pulse-dot {
-  animation: pulse-dot 2s ease-in-out infinite;
+.ide-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--color-mut);
+  border-right: 1px solid var(--color-line);
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.1s ease, background 0.1s ease;
 }
+.ide-tab:hover { color: var(--color-fg); background: rgba(255,255,255,0.03); }
+.ide-tab.active {
+  color: var(--color-fg);
+  border-bottom-color: var(--color-accent);
+  background: var(--color-canvas);
+}
+
+/* ── Markdown document body ──────────────────────────────────── */
+.markdown-body { font-size: 0.97rem; line-height: 1.8; color: var(--color-fg); }
+.markdown-body h1 {
+  font-family: var(--font-mono);
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--color-line);
+  margin-bottom: 1.2rem;
+}
+.markdown-body h2 {
+  font-family: var(--font-mono);
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  margin: 1.8rem 0 0.55rem;
+}
+.markdown-body p { margin: 0.6rem 0; }
+.markdown-body strong { color: var(--color-fg); }
+.markdown-body code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--color-line);
+  padding: 0.1em 0.35em;
+  color: var(--color-accent);
+}
+.markdown-body pre {
+  background: #0B0D10;
+  border: 1px solid var(--color-line);
+  padding: 1rem 1.2rem;
+  overflow-x: auto;
+  margin: 0.8rem 0;
+}
+.markdown-body pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: var(--color-fg);
+  font-size: 0.84rem;
+  line-height: 1.7;
+}
+.markdown-body ul { list-style: none; padding-left: 0; margin: 0.5rem 0; }
+.markdown-body li { padding-left: 1.1rem; position: relative; margin: 0.3rem 0; }
+.markdown-body li::before { content: "·"; position: absolute; left: 0.3rem; color: var(--color-accent); }

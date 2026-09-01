@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://x1zz.com/sitemap.xml

@@ -1,0 +1,81 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout
+  title="writing — Xazz의 Typed IR · x1zz"
+  description="Why Xazz has a typed IR — notes from the v0.3.0 rewrite."
+  lang="en"
+  dataLang="en"
+  path="/writing/"
+>
+  <div class="w-full max-w-2xl mx-auto px-5 md:px-8 py-14">
+    <p class="text-sm text-mut mb-2" style="font-family: var(--font-mono);">writing / 2026</p>
+    <h1 class="text-2xl md:text-3xl font-bold text-fg mb-8">
+      <span class="lang-en">Why Xazz has a typed IR</span>
+      <span class="lang-kr">Xazz에 Typed IR을 넣은 이유</span>
+    </h1>
+
+    <div class="space-y-6 text-sub leading-relaxed">
+
+      <p class="lang-en">
+        The first version of Xazz parsed source twice. The CLI parsed a <code>.xzz</code> file into an AST, and then
+        the execution engine parsed that AST again against Polars and Burn. Two parses meant two chances for the two
+        sides to drift apart. If a column name meant something different to the checker and the runtime, the mismatch
+        only showed up at runtime.
+      </p>
+      <p class="lang-kr">
+        Xazz 초기 버전은 소스를 두 번 해석했습니다. CLI가 <code>.xzz</code> 파일을 AST로 파싱하고, 실행 엔진이 그 AST를
+        다시 Polars와 Burn에 맞춰 해석했어요. 두 번 해석한다는 건 두 쪽이 서로 어긋날 여지가 두 번이라는 뜻이었고,
+        컬럼 이름 하나가 체커와 런타임에서 다르게 읽히면 그 불일치는 런타임에나 드러났습니다.
+      </p>
+
+      <p class="lang-en">
+        In v0.3.0 the pipeline was flattened: lexer → parser → static checker → <strong>typed IR</strong> → optimizer.
+        The compiler produces the IR once, and the runtime consumes the IR once. There is nothing left to re-interpret.
+      </p>
+      <p class="lang-kr">
+        v0.3.0에서 파이프라인을 평평하게 만들었습니다: 렉서 → 파서 → 정적 체커 → <strong>타입드 IR</strong> → 옵티마이저.
+        컴파일러가 IR을 한 번 만들고, 런타임은 그 IR을 한 번만 소비합니다. 다시 해석할 게 남아있지 않죠.
+      </p>
+
+      <p class="lang-en">
+        The IR also gave the optimizer a place to live. Three passes in <code>opt.rs</code>: constant folding,
+        merging consecutive selects, and pushing filters before selects — all meaning-preserving. The interesting
+        part was the null semantics. In the DSL, a filter keeps rows where the expression is true, and null counts as
+        false. So a filter can only move past a <code>select</code> or <code>withColumn</code> if every column it
+        reads still exists on the other side. A filter that references a newly-created column does not move. Division
+        by zero is never folded, either — folding it would change runtime behavior.
+      </p>
+      <p class="lang-kr">
+        IR은 옵티마이저가 자리할 곳을 만들어줬습니다. <code>opt.rs</code>의 세 패스 — 상수 폴딩, 연속 select 병합,
+        select 앞으로의 filter 푸시다운 — 모두 의미를 보존합니다. 흥미로웠던 부분은 널 의미론이었어요. 이 DSL에서
+        filter는 식이 true인 행만 남기고 null은 false로 취급합니다. 그래서 filter는 자신이 읽는 모든 컬럼이 이동
+        경계 반대편에도 존재할 때만 select나 withColumn을 건너갈 수 있어요. 새로 만든 컬럼을 참조하는 filter는
+        움직이지 않습니다. 0으로 나누는 것도 폴딩하지 않습니다 — 폴딩하면 런타임 동작이 달라지니까요.
+      </p>
+
+      <p class="lang-en">
+        One design decision I'm glad I made: the IR is backend-independent. The optimizer works on the typed IR, not on
+        Polars or Burn. So when a GPU backend eventually lands, the passes keep working without changes.
+      </p>
+      <p class="lang-kr">
+        잘했다고 생각하는 결정은 IR을 백엔드와 무관하게 둔 것입니다. 옵티마이저는 Polars나 Burn이 아니라 타입드 IR
+        위에서 동작합니다. 그래서 나중에 GPU 백엔드가 추가되어도 패스는 그대로 동작할 겁니다.
+      </p>
+
+      <p class="lang-en">
+        The whole rewrite came down to one idea: decide what a program means in one place, and let everything else
+        just execute it.
+      </p>
+      <p class="lang-kr">
+        이 리팩터링의 핵심은 결국 하나였습니다. 프로그램의 의미를 한 곳에서 정하고, 나머지는 그저 실행만 하면 된다는 것.
+      </p>
+    </div>
+
+    <div class="mt-12 pt-6 border-t border-line flex items-center justify-between text-sm">
+      <a href="/portfolio" class="text-mut hover:text-accent transition-colors" style="font-family: var(--font-mono);">← portfolio</a>
+      <a href="/" class="text-mut hover:text-accent transition-colors" style="font-family: var(--font-mono);">x1zz.com</a>
+    </div>
+  </div>
+</Layout>

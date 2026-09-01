@@ -249,6 +249,14 @@ const findings = [
 
         <div id="formula-pcag" class="text-center text-lg text-fg py-3 mb-5 overflow-x-auto"></div>
 
+        <div class="border border-line overflow-hidden mb-5">
+          <div class="px-4 py-2 border-b border-line text-sm text-mut" style="font-family: var(--font-mono);">
+            <span class="lang-en">PCAG power wall — INT4 → INT3</span>
+            <span class="lang-kr">PCAG 파워 월 — INT4 → INT3</span>
+          </div>
+          <img src="/pcag-power-wall.png" alt="PCAG power wall chart at INT4 to INT3" class="w-full h-auto object-contain bg-canvas" loading="lazy" />
+        </div>
+
         <p class="text-sm text-dim mb-5" style="font-family: var(--font-mono);">
           <span class="lang-en">current status — literature-anchored analysis · GPU measurement harness in progress</span>
           <span class="lang-kr">현재 상태 — 문헌 기반 분석 · GPU 측정 하네스 진행 중</span>
@@ -256,7 +264,10 @@ const findings = [
 
         <div class="flex flex-wrap items-center justify-between gap-3">
           <span class="chip">Python · NumPy · SciPy · SymPy</span>
-          <a href="https://github.com/ax1s-x1zz/llm-pcag-research" target="_blank" rel="noopener noreferrer" class="btn">Repository <span aria-hidden="true">↗</span></a>
+          <div class="flex flex-wrap items-center gap-3">
+            <a href="https://github.com/ax1s-x1zz/llm-pcag-research/blob/main/docs/main_paper.md" target="_blank" rel="noopener noreferrer" class="text-sm text-mut hover:text-accent transition-colors" style="font-family: var(--font-mono);">paper draft ↗</a>
+            <a href="https://github.com/ax1s-x1zz/llm-pcag-research" target="_blank" rel="noopener noreferrer" class="btn">Repository <span aria-hidden="true">↗</span></a>
+          </div>
         </div>
       </div>
     </section>

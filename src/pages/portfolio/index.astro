@@ -219,6 +219,29 @@ const irOpt = `// xazz-compiler/src/opt.rs
 
             <pre><code>{xazzDemo}</code></pre>
 
+            <h2><span class="lang-en">It runs</span><span class="lang-kr">실행 결과</span></h2>
+
+            <p class="lang-en">Static analysis catches a typo before execution — with a did-you-mean hint and a <code>line:col</code> span:</p>
+            <p class="lang-kr">실행 전에 정적 분석이 오타를 잡습니다 — did-you-mean 힌트와 <code>line:col</code> 스팬과 함께:</p>
+            <div class="border border-line overflow-hidden mb-5">
+              <div class="px-4 py-2 border-b border-line text-sm text-mut" style="font-family: var(--font-mono);">xazz check</div>
+              <img src="/xazz-demo-check.png" alt="xazz check output with did-you-mean hint" class="w-full h-auto object-contain bg-canvas" loading="lazy" />
+            </div>
+
+            <p class="lang-en">A model declaration compiled to real Burn layers, with epoch losses and a checkpoint:</p>
+            <p class="lang-kr">모델 선언이 실제 Burn 레이어로 컴파일되어 에폭 손실과 체크포인트를 기록합니다:</p>
+            <div class="border border-line overflow-hidden mb-5">
+              <div class="px-4 py-2 border-b border-line text-sm text-mut" style="font-family: var(--font-mono);">xazz run demo/deep_learning.xzz</div>
+              <img src="/xazz-demo-training.png" alt="Burn deep-learning training log" class="w-full h-auto object-contain bg-canvas" loading="lazy" />
+            </div>
+
+            <p class="lang-en">Zero-copy tensor handoff — Arrow buffers read directly by Burn, no pandas → NumPy → PyTorch copies:</p>
+            <p class="lang-kr">제로카피 텐서 핸드오프 — Arrow 버퍼를 Burn이 직접 읽습니다. pandas → NumPy → PyTorch 복사가 없습니다:</p>
+            <div class="border border-line overflow-hidden mb-5">
+              <div class="px-4 py-2 border-b border-line text-sm text-mut" style="font-family: var(--font-mono);">memory model</div>
+              <img src="/xazz-zero-copy.svg" alt="zero-copy tensor handoff diagram" class="w-full h-auto object-contain bg-canvas" loading="lazy" />
+            </div>
+
             <div class="flex flex-wrap gap-3 mt-2">
               <a href="https://github.com/x1zzdev/Xazz" target="_blank" rel="noopener noreferrer" class="btn">Xazz on GitHub ↗</a>
             </div>
@@ -462,6 +485,12 @@ const irOpt = `// xazz-compiler/src/opt.rs
               데이터가 커질수록 격차는 줄어들고, 소규모 수치에는 pandas 인터프리터 부팅 비용이 포함되어 있어
               409만 행의 1.93×가 더 견고한 수치입니다. Polars 멀티스레딩은 지연 시간 대신 최대 RSS를 높이는 트레이드오프도 있습니다.
             </p>
+
+            <h2><span class="lang-en">Chart</span><span class="lang-kr">차트</span></h2>
+            <div class="border border-line overflow-hidden mb-5">
+              <div class="px-4 py-2 border-b border-line text-sm text-mut" style="font-family: var(--font-mono);">benches/render_benchmark_chart.py</div>
+              <img src="/xazz-benchmark-chart.png" alt="Xazz vs pandas latency scaling chart" class="w-full h-auto object-contain bg-canvas" loading="lazy" />
+            </div>
 
             <h2><span class="lang-en">x1zzLang vs pandas</span><span class="lang-kr">x1zzLang vs pandas</span></h2>
             <p class="lang-en">

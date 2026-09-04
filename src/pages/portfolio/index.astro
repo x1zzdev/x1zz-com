@@ -108,6 +108,7 @@ const irOpt = `// xazz-compiler/src/opt.rs
           </div>
 
           <div class="tree-item" data-file="bench" style="padding-left:1.2rem; margin-top:0.4rem; border-top:1px solid var(--color-line); padding-top:0.5rem;"><span class="text-accent">■</span> benchmarks.md</div>
+          <div class="tree-item" data-file="oss-burn" style="padding-left:1.2rem"><span class="text-accent2">■</span> opensource-burn.md</div>
           <div class="tree-item" data-file="sandbox" style="padding-left:1.2rem"><span class="text-accent">■</span> demo.xzz</div>
         </div>
       </aside>
@@ -128,6 +129,7 @@ const irOpt = `// xazz-compiler/src/opt.rs
               <option value="log-ir">logs/typed-ir.md</option>
               <option value="log-deps">logs/dependency-isolation.md</option>
               <option value="bench">benchmarks.md</option>
+              <option value="oss-burn">opensource-burn.md</option>
               <option value="sandbox">demo.xzz</option>
             </select>
           </div>
@@ -509,6 +511,44 @@ const irOpt = `// xazz-compiler/src/opt.rs
             </div>
           </div>
 
+          <!-- ═══ opensource-burn.md ═══ -->
+          <div id="pane-oss-burn" class="tab-pane markdown-body hidden max-w-3xl mx-auto px-6 md:px-10 py-10">
+            <h1>opensource-burn.md</h1>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="chip on"><span class="text-accent">●</span> merged PR</span>
+              <span class="chip">tracel-ai/burn</span>
+              <span class="chip">Rust</span>
+            </div>
+
+            <h2><span class="lang-en">What</span><span class="lang-kr">무엇</span></h2>
+            <p class="lang-en">
+              Added matmul batch-broadcast validation to <code>TensorCheck</code> — the public tensor-API check
+              layer that runs <em>before</em> backend dispatch — so every backend reports a consistent
+              <code>Tensor Operation Error</code> instead of an inconsistent backend-specific panic.
+              Merged as <a href="https://github.com/tracel-ai/burn/pull/5555" target="_blank" rel="noopener noreferrer">PR #5555</a>.
+            </p>
+            <p class="lang-kr">
+              백엔드 디스패치 <em>이전에</em> 실행되는 공개 텐서 API 검증 레이어인 <code>TensorCheck</code>에
+              matmul 배치 브로드캐스트 검증을 추가해, 모든 백엔드가 일관된 <code>Tensor Operation Error</code>를
+              받도록 했습니다 (기존에는 백엔드마다 제각각 다른 panic이 발생).
+              <a href="https://github.com/tracel-ai/burn/pull/5555" target="_blank" rel="noopener noreferrer">PR #5555</a>로 머지됐습니다.
+            </p>
+
+            <h2><span class="lang-en">How</span><span class="lang-kr">과정</span></h2>
+            <ul>
+              <li class="lang-en">Regression test that fails if the check is removed; narrowed after review to exercise exactly this path (not a pre-existing inner-dimension check).</li>
+              <li class="lang-kr">검증을 제거하면 실패하는 회귀 테스트를 작성하고, 리뷰 후 이 경로만 정확히 검증하도록 범위를 조정했습니다 (기존 inner-dimension 검증이 아닌).</li>
+              <li class="lang-en">First PR was rejected as backend-local (ndarray is deprecated) with a hot-path allocation; reworked onto the shared layer per maintainer direction.</li>
+              <li class="lang-kr">첫 PR은 백엔드 로컬(ndarray는 deprecated) + 핫패스 힙 할당으로 거절 → 메인테이너가 제시한 방향대로 공통 레이어로 재작업했습니다.</li>
+              <li class="lang-en">Merged directly by the maintainer.</li>
+              <li class="lang-kr">메인테이너가 직접 머지했습니다.</li>
+            </ul>
+
+            <div class="flex flex-wrap gap-3 mt-2">
+              <a href="https://github.com/tracel-ai/burn/pull/5555" target="_blank" rel="noopener noreferrer" class="btn">PR #5555 ↗</a>
+            </div>
+          </div>
+
           <!-- ═══ sandbox/demo.xzz ═══ -->
           <div id="pane-sandbox" class="tab-pane hidden max-w-4xl mx-auto px-6 md:px-10 py-10">
             <div class="markdown-body">
@@ -595,6 +635,7 @@ const irOpt = `// xazz-compiler/src/opt.rs
       'log-ir': 'typed-ir.md',
       'log-deps': 'dependency-isolation.md',
       bench: 'benchmarks.md',
+      'oss-burn': 'opensource-burn.md',
       sandbox: 'demo.xzz',
     };
 

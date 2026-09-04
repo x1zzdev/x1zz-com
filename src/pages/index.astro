@@ -293,6 +293,42 @@ const findings = [
       </div>
     </section>
 
+    <!-- ─── OPEN SOURCE ──────────────────────────────────────── -->
+    <section class="pb-16 md:pb-24">
+      <div class="border-b border-line pb-3 mb-6">
+        <span class="seclabel">
+          <span class="lang-en">Open Source</span>
+          <span class="lang-kr">오픈소스</span>
+        </span>
+      </div>
+
+      <div class="border border-line bg-panel p-6">
+        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-3">
+          <h3 class="text-lg font-bold text-fg">tracel-ai/burn</h3>
+          <span class="text-sm text-mut" style="font-family: var(--font-mono);">
+            <span class="lang-en">Rust deep learning framework · 15k★</span>
+            <span class="lang-kr">Rust 딥러닝 프레임워크 · 15k★</span>
+          </span>
+        </div>
+
+        <p class="text-sub leading-relaxed mb-3 lang-en">
+          Merged <strong>PR #5555</strong>: added matmul batch-broadcast validation to <code>TensorCheck</code>,
+          the public tensor-API check layer that runs before backend dispatch — so every backend reports a
+          consistent <code>Tensor Operation Error</code> instead of an inconsistent backend-specific panic.
+        </p>
+        <p class="text-sub leading-relaxed mb-3 lang-kr">
+          <strong>PR #5555</strong> 머지: 백엔드 디스패치 이전에 실행되는 공개 텐서 API 검증 레이어인
+          <code>TensorCheck</code>에 matmul 배치 브로드캐스트 검증을 추가해, 모든 백엔드가 일관된
+          <code>Tensor Operation Error</code>를 받도록 했습니다 (기존에는 백엔드마다 제각각 다른 panic이 발생).
+        </p>
+
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <span class="chip">TensorCheck · Rust · merged by maintainer</span>
+          <a href="https://github.com/tracel-ai/burn/pull/5555" target="_blank" rel="noopener noreferrer" class="btn btn-accent">PR #5555 <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+    </section>
+
     <!-- ─── ABOUT ────────────────────────────────────────────── -->
     <section class="pb-16">
       <div class="border-b border-line pb-3 mb-6">

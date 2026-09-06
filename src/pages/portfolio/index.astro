@@ -547,6 +547,30 @@ const irOpt = `// xazz-compiler/src/opt.rs
             <div class="flex flex-wrap gap-3 mt-2">
               <a href="https://github.com/tracel-ai/burn/pull/5555" target="_blank" rel="noopener noreferrer" class="btn">PR #5555 ↗</a>
             </div>
+
+            <h2><span class="lang-en">Also — element-wise binary ops</span><span class="lang-kr">추가 — 요소별 이항 연산</span></h2>
+            <p class="lang-en">
+              Applied the <code>binary_ops_ew</code> TensorCheck (device + broadcast) to five element-wise ops —
+              <code>remainder</code>, <code>powi</code>, <code>powf</code>, <code>hypot</code>, <code>atan2</code> —
+              which previously bypassed validation and panicked per-backend.
+              Merged as <a href="https://github.com/tracel-ai/burn/pull/5564" target="_blank" rel="noopener noreferrer">PR #5564</a>.
+            </p>
+            <p class="lang-kr">
+              요소별 이항 연산 5개(<code>remainder</code>, <code>powi</code>, <code>powf</code>, <code>hypot</code>,
+              <code>atan2</code>)에 <code>binary_ops_ew</code> 텐서 검증(device + 브로드캐스트)을 적용했습니다.
+              기존에는 검증을 건너뛰고 백엔드마다 다른 panic이 났습니다.
+              <a href="https://github.com/tracel-ai/burn/pull/5564" target="_blank" rel="noopener noreferrer">PR #5564</a>로 머지됐습니다.
+            </p>
+            <ul>
+              <li class="lang-en">Each op has a regression test asserting the <code>Tensor Operation Error</code>, verified to fail if the check is removed; valid broadcasts still pass.</li>
+              <li class="lang-kr">연산마다 <code>Tensor Operation Error</code>를 검증하는 회귀 테스트를 추가했고, 검증 제거 시 실패함을 확인했습니다. 유효한 브로드캐스트는 여전히 통과합니다.</li>
+              <li class="lang-en">Merged directly by the maintainer.</li>
+              <li class="lang-kr">메인테이너가 직접 머지했습니다.</li>
+            </ul>
+
+            <div class="flex flex-wrap gap-3 mt-2">
+              <a href="https://github.com/tracel-ai/burn/pull/5564" target="_blank" rel="noopener noreferrer" class="btn">PR #5564 ↗</a>
+            </div>
           </div>
 
           <!-- ═══ sandbox/demo.xzz ═══ -->

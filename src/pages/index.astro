@@ -327,6 +327,34 @@ const findings = [
           <a href="https://github.com/tracel-ai/burn/pull/5555" target="_blank" rel="noopener noreferrer" class="btn btn-accent">PR #5555 <span aria-hidden="true">↗</span></a>
         </div>
       </div>
+
+      <div class="border border-line bg-panel p-6 mt-4">
+        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-3">
+          <h3 class="text-lg font-bold text-fg">tracel-ai/burn</h3>
+          <span class="text-sm text-mut" style="font-family: var(--font-mono);">
+            <span class="lang-en">Rust deep learning framework · 15k★</span>
+            <span class="lang-kr">Rust 딥러닝 프레임워크 · 15k★</span>
+          </span>
+        </div>
+
+        <p class="text-sub leading-relaxed mb-3 lang-en">
+          Merged <strong>PR #5564</strong>: applied the <code>binary_ops_ew</code> TensorCheck (device + broadcast
+          validation) to five element-wise ops — <code>remainder</code>, <code>powi</code>, <code>powf</code>,
+          <code>hypot</code>, <code>atan2</code> — so mismatches surface as a consistent
+          <code>Tensor Operation Error</code> instead of backend-specific panics.
+        </p>
+        <p class="text-sub leading-relaxed mb-3 lang-kr">
+          <strong>PR #5564</strong> 머지: 요소별 이항 연산 5개(<code>remainder</code>, <code>powi</code>,
+          <code>powf</code>, <code>hypot</code>, <code>atan2</code>)에 <code>binary_ops_ew</code> 텐서 검증
+          (device + 브로드캐스트)를 적용해, 불일치가 백엔드별 panic이 아닌 일관된 <code>Tensor Operation Error</code>로
+          나타나도록 했습니다.
+        </p>
+
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <span class="chip">binary_ops_ew · Rust · merged by maintainer</span>
+          <a href="https://github.com/tracel-ai/burn/pull/5564" target="_blank" rel="noopener noreferrer" class="btn btn-accent">PR #5564 <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
     </section>
 
     <!-- ─── ABOUT ────────────────────────────────────────────── -->

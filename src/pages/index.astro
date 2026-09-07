@@ -355,6 +355,34 @@ const findings = [
           <a href="https://github.com/tracel-ai/burn/pull/5564" target="_blank" rel="noopener noreferrer" class="btn btn-accent">PR #5564 <span aria-hidden="true">↗</span></a>
         </div>
       </div>
+
+      <div class="border border-line bg-panel p-6 mt-4">
+        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-3">
+          <h3 class="text-lg font-bold text-fg">apache/arrow-rs</h3>
+          <span class="text-sm text-mut" style="font-family: var(--font-mono);">
+            <span class="lang-en">Apache Arrow &amp; Parquet in Rust · 3.6k★</span>
+            <span class="lang-kr">Rust로 구현한 Apache Arrow &amp; Parquet · 3.6k★</span>
+          </span>
+        </div>
+
+        <p class="text-sub leading-relaxed mb-3 lang-en">
+          Merged <strong>PR #11005</strong>: replaced the <code>BufferBuilder</code> used to re-encode sliced
+          IPC run-ends with <code>Vec</code> — the one callsite still using the builder on current main (see
+          <a href="https://github.com/apache/arrow-rs/issues/10245" target="_blank" rel="noopener noreferrer">#10245</a>,
+          where maintainers noted Rust's optimized <code>Vec</code> typically wins over the builder abstraction).
+        </p>
+        <p class="text-sub leading-relaxed mb-3 lang-kr">
+          <strong>PR #11005</strong> 머지: IPC run-ends 재인코딩에 쓰던 <code>BufferBuilder</code>를 <code>Vec</code>으로
+          교체했습니다 (유지보수자들이 "Rust의 최적화된 <code>Vec</code>이 빌더 추상화보다 우세하다"고 언급한
+          <a href="https://github.com/apache/arrow-rs/issues/10245" target="_blank" rel="noopener noreferrer">#10245</a>의
+          전환 작업 중 main에 실제로 남은 마지막 callsite).
+        </p>
+
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <span class="chip">Vec vs BufferBuilder · Rust · merged by maintainer</span>
+          <a href="https://github.com/apache/arrow-rs/pull/11005" target="_blank" rel="noopener noreferrer" class="btn btn-accent">PR #11005 <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
     </section>
 
     <!-- ─── ABOUT ────────────────────────────────────────────── -->

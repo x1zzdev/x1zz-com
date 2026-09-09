@@ -1,0 +1,76 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import GithubIcon from '../../components/GithubIcon.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+const fmt = (d: Date) =>
+  `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(
+    d.getUTCDate()
+  ).padStart(2, '0')}`;
+
+const read = Math.max(
+  1,
+  Math.round(post.body.split(/\s+/).filter(Boolean).length / 200)
+);
+---
+
+<Layout
+  title={`${post.data.title} — x1zz`}
+  description={post.data.excerpt}
+  lang="en"
+  dataLang="en"
+  path={`/blog/${post.id}`}
+>
+  <header class="w-full px-5 md:px-8 py-4 flex items-center justify-between gap-3 border-b border-line">
+    <a href="/" class="text-lg font-bold tracking-tight text-fg" style="font-family: var(--font-mono);">
+      x1zz<span class="text-accent">.</span>
+    </a>
+    <nav class="flex items-center gap-3 text-sm">
+      <a href="/blog" class="text-mut hover:text-fg transition-colors">blog</a>
+      <a
+        href="https://github.com/x1zzdev/Xazz"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-2 border border-line2 text-fg px-3 py-1.5 hover:border-accent hover:text-accent transition-colors"
+        style="font-family: var(--font-mono); font-size: 0.8rem;"
+      >
+        <GithubIcon size={15} /> GitHub
+      </a>
+    </nav>
+  </header>
+
+  <main class="w-full max-w-2xl mx-auto px-5 md:px-8 py-12">
+    <p class="text-sm text-dim mb-2" style="font-family: var(--font-mono);">
+      blog / {fmt(post.data.date)} · {read} min
+    </p>
+    <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-fg leading-tight mb-6">
+      {post.data.title}
+    </h1>
+
+    <div class="flex flex-wrap gap-2 mb-8">
+      {post.data.tags.map((t) => (
+        <span class="chip">#{t}</span>
+      ))}
+    </div>
+
+    <article class="markdown-body">
+      <Content />
+    </article>
+
+    <div class="mt-12 pt-6 border-t border-line flex flex-wrap items-center justify-between gap-4 text-sm">
+      <a href="/blog" class="text-mut hover:text-accent transition-colors" style="font-family: var(--font-mono);">← all posts</a>
+      <span class="text-dim" style="font-family: var(--font-mono);">© 2026 · x1zz</span>
+    </div>
+  </main>
+</Layout>

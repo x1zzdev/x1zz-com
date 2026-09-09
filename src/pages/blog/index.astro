@@ -1,0 +1,77 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import GithubIcon from '../../components/GithubIcon.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog'))
+  .filter((p) => p.data.status === 'published')
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const fmt = (d: Date) =>
+  `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(
+    d.getUTCDate()
+  ).padStart(2, '0')}`;
+---
+
+<Layout
+  title="blog — x1zz"
+  description="Notes on compilers, Rust, and ML tooling by Sewoo Jang."
+  lang="en"
+  dataLang="en"
+  path="/blog/"
+>
+  <header class="w-full px-5 md:px-8 py-4 flex items-center justify-between gap-3 border-b border-line">
+    <a href="/" class="text-lg font-bold tracking-tight text-fg" style="font-family: var(--font-mono);">
+      x1zz<span class="text-accent">.</span>
+    </a>
+    <nav class="flex items-center gap-3 text-sm">
+      <a href="/portfolio" class="text-mut hover:text-fg transition-colors">portfolio</a>
+      <a href="/writing" class="text-mut hover:text-fg transition-colors">writing</a>
+      <a
+        href="https://github.com/x1zzdev/Xazz"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-2 border border-line2 text-fg px-3 py-1.5 hover:border-accent hover:text-accent transition-colors"
+        style="font-family: var(--font-mono); font-size: 0.8rem;"
+      >
+        <GithubIcon size={15} /> GitHub
+      </a>
+    </nav>
+  </header>
+
+  <main class="w-full max-w-2xl mx-auto px-5 md:px-8 py-12">
+    <p class="text-sm font-semibold text-accent mb-2" style="font-family: var(--font-mono);">blog</p>
+    <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-fg mb-1">Notes on compilers, Rust, and ML tooling.</h1>
+    <p class="text-sub mb-8">The design decisions behind the projects on this site.</p>
+
+    <ul class="border-t border-line">
+      {
+        posts.map((post) => (
+          <li class="py-5 border-b border-line">
+            <div class="flex items-baseline gap-3 mb-1.5">
+              <time class="text-xs text-dim whitespace-nowrap" style="font-family: var(--font-mono);" datetime={post.data.date.toISOString()}>
+                {fmt(post.data.date)}
+              </time>
+              <span class="text-xs text-mut" style="font-family: var(--font-mono);">
+                {post.data.tags.map((t) => `#${t}`).join(' ')}
+              </span>
+            </div>
+            <a href={`/blog/${post.id}`} class="block text-lg font-semibold text-fg hover:text-accent transition-colors leading-snug">
+              {post.data.title}
+            </a>
+            {post.data.excerpt && (
+              <p class="text-sub text-sm mt-1 leading-relaxed">{post.data.excerpt}</p>
+            )}
+          </li>
+        ))
+      }
+    </ul>
+  </main>
+
+  <footer class="py-8 border-t border-line mt-8">
+    <div class="w-full max-w-2xl mx-auto px-5 md:px-8 flex items-center justify-between gap-4 text-sm">
+      <a href="/" class="text-mut hover:text-accent transition-colors" style="font-family: var(--font-mono);">x1zz.com</a>
+      <a href="/rss.xml" class="text-mut hover:text-accent transition-colors" style="font-family: var(--font-mono);">rss</a>
+    </div>
+  </footer>
+</Layout>

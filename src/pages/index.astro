@@ -359,6 +359,36 @@ const findings = [
 
       <div class="border border-line bg-panel p-6 mt-4">
         <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-3">
+          <h3 class="text-lg font-bold text-fg">tracel-ai/burn</h3>
+          <span class="text-sm text-mut" style="font-family: var(--font-mono);">
+            <span class="lang-en">Rust deep learning framework · 15k★</span>
+            <span class="lang-kr">Rust 딥러닝 프레임워크 · 15k★</span>
+          </span>
+        </div>
+
+        <p class="text-sub leading-relaxed mb-3 lang-en">
+          Merged <strong>PR #5580</strong>: rank-1 <code>matmul</code> calls previously bypassed
+          <code>TensorCheck</code> (a <code>D &lt; 2</code> short-circuit) and failed inconsistently per backend —
+          ndarray panicked with <code>attempt to subtract with overflow</code>, tch returned a 0-dim dot-product
+          scalar, cubecl had no valid kernel input. <code>TensorCheck::matmul</code> now rejects ranks &lt; 2 with a
+          clear error, mirroring the <code>tri()</code> check.
+        </p>
+        <p class="text-sub leading-relaxed mb-3 lang-kr">
+          <strong>PR #5580</strong> 머지: rank-1 <code>matmul</code> 호출이 기존에 <code>TensorCheck</code>를
+          (<code>D &lt; 2</code> short-circuit으로) 우회해 백엔드마다 제각각 실패했습니다 — ndarray는
+          <code>attempt to subtract with overflow</code>로 panic, tch는 0차원 dot-product 스칼라 반환, cubecl은
+          유효한 커널 입력 없음. <code>TensorCheck::matmul</code>이 이제 <code>tri()</code> 검증처럼 rank &lt; 2를
+          명확한 에러로 거부합니다.
+        </p>
+
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <span class="chip">TensorCheck rank check · Rust · merged by maintainer</span>
+          <a href="https://github.com/tracel-ai/burn/pull/5580" target="_blank" rel="noopener noreferrer" class="btn btn-accent">PR #5580 <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+
+      <div class="border border-line bg-panel p-6 mt-4">
+        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-3">
           <h3 class="text-lg font-bold text-fg">apache/arrow-rs</h3>
           <span class="text-sm text-mut" style="font-family: var(--font-mono);">
             <span class="lang-en">Apache Arrow &amp; Parquet in Rust · 3.6k★</span>

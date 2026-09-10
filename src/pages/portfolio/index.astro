@@ -573,6 +573,35 @@ const irOpt = `// xazz-compiler/src/opt.rs
             <div class="flex flex-wrap gap-3 mt-2">
               <a href="https://github.com/tracel-ai/burn/pull/5564" target="_blank" rel="noopener noreferrer" class="btn">PR #5564 ↗</a>
             </div>
+
+            <h2><span class="lang-en">Also — matmul rank validation</span><span class="lang-kr">추가 — matmul rank 검증</span></h2>
+            <p class="lang-en">
+              Rank-1 <code>matmul</code> calls previously bypassed <code>TensorCheck</code> (a <code>D &lt; 2</code>
+              short-circuit) and failed inconsistently per backend: ndarray panicked with
+              <code>attempt to subtract with overflow</code> (<code>shape_lhs[ndims - 2]</code> underflows at
+              <code>ndims == 1</code>), tch treated 1D×1D as a dot product and returned a 0-dim scalar inconsistent
+              with the <code>Tensor&lt;1&gt;</code> output rank, and cubecl had no valid kernel input.
+              Merged as <a href="https://github.com/tracel-ai/burn/pull/5580" target="_blank" rel="noopener noreferrer">PR #5580</a>.
+            </p>
+            <p class="lang-kr">
+              rank-1 <code>matmul</code> 호출이 기존에 <code>TensorCheck</code>를 (<code>D &lt; 2</code>
+              short-circuit으로) 우회해 백엔드마다 제각각 실패했습니다: ndarray는 <code>attempt to subtract with overflow</code>
+              (<code>ndims == 1</code>에서 <code>shape_lhs[ndims - 2]</code> 언더플로), tch는 1D×1D를 dot product로
+              처리해 <code>Tensor&lt;1&gt;</code> 출력 rank와 모순되는 0차원 스칼라 반환, cubecl은 유효한 커널 입력 없음.
+              <a href="https://github.com/tracel-ai/burn/pull/5580" target="_blank" rel="noopener noreferrer">PR #5580</a>로 머지됐습니다.
+            </p>
+            <ul>
+              <li class="lang-en"><code>TensorCheck::matmul</code> now registers a clear error for ranks &lt; 2, mirroring the <code>tri()</code> check.</li>
+              <li class="lang-kr"><code>TensorCheck::matmul</code>이 <code>tri()</code> 검증처럼 rank &lt; 2에 명확한 에러를 등록합니다.</li>
+              <li class="lang-en">Regression test <code>float_should_panic_when_rank_is_less_than_2</code> in <code>burn-backend-tests/tests/tensor/float/ops/matmul.rs</code> — verified to fail with the backend overflow panic (not the expected message) when the check is removed.</li>
+              <li class="lang-kr"><code>burn-backend-tests/tests/tensor/float/ops/matmul.rs</code>에 회귀 테스트 <code>float_should_panic_when_rank_is_less_than_2</code> 추가 — 검증 제거 시 기대 메시지가 아닌 백엔드 overflow panic으로 실패함을 확인했습니다.</li>
+              <li class="lang-en">Merged directly by the maintainer.</li>
+              <li class="lang-kr">메인테이너가 직접 머지했습니다.</li>
+            </ul>
+
+            <div class="flex flex-wrap gap-3 mt-2">
+              <a href="https://github.com/tracel-ai/burn/pull/5580" target="_blank" rel="noopener noreferrer" class="btn">PR #5580 ↗</a>
+            </div>
           </div>
 
           <!-- ═══ opensource-arrow.md ═══ -->

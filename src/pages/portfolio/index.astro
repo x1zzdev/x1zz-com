@@ -522,6 +522,39 @@ const irOpt = `// xazz-compiler/src/opt.rs
               <span class="chip">Rust</span>
             </div>
 
+            <h2><span class="lang-en">Featured — Min / Max scatter / select_assign</span><span class="lang-kr">대표 기여 — Min / Max scatter / select_assign</span></h2>
+            <p class="lang-en">
+              The largest-scope contribution. Element-wise <code>scatter</code> / <code>select_assign</code>
+              supported only <code>Assign</code>, <code>Add</code>, and <code>Mul</code>; <code>Min</code> /
+              <code>Max</code> hit <code>unimplemented!</code> on every backend — even though <code>scatter_nd</code>
+              already implemented all five variants. Implemented the missing variants end-to-end across all four
+              backends, plus autodiff backward passes. Merged as
+              <a href="https://github.com/tracel-ai/burn/pull/5582" target="_blank" rel="noopener noreferrer">PR #5582</a>.
+            </p>
+            <p class="lang-kr">
+              범위가 가장 큰 기여입니다. 요소별 <code>scatter</code> / <code>select_assign</code>은
+              <code>Assign</code>, <code>Add</code>, <code>Mul</code>만 지원했고 <code>Min</code> / <code>Max</code>는
+              모든 백엔드에서 <code>unimplemented!</code>에 걸렸습니다 (<code>scatter_nd</code>는 이미 다섯 변형을 모두
+              구현했는데도요). 빠진 변형을 네 백엔드 전부와 autodiff backward까지 end-to-end로 구현했습니다.
+              <a href="https://github.com/tracel-ai/burn/pull/5582" target="_blank" rel="noopener noreferrer">PR #5582</a>로 머지됐습니다.
+            </p>
+
+            <h2><span class="lang-en">How</span><span class="lang-kr">과정</span></h2>
+            <ul>
+              <li class="lang-en"><strong>All four backends</strong>: ndarray primitives; <code>flex</code> helpers sharing the existing update walkers; <code>cubecl</code> entries reusing the <code>BinaryMinOp</code> / <code>BinaryMaxOp</code> kernels; <code>tch</code> via <code>scatter_reduce</code> / <code>index_reduce_</code> (<code>"amin"</code> / <code>"amax"</code>).</li>
+              <li class="lang-kr"><strong>네 백엔드 전부</strong>: ndarray 프리미티브; 기존 업데이트 워커를 공유하는 <code>flex</code> 헬퍼; <code>BinaryMinOp</code> / <code>BinaryMaxOp</code> 커널을 재사용하는 <code>cubecl</code>; <code>scatter_reduce</code> / <code>index_reduce_</code>(<code>"amin"</code> / <code>"amax"</code>)를 쓰는 <code>tch</code>.</li>
+              <li class="lang-en"><strong>Autodiff</strong>: backward passes for <code>Min</code> / <code>Max</code> <code>scatter</code> and <code>select_assign</code>, mirroring the <code>scatter_nd</code> Min/Max gradient — winner masks from comparisons, ties credited to both operands, unique indices required.</li>
+              <li class="lang-kr"><strong>Autodiff</strong>: <code>Min</code> / <code>Max</code> <code>scatter</code>와 <code>select_assign</code>의 backward 패스를 <code>scatter_nd</code> Min/Max 그래디언트와 동일하게 구현 — 비교 기반 winner 마스크, 동률은 양쪽 입력에 귀속, unique index 요구.</li>
+              <li class="lang-en">Dispatch matches now enumerate every <code>IndexingUpdateOp</code> variant, so an unsupported combination fails at compile time instead of panicking at runtime.</li>
+              <li class="lang-kr">dispatch match가 모든 <code>IndexingUpdateOp</code> 변형을 열거하므로, 지원되지 않는 조합은 런타임 panic 대신 컴파일 타임에 실패합니다.</li>
+              <li class="lang-en">Verified with 1839 tensor + 572 autodiff tests (<code>--features ndarray</code>) and clippy-clean on <code>burn-ndarray</code>, <code>burn-flex</code>, <code>burn-autodiff</code>, <code>burn-cubecl</code>; confirmed the new autodiff tests fail with the old <code>unimplemented!</code> when the backward is removed.</li>
+              <li class="lang-kr"><code>--features ndarray</code>로 텐서 1839 + autodiff 572 테스트 통과, <code>burn-ndarray</code>·<code>burn-flex</code>·<code>burn-autodiff</code>·<code>burn-cubecl</code> clippy 클린; backward를 제거하면 새 autodiff 테스트가 기존 <code>unimplemented!</code>로 실패함도 확인했습니다.</li>
+            </ul>
+
+            <div class="flex flex-wrap gap-3 mt-2 mb-2">
+              <a href="https://github.com/tracel-ai/burn/pull/5582" target="_blank" rel="noopener noreferrer" class="btn">PR #5582 ↗</a>
+            </div>
+
             <h2><span class="lang-en">What</span><span class="lang-kr">무엇</span></h2>
             <p class="lang-en">
               Added matmul batch-broadcast validation to <code>TensorCheck</code> — the public tensor-API check

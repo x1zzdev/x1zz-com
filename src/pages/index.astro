@@ -303,7 +303,44 @@ const findings = [
         </span>
       </div>
 
-      <div class="border border-line bg-panel p-6">
+      <div class="border border-accent bg-panel p-6">
+        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-2">
+          <h3 class="text-lg font-bold text-fg">tracel-ai/burn</h3>
+          <span class="text-sm text-mut" style="font-family: var(--font-mono);">
+            <span class="lang-en">Rust deep learning framework · 15k★</span>
+            <span class="lang-kr">Rust 딥러닝 프레임워크 · 15k★</span>
+          </span>
+        </div>
+        <div class="flex flex-wrap gap-2 mb-3">
+          <span class="chip on">
+            <span class="lang-en">Main contribution · all backends + autodiff</span>
+            <span class="lang-kr">대표 기여 · 전 백엔드 + autodiff</span>
+          </span>
+        </div>
+
+        <p class="text-sub leading-relaxed mb-3 lang-en">
+          Merged <strong>PR #5582</strong>: the largest-scope contribution — implemented the missing
+          <code>Min</code> / <code>Max</code> variants for element-wise <code>scatter</code> / <code>select_assign</code>
+          across all four backends (<strong>ndarray, flex, cubecl, tch</strong>) plus autodiff backward passes,
+          closing the last gap left by #5522. Dispatch matches now enumerate every <code>IndexingUpdateOp</code> variant,
+          so an unsupported combination fails at compile time instead of panicking at runtime. Verified with
+          1839 tensor + 572 autodiff tests.
+        </p>
+        <p class="text-sub leading-relaxed mb-3 lang-kr">
+          <strong>PR #5582</strong> 머지: 범위가 가장 큰 기여입니다. 요소별 <code>scatter</code> / <code>select_assign</code>에서
+          빠져 있던 <code>Min</code> / <code>Max</code> 변형을 네 백엔드(<strong>ndarray, flex, cubecl, tch</strong>)와
+          autodiff backward까지 end-to-end로 구현해 #5522의 마지막 공백을 채웠습니다. 이제 dispatch match가 모든
+          <code>IndexingUpdateOp</code> 변형을 열거해, 지원되지 않는 조합은 런타임 panic 대신 컴파일 타임에 실패합니다.
+          텐서 1839 + autodiff 572 테스트로 검증했습니다.
+        </p>
+
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <span class="chip">scatter Min/Max · 4 backends · autodiff · Rust</span>
+          <a href="https://github.com/tracel-ai/burn/pull/5582" target="_blank" rel="noopener noreferrer" class="btn btn-accent">PR #5582 <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+
+      <div class="border border-line bg-panel p-6 mt-4">
         <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-3">
           <h3 class="text-lg font-bold text-fg">tracel-ai/burn</h3>
           <span class="text-sm text-mut" style="font-family: var(--font-mono);">

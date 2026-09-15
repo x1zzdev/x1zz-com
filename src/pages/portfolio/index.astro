@@ -635,6 +635,32 @@ const irOpt = `// xazz-compiler/src/opt.rs
             <div class="flex flex-wrap gap-3 mt-2">
               <a href="https://github.com/tracel-ai/burn/pull/5580" target="_blank" rel="noopener noreferrer" class="btn">PR #5580 ↗</a>
             </div>
+
+            <h2><span class="lang-en">Also — no-std vec! macro fix</span><span class="lang-kr">추가 — no-std vec! 매크로 수정</span></h2>
+            <p class="lang-en">
+              The no-std test job failed to compile <code>burn-std</code>: <code>layout.rs</code> (added in #5625)
+              imports <code>use alloc::vec::Vec;</code> but never the <code>vec!</code> macro, and its
+              <code>#[cfg(test)]</code> module uses <code>vec![...]</code> — which only compiles with the std
+              prelude available. Added <code>use alloc::vec;</code>. Merged as
+              <a href="https://github.com/tracel-ai/burn/pull/5639" target="_blank" rel="noopener noreferrer">PR #5639</a>.
+            </p>
+            <p class="lang-kr">
+              no-std 테스트 잡이 <code>burn-std</code>를 컴파일하지 못했습니다: <code>layout.rs</code>(#5625에서 추가)는
+              <code>use alloc::vec::Vec;</code>만 임포트하고 <code>vec!</code> 매크로는 임포트하지 않았는데, 그
+              <code>#[cfg(test)]</code> 모듈이 <code>vec![...]</code>를 사용합니다 — std 프렐류드가 있을 때만 컴파일됩니다.
+              <code>use alloc::vec;</code>를 추가했습니다.
+              <a href="https://github.com/tracel-ai/burn/pull/5639" target="_blank" rel="noopener noreferrer">PR #5639</a>로 머지됐습니다.
+            </p>
+            <ul>
+              <li class="lang-en">Reproduced locally: <code>cargo test --no-default-features --release -p burn-std</code> produced 4 <code>cannot find macro vec</code> errors; after the fix, 168 unit tests pass.</li>
+              <li class="lang-kr">로컬 재현: <code>cargo test --no-default-features --release -p burn-std</code>가 <code>cannot find macro vec</code> 오류 4건을 냈고, 수정 후 168개 유닛 테스트가 통과합니다.</li>
+              <li class="lang-en">Merged directly by the maintainer.</li>
+              <li class="lang-kr">메인테이너가 직접 머지했습니다.</li>
+            </ul>
+
+            <div class="flex flex-wrap gap-3 mt-2">
+              <a href="https://github.com/tracel-ai/burn/pull/5639" target="_blank" rel="noopener noreferrer" class="btn">PR #5639 ↗</a>
+            </div>
           </div>
 
           <!-- ═══ opensource-arrow.md ═══ -->

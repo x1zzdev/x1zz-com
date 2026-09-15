@@ -451,6 +451,34 @@ const findings = [
           <a href="https://github.com/apache/arrow-rs/pull/11005" target="_blank" rel="noopener noreferrer" class="btn btn-accent">PR #11005 <span aria-hidden="true">↗</span></a>
         </div>
       </div>
+
+      <div class="border border-line bg-panel p-6 mt-4">
+        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-3">
+          <h3 class="text-lg font-bold text-fg">tracel-ai/burn</h3>
+          <span class="text-sm text-mut" style="font-family: var(--font-mono);">
+            <span class="lang-en">Rust deep learning framework · 15k★</span>
+            <span class="lang-kr">Rust 딥러닝 프레임워크 · 15k★</span>
+          </span>
+        </div>
+
+        <p class="text-sub leading-relaxed mb-3 lang-en">
+          Merged <strong>PR #5639</strong>: fixed a no-std build break in <code>burn-std</code>. The
+          <code>#[cfg(test)]</code> module in <code>layout.rs</code> used <code>vec![...]</code> without importing
+          the <code>vec!</code> macro, so <code>cargo test --no-default-features -p burn-std</code> failed to
+          compile. Added <code>use alloc::vec;</code> — 168 unit tests pass.
+        </p>
+        <p class="text-sub leading-relaxed mb-3 lang-kr">
+          <strong>PR #5639</strong> 머지: <code>burn-std</code>의 no-std 빌드 실패를 수정했습니다.
+          <code>layout.rs</code>의 <code>#[cfg(test)]</code> 모듈이 <code>vec!</code> 매크로를 임포트하지 않고
+          <code>vec![...]</code>를 써서 <code>cargo test --no-default-features -p burn-std</code>가 컴파일되지
+          않았습니다. <code>use alloc::vec;</code>를 추가해 168개 유닛 테스트가 통과합니다.
+        </p>
+
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <span class="chip">no-std · vec! macro · Rust · merged by maintainer</span>
+          <a href="https://github.com/tracel-ai/burn/pull/5639" target="_blank" rel="noopener noreferrer" class="btn btn-accent">PR #5639 <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
     </section>
 
     <!-- ─── ABOUT ────────────────────────────────────────────── -->

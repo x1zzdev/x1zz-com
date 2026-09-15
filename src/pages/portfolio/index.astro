@@ -30,6 +30,23 @@ fn main() -> PolarsResult<()> {
     Ok(())
 }`;
 
+const xzDemo = `record Point {
+    x: Float
+    y: Float
+}
+
+/// Computes the Euclidean distance between two points.
+/// @intent  Returns the straight-line distance from a to b.
+/// @ensures result is ok implies result.value >= 0.0
+/// @effects none
+func distance(a: Point, b: Point) -> Result[Float, DomainError]
+    post result is ok implies result.value >= 0.0
+{
+    let dx = b.x - a.x
+    let dy = b.y - a.y
+    ok(sqrt(dx * dx + dy * dy)?)
+}`;
+
 const tree = `xazz (CLI binary)                ~2-5 MB
   clap · csv · anyhow · encoding_rs
   NO Polars · NO Tokio
@@ -95,6 +112,7 @@ const irOpt = `// xazz-compiler/src/opt.rs
           <div class="tree-dir" data-dir="projects" data-label="projects/">▾ projects/</div>
           <div id="dir-projects">
             <div class="tree-item" data-file="proj-xazz" style="padding-left:2rem"><span class="text-accent">■</span> Xazz.md</div>
+            <div class="tree-item" data-file="proj-xz" style="padding-left:2rem"><span class="text-accent2">■</span> Xz.md</div>
             <div class="tree-item" data-file="proj-x1zzlang" style="padding-left:2rem"><span class="text-accent2">■</span> x1zzLang.md</div>
             <div class="tree-item" data-file="proj-py2xzz" style="padding-left:2rem"><span class="text-accent2">■</span> py2xzz.md</div>
             <div class="tree-item" data-file="proj-llm" style="padding-left:2rem"><span class="text-warn">■</span> llm-pcag-research.md</div>
@@ -123,6 +141,7 @@ const irOpt = `// xazz-compiler/src/opt.rs
             <select id="file-select" class="bg-panel border border-line text-fg text-sm px-2 py-1 outline-none" style="font-family: var(--font-mono);">
               <option value="readme">README.md</option>
               <option value="proj-xazz">projects/Xazz.md</option>
+              <option value="proj-xz">projects/Xz.md</option>
               <option value="proj-x1zzlang">projects/x1zzLang.md</option>
               <option value="proj-py2xzz">projects/py2xzz.md</option>
               <option value="proj-llm">projects/llm-pcag-research.md</option>
@@ -251,6 +270,76 @@ const irOpt = `// xazz-compiler/src/opt.rs
 
             <div class="flex flex-wrap gap-3 mt-2">
               <a href="https://github.com/x1zzdev/Xazz" target="_blank" rel="noopener noreferrer" class="btn">Xazz on GitHub ↗</a>
+            </div>
+          </div>
+
+          <!-- ═══ projects/Xz.md ═══ -->
+          <div id="pane-proj-xz" class="tab-pane markdown-body hidden max-w-3xl mx-auto px-6 md:px-10 py-10">
+            <h1>projects/Xz.md</h1>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="chip on">Experimental language</span><span class="chip">Rust · LLVM 17</span><span class="chip">AI-written, Human-reviewed</span>
+            </div>
+
+            <h2><span class="lang-en">What it is</span><span class="lang-kr">무엇인가</span></h2>
+            <p class="lang-en">
+              An experimental general-purpose programming language built around one thesis: <strong>AI-written, Human-reviewed</strong>.
+              Code will increasingly be written by machines, so Xz is designed for humans to <em>read, verify, and trust</em> it —
+              explicit types at contract boundaries, value semantics with explicit <code>mut</code>, <code>Result</code> types on a
+              single error channel, and structured JSON diagnostics a model can act on.
+            </p>
+            <p class="lang-kr">
+              <strong>AI-written, Human-reviewed</strong>라는 하나의 명제를 중심으로 설계한 실험적 범용 프로그래밍 언어입니다.
+              코드가 점점 기계에 의해 작성될 것이므로, 사람이 그 코드를 <em>읽고 검증하고 신뢰</em>할 수 있도록 설계했습니다 —
+              계약 경계의 명시적 타입, 명시적 <code>mut</code>를 동반한 값 시맨틱, 단일 에러 채널의 <code>Result</code> 타입,
+              그리고 모델이 활용할 수 있는 구조적 JSON 진단까지.
+            </p>
+
+            <h2><span class="lang-en">The differentiator — intent verification</span><span class="lang-kr">핵심 차별점 — 인텐트 검증</span></h2>
+            <p class="lang-en">
+              Static typing catches type mismatches, but nothing catches a comment that <em>lies</em> about behavior.
+              Xz makes the contract between comment and code verifiable: every documented claim is proven by the compiler,
+              trusted by a human via <code>@trusted</code>, or rejected in <code>--strict</code> builds.
+            </p>
+            <p class="lang-kr">
+              정적 타이핑은 타입 불일치를 잡지만, 동작에 대해 <em>거짓말하는</em> 주석은 아무도 잡지 못합니다.
+              Xz는 주석과 코드 사이의 계약을 검증 가능하게 만듭니다: 모든 문서화된 주장은 컴파일러가 증명하거나,
+              사람이 <code>@trusted</code>로 신뢰하거나, <code>--strict</code> 빌드에서 거부됩니다.
+            </p>
+            <ul>
+              <li class="lang-en"><code>@intent</code> / <code>@requires</code> / <code>@ensures</code> NL claims are structurally paired (in order) with formal <code>pre</code> / <code>post</code> contracts; the NL text is never parsed.</li>
+              <li class="lang-kr"><code>@intent</code> / <code>@requires</code> / <code>@ensures</code> 자연어 주장은 형식 <code>pre</code> / <code>post</code> 계약과 순서대로 구조적 짝을 이룹니다. 자연어는 파싱되지 않습니다.</li>
+              <li class="lang-en"><code>@effects</code> is derived from the body, transitively over calls, and compared against the declaration.</li>
+              <li class="lang-kr"><code>@effects</code>는 본문에서 호출을 따라 전이적으로 도출되어 선언과 대조됩니다.</li>
+              <li class="lang-en">Stable intent diagnostics (<code>I0020</code>–<code>I0024</code>) travel as JSON with spans and confidence-scored fixes.</li>
+              <li class="lang-kr">안정적인 인텐트 진단(<code>I0020</code>–<code>I0024</code>)이 스팬과 신뢰도 점수 기반 수정안과 함께 JSON으로 전달됩니다.</li>
+            </ul>
+
+            <pre><code>{xzDemo}</code></pre>
+
+            <h2><span class="lang-en">How it's built</span><span class="lang-kr">구조</span></h2>
+            <ul>
+              <li class="lang-en">Full front end from scratch: lexer → indentation parser → name resolution → type inference → contract checking → intent verification</li>
+              <li class="lang-kr">처음부터 구현한 전체 프런트엔드: lexer → 들여쓰기 파서 → 이름 해석 → 타입 추론 → 계약 검사 → 인텐트 검증</li>
+              <li class="lang-en">LLVM backend via inkwell (portable LLVM 17): JIT (<code>xz run</code>), native binary (<code>xz build-native</code>), shared library (<code>xz build --shared</code>)</li>
+              <li class="lang-kr">inkwell 기반 LLVM 백엔드(이식형 LLVM 17): JIT(<code>xz run</code>), 네이티브 바이너리(<code>xz build-native</code>), 공유 라이브러리(<code>xz build --shared</code>)</li>
+              <li class="lang-en">FFI-first interop: C ABI bridge, <code>@cstruct</code> records, <code>Ptr</code> handles, and generated Python <code>ctypes</code> wrappers (<code>xz bind --lang python</code>)</li>
+              <li class="lang-kr">FFI 우선 상호운용: C ABI 브리지, <code>@cstruct</code> 레코드, <code>Ptr</code> 핸들, 생성된 Python <code>ctypes</code> 래퍼(<code>xz bind --lang python</code>)</li>
+            </ul>
+
+            <h2><span class="lang-en">Status</span><span class="lang-kr">현재 상태</span></h2>
+            <p class="lang-en">
+              Phases 1–4 implemented, Phase 5 (FFI &amp; interop) underway. <code>hello.xz</code> and <code>contracts.xz</code>
+              pass the full front end and execute via the LLVM JIT; Phases 6–8 (concurrency runtime, stdlib, tooling) are on the roadmap.
+              Xz is an experimental technical project, separate from the commercial Xazz line.
+            </p>
+            <p class="lang-kr">
+              Phase 1–4 구현 완료, Phase 5(FFI·상호운용) 진행 중입니다. <code>hello.xz</code>와 <code>contracts.xz</code>가
+              전체 프런트엔드를 통과하고 LLVM JIT로 실행됩니다. Phase 6–8(동시성 런타임, 표준 라이브러리, 툴링)은 로드맵에 있습니다.
+              Xz는 상업용 Xazz 라인과 별개의 실험적 기술 프로젝트입니다.
+            </p>
+
+            <div class="flex flex-wrap gap-3 mt-2">
+              <a href="https://github.com/x1zzdev/Xz" target="_blank" rel="noopener noreferrer" class="btn">Xz on GitHub ↗</a>
             </div>
           </div>
 
@@ -797,6 +886,7 @@ const irOpt = `// xazz-compiler/src/opt.rs
     var FILE_LABELS = {
       readme: 'README.md',
       'proj-xazz': 'Xazz.md',
+      'proj-xz': 'Xz.md',
       'proj-x1zzlang': 'x1zzLang.md',
       'proj-py2xzz': 'py2xzz.md',
       'proj-llm': 'llm-pcag-research.md',

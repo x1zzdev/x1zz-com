@@ -4,6 +4,20 @@ import GithubIcon from '../components/GithubIcon.astro';
 
 const xazzPipeline = ['Lexer', 'Parser', 'Type Checker', 'Typed IR', 'Codegen', 'Runtime'];
 
+const xzPipeline = ['Lexer', 'Parser', 'Type Checker', 'Contract Check', 'Intent Verify', 'LLVM'];
+
+const xzCode = `/// Computes the Euclidean distance between two points.
+/// @intent  Returns the straight-line distance from a to b.
+/// @ensures result is ok implies result.value >= 0.0
+/// @effects none
+func distance(a: Point, b: Point) -> Result[Float, DomainError]
+    post result is ok implies result.value >= 0.0
+{
+    let dx = b.x - a.x
+    let dy = b.y - a.y
+    ok(sqrt(dx * dx + dy * dy)?)
+}`;
+
 const xazzCode = `type AirData = {
   station: string,
   temp:    float,
@@ -195,6 +209,78 @@ const findings = [
       </div>
     </section>
 
+    <!-- ─── LANGUAGE LAB · XZ ────────────────────────────────── -->
+    <section class="pb-16 md:pb-20">
+      <div class="border-b border-line pb-3 mb-6">
+        <span class="seclabel" style="color: var(--color-accent2);">
+          <span class="lang-en">Language Lab</span>
+          <span class="lang-kr">언어 연구</span>
+        </span>
+      </div>
+
+      <div class="border border-line bg-panel">
+        <div class="p-6 md:p-8">
+
+          <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-4">
+            <h2 class="text-2xl font-bold text-fg">Xz</h2>
+            <span class="text-sm font-semibold" style="font-family: var(--font-mono); color: var(--color-accent2);">
+              <span class="lang-en">experimental general-purpose language</span>
+              <span class="lang-kr">실험적 범용 프로그래밍 언어</span>
+            </span>
+          </div>
+
+          <p class="text-lg text-sub leading-relaxed mb-4 lang-en">
+            Built around one thesis: <strong>AI-written, Human-reviewed.</strong> Xz makes machine-generated code
+            readable, verifiable, and trustworthy — every behavior explicit, every contract visible, every failure
+            path typed. Its differentiator is intent verification: a documented claim is proven by the compiler,
+            trusted by a human, or rejected in strict builds.
+          </p>
+          <p class="text-lg text-sub leading-relaxed mb-4 lang-kr">
+            <strong>AI-written, Human-reviewed</strong>라는 하나의 명제로 설계한 언어입니다. 기계가 생성한 코드를
+            읽고 검증하고 신뢰할 수 있도록 — 모든 동작을 명시적이고, 모든 계약을 가시적이며, 모든 실패 경로를
+            타입으로 만듭니다. 핵심 차별점은 인텐트 검증으로, 문서의 주장을 컴파일러가 증명하거나 사람이
+            신뢰하거나, strict 빌드에서 거부합니다.
+          </p>
+
+          <!-- pipeline -->
+          <div class="flex flex-wrap items-center gap-2 my-6 text-sm" style="font-family: var(--font-mono);">
+            {
+              xzPipeline.map((s, i) => (
+                <span class="flex items-center gap-2">
+                  <span class={i === 5 ? 'border border-accent2 text-accent2 px-3 py-1.5 font-semibold' : 'border border-line text-sub px-3 py-1.5'}>
+                    {s}
+                  </span>
+                  {i < xzPipeline.length - 1 && <span class="text-dim">→</span>}
+                </span>
+              ))
+            }
+          </div>
+          <p class="text-sm text-mut mb-6" style="font-family: var(--font-mono);">
+            <span class="lang-en">// claims are proven, trusted, or rejected — never silently ignored</span>
+            <span class="lang-kr">// 주장은 증명·신뢰·거부 중 하나 — 조용히 무시되지 않음</span>
+          </p>
+
+          <div class="terminal mb-6">
+            <div class="terminal-titlebar">
+              <span class="term-dot" style="background:#E06C6C"></span>
+              <span class="term-dot" style="background:#E8B35B"></span>
+              <span class="term-dot" style="background:#38C8FF"></span>
+              <span class="ml-2 text-sm text-sub" style="font-family: var(--font-mono);">contracts.xz</span>
+            </div>
+            <pre class="px-5 py-4 text-[0.84rem] leading-[1.7] overflow-x-auto" style="font-family: var(--font-mono);">{xzCode}</pre>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div class="flex flex-wrap gap-2">
+              <span class="chip">Rust · LLVM 17 · inkwell</span>
+              <span class="chip">Phases 1–4 · FFI underway</span>
+            </div>
+            <a href="https://github.com/x1zzdev/Xz" target="_blank" rel="noopener noreferrer" class="btn">GitHub <span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- ─── PROJECTS ─────────────────────────────────────────── -->
     <section class="pb-16 md:pb-20">
       <div class="border-b border-line pb-3 mb-6">
@@ -203,7 +289,6 @@ const findings = [
           <span class="lang-kr">프로젝트</span>
         </span>
       </div>
-
       <div class="space-y-4">
         {
           projects.map((p) => (

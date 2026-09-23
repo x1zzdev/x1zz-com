@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import GithubIcon from '../components/GithubIcon.astro';
 import ArchDiagram from '../components/ArchDiagram.astro';
+import SignalBg from '../components/SignalBg.astro';
 
 const xazzPipeline = ['Lexer', 'Parser', 'Type Checker', 'Typed IR', 'Codegen', 'Polars'];
 const xzPipeline = ['Lexer', 'Parser', 'Type Checker', 'Contract Check', 'Intent Verify', 'LLVM'];
@@ -40,7 +41,7 @@ const products = [
     tagEn: 'DSL compiler for data & ML pipelines',
     tagKr: '데이터·ML 파이프라인 DSL 컴파일러',
     en: 'A from-scratch compiler with its own lexer, parser, type checker, Typed IR, and codegen — lowering one .xzz script to Polars for data and Burn for deep learning.',
-    kr: '직접 만든 렉서, 파서, 타입 체커, Typed IR, 코드 생성기까지 처음부터 구현한 컴파일러입니다. 하나의 .xzz 스크립트가 Polars(데이터)와 Burn(딥러닝) 코드로 컴파일됩니다.',
+    kr: '렉서부터 파서, 타입 체커, Typed IR, 코드 생성기까지 전부 직접 구현한 컴파일러입니다. .xzz 스크립트 하나가 데이터는 Polars로, 딥러닝은 Burn 코드로 컴파일됩니다.',
     pipeline: xazzPipeline,
     code: xazzCode,
     file: 'demo.xzz',
@@ -53,7 +54,7 @@ const products = [
     tagEn: 'AI-written, Human-reviewed language',
     tagKr: 'AI가 쓰고 사람이 검증하는 언어',
     en: 'An experimental language built on one thesis: machine-generated code must be readable and verifiable. Every contract visible, every failure path typed — claims are proven, trusted, or rejected. Never silently ignored.',
-    kr: '하나의 명제 위에 세운 실험적 언어입니다. 기계가 생성한 코드는 읽히고 검증될 수 있어야 합니다. 모든 계약은 보이고, 모든 실패 경로는 타입으로 드러나며, 문서화된 주장은 증명되거나 신뢰되거나 거부됩니다 — 조용히 무시되는 일은 없습니다.',
+    kr: '기계가 생성한 코드는 읽히고 검증될 수 있어야 한다고 믿고 만든 실험 언어입니다. 계약은 전부 드러나고, 실패 경로는 전부 타입으로 드러납니다. 문서로 남긴 주장은 컴파일러가 증명하거나 사람이 신뢰하거나 거부됩니다. 조용히 무시되는 일은 없습니다.',
     pipeline: xzPipeline,
     code: xzCode,
     file: 'contracts.xz',
@@ -69,7 +70,7 @@ const bridges = [
     tagEn: 'Next.js × Xz',
     tagKr: 'Next.js × Xz',
     en: 'Carries Xz into the App Router. Server Actions call compiled Xz shared libraries over a typed Bun/Node FFI binding, an agent drives the LLM → xz check-json → repair loop, and a /___audit overlay shows a human the contract badges before anything ships.',
-    kr: 'Xz를 App Router로 가져옵니다. Server Action은 타입 안전한 Bun/Node FFI 바인딩을 통해 컴파일된 Xz 공유 라이브러리를 호출하고, 에이전트는 LLM → xz check-json → 자가 수정 루프를 돌립니다. 배포 전에는 /___audit 오버레이에서 사람이 계약 배지를 확인합니다.',
+    kr: 'Xz를 App Router에서 쓸 수 있게 만든 브리지입니다. Server Action은 타입이 붙은 Bun/Node FFI 바인딩으로 컴파일된 Xz 공유 라이브러리를 호출하고, LLM이 쓴 코드는 xz check-json 검사와 자가 수정 루프를 거칩니다. 배포 전에는 /___audit 화면에서 사람이 계약 배지를 확인합니다.',
     layers: [
       { label: 'Next.js App Router', sub: 'UI · routing · Server Actions' },
       { label: '@xz-lang/bridge', sub: 'generated TS bindings · Bun/Node FFI' },
@@ -88,7 +89,7 @@ const bridges = [
     tagEn: 'Rails × Xz',
     tagKr: 'Rails × Xz',
     en: 'Brings Xz into Rails as a toolkit, not a fork. A gem loads compiled Xz modules over Ruby FFI, and a mountable Engine renders an /xz_audit dashboard so every generated module gets human approval. Built together with imrubydev.',
-    kr: 'Rails를 포크하지 않는 툴킷으로 접근합니다. gem이 Ruby FFI로 컴파일된 Xz 모듈을 로드하고, 마운트 가능한 Engine이 /xz_audit 대시보드를 렌더링해 생성된 모듈마다 사람의 승인을 거칩니다. imrubydev와 함께 만듭니다.',
+    kr: 'Rails를 포크하지 않고 그 위에 얹는 툴킷입니다. gem이 Ruby FFI로 컴파일된 Xz 모듈을 불러오고, 마운트 가능한 Engine이 /xz_audit 대시보드를 렌더링해서 생성된 모듈마다 사람의 승인을 거치게 만듭니다. imrubydev와 함께 만들었습니다.',
     layers: [
       { label: 'Rails', sub: 'controllers · ActiveRecord · Hotwire' },
       { label: 'rails-xz-bridge', sub: 'Ruby bindings · Fiddle / ffi' },
@@ -109,21 +110,21 @@ const principles = [
     en: 'Move errors to compile time',
     kr: '에러를 컴파일 타임으로',
     descEn: 'If a mistake can be caught before the program runs, it must be. Type systems, contract checks, and typed IR exist to make runtime surprises impossible.',
-    descKr: '실행되기 전에 잡을 수 있는 실수는 반드시 실행 전에 잡습니다. 타입 시스템, 계약 검사, Typed IR은 모두 런타임에서의 놀람을 원천 차단하기 위해 존재합니다.',
+    descKr: '실행 전에 잡을 수 있는 실수는 실행 전에 잡는 게 맞다고 생각합니다. 타입 시스템, 계약 검사, Typed IR이 존재하는 이유는 전부 여기에 있습니다. 런타임에서 놀라는 일 자체를 없애자는 거죠.',
   },
   {
     n: '02',
     en: 'AI-written, human-reviewed',
     kr: 'AI가 쓰고, 사람이 검증한다',
     descEn: 'Machine-generated code should be more trustworthy than handwritten, not less. Documented intent is proven by the compiler or rejected in strict builds.',
-    descKr: '기계가 생성한 코드는 손으로 쓴 코드보다 더 신뢰할 수 있어야 합니다. 문서화된 인텐트는 컴파일러가 증명하거나, 사람이 신뢰하거나, strict 빌드에서 거부됩니다.',
+    descKr: '기계가 쓴 코드가 손으로 쓴 코드보다 더 신뢰할 수 있어야 한다고 생각합니다. 문서로 남긴 인텐트는 컴파일러가 증명할 수도 있고, 사람이 확인해서 신뢰할 수도 있고, strict 빌드에서 거부되기도 합니다.',
   },
   {
     n: '03',
     en: 'One meaning, one place',
     kr: '의미는 한 곳에서',
     descEn: 'A program means what its typed IR says — decided once, consumed once. Backends execute it; nothing re-interprets it.',
-    descKr: '프로그램의 의미는 Typed IR이 말하는 것입니다 — 한 번 정해지고, 한 번만 소비됩니다. 백엔드는 그저 실행할 뿐, 다시 해석하지 않습니다.',
+    descKr: '프로그램의 의미는 Typed IR에서 한 번 정해집니다. 백엔드는 그걸 실행할 뿐이고, 다시 해석하는 일은 없습니다.',
   },
 ];
 
@@ -177,9 +178,9 @@ const findings = [
 
   <main class="w-full">
 
-    <!-- ─── HERO · KEY VISUAL (bg-grid band) ─────────────────── -->
+    <!-- ─── HERO · KEY VISUAL (signal background band) ────────── -->
     <div class="relative isolate">
-      <div class="absolute inset-0 bg-grid -z-10" aria-hidden="true"></div>
+      <SignalBg />
 
       <!-- ─── HERO ─────────────────────────────────────────────── -->
       <section class="max-w-6xl mx-auto px-5 md:px-8 pt-16 md:pt-24 pb-12 md:pb-16">
@@ -199,9 +200,9 @@ const findings = [
           code becomes something you can read, verify, and trust.
         </span>
         <span class="lang-kr">
-          x1zz는 Rust로 언어, 타입 시스템, 데이터 인프라를 만들고,
-          이를 Next.js와 Rails로 이어주는 브리지도 만듭니다 —
-          기계가 쓴 코드를 사람이 읽고, 검증하고, 신뢰할 수 있도록.
+          x1zz는 Rust로 언어, 타입 시스템, 데이터 인프라를 만듭니다.
+          이 언어들을 Next.js와 Rails로 가져오는 브리지도 만들고요.
+          기계가 쓴 코드를 사람이 직접 읽고 검증할 수 있게 만드는 게 목적입니다.
         </span>
       </p>
 
@@ -403,9 +404,9 @@ const findings = [
           Jevons paradox is proved in closed form.
         </p>
         <p class="text-sub leading-relaxed mb-6 max-w-3xl lang-kr">
-          가중치 양자화가 에너지를 실제로 얼마나 절감하는지 정량화합니다. PCAG 지표는 절감 효과가 정확도 손실보다
-          먼저 무너짐을 보여주고, INT4→INT3 파워 월은 세 가지 독립 경로로 검증했습니다. 제본스 역설은 닫힌 형태로
-          증명했습니다.
+          가중치 양자화가 에너지를 실제로 얼마나 아끼는지 측정하는 연구입니다. PCAG 지표는 절감 효과가 정확도 손실보다
+          먼저 무너진다는 걸 보여주고, INT4→INT3 지점의 파워 월은 세 가지 독립 경로로 검증했습니다. 제본스 역설은
+          닫힌 형태로 증명했습니다.
         </p>
 
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -454,9 +455,9 @@ const findings = [
           fail at compile time instead of panicking at runtime — verified with 1839 tensor + 572 autodiff tests.
         </p>
         <p class="text-sub leading-relaxed max-w-3xl lang-kr">
-          PR #5582 머지: 요소별 scatter / select_assign에서 빠져 있던 Min / Max 변형을 네 백엔드(ndarray, flex,
-          cubecl, tch)와 autodiff backward까지 구현했습니다. 지원되지 않는 조합은 런타임 panic 대신 컴파일 타임에
-          실패합니다 — 텐서 1839 + autodiff 572 테스트로 검증했습니다.
+          요소별 scatter와 select_assign에 빠져 있던 Min/Max 변형을 네 백엔드(ndarray, flex, cubecl, tch) 전부에
+          구현했고, autodiff backward까지 채웠습니다. 지원하지 않는 조합은 이제 런타임에서 panic이 나는 대신
+          컴파일 타임에 걸립니다. 텐서 1839개, autodiff 572개 테스트로 확인했습니다.
         </p>
       </div>
     </section>
@@ -474,8 +475,8 @@ const findings = [
             and writing — lives on the founder page.
           </p>
           <p class="text-sub leading-relaxed lang-kr">
-            x1zz는 장서우가 창업하고 만들고 있습니다. 프로젝트, 연구, 오픈소스 기여, 글은 모두 창업자 페이지에
-            정리되어 있습니다.
+            x1zz는 장서우가 만들고 있습니다. 프로젝트, 연구, 오픈소스 기여, 글은 모두 창업자 페이지에 정리해
+            뒀습니다.
           </p>
         </div>
         <a href="/founder" class="btn btn-accent">

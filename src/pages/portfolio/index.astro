@@ -172,30 +172,29 @@ const irOpt = `// xazz-compiler/src/opt.rs
               a language family that compiles <code>.xzz</code> scripts into Polars execution plans, backed by compilers written from scratch.
             </p>
             <p class="lang-kr">
-              안녕하세요, <strong>장서우</strong>입니다. 한국의 고등학생이고, Rust로 데이터 파이프라인 도구를 만듭니다.
-              <code>.xzz</code> 스크립트를 Polars 실행 계획으로 컴파일하는 언어와, 처음부터 직접 쓴 컴파일러들을 개발하고 있어요.
+              장서우입니다. 한국의 고등학생이고, Rust로 데이터 파이프라인 도구를 만듭니다.
+              <code>.xzz</code> 스크립트를 Polars 실행 계획으로 컴파일하는 언어와, 그걸 처음부터 직접 짠 컴파일러들을 개발하고 있어요.
             </p>
 
             <h2><span class="lang-en">Focus</span><span class="lang-kr">주요 분야</span></h2>
             <ul>
-              <li class="lang-en">Compiler engineering — lexer, parser, type checker, typed IR, codegen</li>
-              <li class="lang-kr">컴파일러 엔지니어링 — 렉서, 파서, 타입 체커, Typed IR, 코드 생성</li>
+              <li class="lang-kr">컴파일러 엔지니어링(렉서, 파서, 타입 체커, Typed IR, 코드 생성)</li>
               <li class="lang-en">Null-safe type systems (<code>Option&lt;T&gt;</code>) and static analysis</li>
-              <li class="lang-kr">널 안전 타입 시스템(<code>Option&lt;T&gt;</code>)과 정적 분석</li>
+              <li class="lang-kr">null을 안전하게 다루는 타입 시스템(<code>Option&lt;T&gt;</code>)과 정적 분석</li>
               <li class="lang-en">Dependency-isolated CLI architecture</li>
-              <li class="lang-kr">의존성 격리 CLI 아키텍처</li>
+              <li class="lang-kr">의존성을 격리한 CLI 아키텍처</li>
             </ul>
 
             <h2><span class="lang-en">What's in this workspace</span><span class="lang-kr">이 워크스페이스 구성</span></h2>
             <ul>
               <li class="lang-en"><code>projects/</code> — what I built and why</li>
-              <li class="lang-kr"><code>projects/</code> — 만든 것과 만든 이유</li>
+              <li class="lang-kr"><code>projects/</code>: 만든 것과 만든 이유</li>
               <li class="lang-en"><code>engineering-logs/</code> — write-ups on specific problems I solved</li>
-              <li class="lang-kr"><code>engineering-logs/</code> — 특정 문제를 해결한 과정 기록</li>
+              <li class="lang-kr"><code>engineering-logs/</code>: 특정 문제를 해결한 과정 기록</li>
               <li class="lang-en"><code>benchmarks.md</code> — performance numbers, with honest caveats</li>
-              <li class="lang-kr"><code>benchmarks.md</code> — 성능 수치, 한계도 함께</li>
+              <li class="lang-kr"><code>benchmarks.md</code>: 성능 수치와 한계</li>
               <li class="lang-en"><code>demo.xzz</code> — the language, side by side with its transpiled Rust</li>
-              <li class="lang-kr"><code>demo.xzz</code> — 언어 문법과 트랜스파일된 Rust 비교</li>
+              <li class="lang-kr"><code>demo.xzz</code>: 언어 문법과 트랜스파일된 Rust 비교</li>
             </ul>
 
             <h2><span class="lang-en">Contact</span><span class="lang-kr">연락처</span></h2>
@@ -220,19 +219,19 @@ const irOpt = `// xazz-compiler/src/opt.rs
             </p>
             <p class="lang-kr">
               AI 파이프라인 DSL입니다. 하나의 <code>.xzz</code> 스크립트로 전처리, 모델 학습, 보안 정책까지 다루고,
-              <strong>타입드 IR</strong>로 컴파일한 뒤 Polars(데이터)와 Burn(딥러닝)으로 하강시킵니다.
+              <strong>타입드 IR</strong>로 컴파일한 뒤 Polars(데이터)와 Burn(딥러닝)으로 내보냅니다.
             </p>
 
             <h2><span class="lang-en">Why it exists</span><span class="lang-kr">만든 이유</span></h2>
             <p class="lang-en">Python owns AI prototyping, but at pipeline scale three costs appear:</p>
-            <p class="lang-kr">Python이 AI 프로토타이핑을 지배하지만, 파이프라인 규모에서 세 가지 비용이 발생합니다.</p>
+            <p class="lang-kr">Python이 AI 프로토타이핑을 지배하지만, 파이프라인 규모가 되면 세 가지 비용이 나타납니다.</p>
             <ul>
               <li class="lang-en">Type and NaN errors crash at runtime, often mid-training → Xazz checks them at compile time, with <code>line:col</code> diagnostics and did-you-mean hints.</li>
-              <li class="lang-kr">타입·NaN 에러가 런타임(종종 학습 도중)에 터짐 → Xazz는 컴파일 타임에 <code>line:col</code> 진단과 did-you-mean 힌트로 잡습니다.</li>
+              <li class="lang-kr">타입·NaN 에러가 런타임에, 종종은 학습 도중에 터집니다. Xazz는 컴파일 타임에 <code>line:col</code> 진단과 did-you-mean 힌트로 잡습니다.</li>
               <li class="lang-en">Data crosses language walls (pandas → NumPy → PyTorch) → Apache Arrow buffers are handed directly to Burn; the remaining copies are explicit in the memory model.</li>
-              <li class="lang-kr">데이터가 언어 경계(pandas → NumPy → PyTorch)를 건너며 복사됨 → Apache Arrow 버퍼를 Burn에 직접 전달하고, 남는 복사 지점을 명시화했습니다.</li>
+              <li class="lang-kr">데이터가 언어 경계(pandas → NumPy → PyTorch)를 건너며 복사됩니다. Apache Arrow 버퍼를 Burn에 직접 전달하고, 남는 복사 지점은 메모리 모델에 명시해 뒀습니다.</li>
               <li class="lang-en">No security layer in the pipeline → policy-as-code guardrails, differential privacy, and a SHA-256 audit log are part of the runtime.</li>
-              <li class="lang-kr">파이프라인에 보안 계층이 없음 → 정책 기반(policy-as-code) 가드레일, 차등 프라이버시, SHA-256 감사 로그를 런타임에 포함했습니다.</li>
+              <li class="lang-kr">파이프라인에는 보안 계층이 없었습니다. 정책 기반(policy-as-code) 가드레일과 차등 프라이버시, SHA-256 감사 로그를 런타임에 넣었습니다.</li>
             </ul>
 
             <h2><span class="lang-en">How it's built</span><span class="lang-kr">구조</span></h2>
@@ -252,7 +251,7 @@ const irOpt = `// xazz-compiler/src/opt.rs
             <h2><span class="lang-en">It runs</span><span class="lang-kr">실행 결과</span></h2>
 
             <p class="lang-en">Static analysis catches a typo before execution — with a did-you-mean hint and a <code>line:col</code> span:</p>
-            <p class="lang-kr">실행 전에 정적 분석이 오타를 잡습니다 — did-you-mean 힌트와 <code>line:col</code> 스팬과 함께:</p>
+            <p class="lang-kr">실행 전에 정적 분석이 오타를 잡습니다. did-you-mean 힌트와 <code>line:col</code> 스팬이 함께 표시됩니다:</p>
             <div class="border border-line overflow-hidden mb-5">
               <div class="px-4 py-2 border-b border-line text-sm text-mut" style="font-family: var(--font-mono);">xazz check</div>
               <img src="/xazz-demo-check.png" alt="xazz check output with did-you-mean hint" class="w-full h-auto object-contain bg-canvas" loading="lazy" />
@@ -266,7 +265,7 @@ const irOpt = `// xazz-compiler/src/opt.rs
             </div>
 
             <p class="lang-en">Zero-copy tensor handoff — Arrow buffers read directly by Burn, no pandas → NumPy → PyTorch copies:</p>
-            <p class="lang-kr">제로카피 텐서 핸드오프 — Arrow 버퍼를 Burn이 직접 읽습니다. pandas → NumPy → PyTorch 복사가 없습니다:</p>
+            <p class="lang-kr">Arrow 버퍼를 Burn이 직접 읽는 제로카피 텐서 핸드오프입니다. pandas → NumPy → PyTorch로 복사하는 단계가 없습니다:</p>
             <div class="border border-line overflow-hidden mb-5">
               <div class="px-4 py-2 border-b border-line text-sm text-mut" style="font-family: var(--font-mono);">memory model</div>
               <img src="/xazz-zero-copy.svg" alt="zero-copy tensor handoff diagram" class="w-full h-auto object-contain bg-canvas" loading="lazy" />
@@ -292,22 +291,23 @@ const irOpt = `// xazz-compiler/src/opt.rs
               single error channel, and structured JSON diagnostics a model can act on.
             </p>
             <p class="lang-kr">
-              <strong>AI-written, Human-reviewed</strong>라는 하나의 명제를 중심으로 설계한 실험적 범용 프로그래밍 언어입니다.
-              코드가 점점 기계에 의해 작성될 것이므로, 사람이 그 코드를 <em>읽고 검증하고 신뢰</em>할 수 있도록 설계했습니다 —
-              계약 경계의 명시적 타입, 명시적 <code>mut</code>를 동반한 값 시맨틱, 단일 에러 채널의 <code>Result</code> 타입,
-              그리고 모델이 활용할 수 있는 구조적 JSON 진단까지.
+              <strong>AI가 쓰고 사람이 검증한다</strong>. 이 명제 하나를 중심으로 설계한 실험적 범용 언어입니다.
+              앞으로 코드는 점점 기계가 작성할 텐데, 사람은 그 코드를 <em>읽고 검증하고 신뢰</em>할 수 있어야
+              한다고 생각했습니다. 그래서 계약 경계에는 타입이 명시되고, 값 시맨틱에는 <code>mut</code>이 명시되고,
+              에러 채널은 <code>Result</code> 하나로 단일화했습니다. 모델이 읽을 수 있는 구조적 JSON 진단도
+              갖춰져 있습니다.
             </p>
 
-            <h2><span class="lang-en">The differentiator — intent verification</span><span class="lang-kr">핵심 차별점 — 인텐트 검증</span></h2>
+            <h2><span class="lang-en">The differentiator — intent verification</span><span class="lang-kr">핵심 차별점 · 인텐트 검증</span></h2>
             <p class="lang-en">
               Static typing catches type mismatches, but nothing catches a comment that <em>lies</em> about behavior.
               Xz makes the contract between comment and code verifiable: every documented claim is proven by the compiler,
               trusted by a human via <code>@trusted</code>, or rejected in <code>--strict</code> builds.
             </p>
             <p class="lang-kr">
-              정적 타이핑은 타입 불일치를 잡지만, 동작에 대해 <em>거짓말하는</em> 주석은 아무도 잡지 못합니다.
-              Xz는 주석과 코드 사이의 계약을 검증 가능하게 만듭니다: 모든 문서화된 주장은 컴파일러가 증명하거나,
-              사람이 <code>@trusted</code>로 신뢰하거나, <code>--strict</code> 빌드에서 거부됩니다.
+              정적 타이핑은 타입 불일치는 잡아주지만, 동작에 대해 <em>거짓말하는</em> 주석은 아무도 잡지 못합니다.
+              Xz는 주석과 코드 사이의 계약을 검증할 수 있는 형태로 만들었습니다. 문서화된 주장은 컴파일러가
+              증명하거나, 사람이 <code>@trusted</code>로 신뢰하거나, <code>--strict</code> 빌드에서 거부됩니다.
             </p>
             <ul>
               <li class="lang-en"><code>@intent</code> / <code>@requires</code> / <code>@ensures</code> NL claims are structurally paired (in order) with formal <code>pre</code> / <code>post</code> contracts; the NL text is never parsed.</li>
@@ -337,9 +337,10 @@ const irOpt = `// xazz-compiler/src/opt.rs
               Xz is an experimental technical project, separate from the commercial Xazz line.
             </p>
             <p class="lang-kr">
-              Phase 1–4 구현 완료, Phase 5(FFI·상호운용) 진행 중입니다. <code>hello.xz</code>와 <code>contracts.xz</code>가
-              전체 프런트엔드를 통과하고 LLVM JIT로 실행됩니다. Phase 6–8(동시성 런타임, 표준 라이브러리, 툴링)은 로드맵에 있습니다.
-              Xz는 상업용 Xazz 라인과 별개의 실험적 기술 프로젝트입니다.
+              Phase 1–4는 구현을 마쳤고, Phase 5(FFI와 상호운용)를 진행 중입니다. <code>hello.xz</code>와
+              <code>contracts.xz</code>가 전체 프런트엔드를 통과해 LLVM JIT로 실행됩니다. Phase 6–8(동시성
+              런타임, 표준 라이브러리, 툴링)은 로드맵에 있습니다. Xz는 상업용 Xazz 라인과 별개인 실험적 기술
+              프로젝트입니다.
             </p>
 
             <div class="flex flex-wrap gap-3 mt-2">
@@ -361,9 +362,9 @@ const irOpt = `// xazz-compiler/src/opt.rs
               must be explicit, verifiable, and safely AI-generatable.
             </p>
             <p class="lang-kr">
-              <strong>Next.js(TypeScript)</strong>와 <strong>Xz</strong> 언어를 잇는 하이브리드 웹 프레임워크이자 오케스트레이션
-              툴킷입니다. Next.js가 UI와 라우팅 셸을 맡고, 명시적이고 검증 가능하며 AI가 안전하게 생성할 수 있어야 하는 백엔드
-              비즈니스 로직은 Xz가 맡습니다.
+              <strong>Next.js(TypeScript)</strong>와 <strong>Xz</strong> 언어를 잇는 하이브리드 웹 프레임워크이자
+              오케스트레이션 툴킷입니다. Next.js가 UI와 라우팅 셸을 맡고, 명시적이고 검증 가능해야 하며 AI가
+              안전하게 생성할 수 있는 백엔드 비즈니스 로직은 Xz가 맡습니다.
             </p>
 
             <h2><span class="lang-en">How it works</span><span class="lang-kr">동작 방식</span></h2>
@@ -376,16 +377,16 @@ next.xz  ── bridge · agent · audit
 Xz Core (.xz)  ── LLVM 17 native / shared library</code></pre>
             <ul>
               <li class="lang-en"><code>@xz-lang/bridge</code> — generates typed TypeScript bindings from <code>@export</code> signatures and loads the compiled shared library over Bun FFI / koffi.</li>
-              <li class="lang-kr"><code>@xz-lang/bridge</code> — <code>@export</code> 시그니처로 타입이 붙은 TypeScript 바인딩을 생성하고, Bun FFI / koffi로 컴파일된 공유 라이브러리를 로드합니다.</li>
+              <li class="lang-kr"><code>@xz-lang/bridge</code>: <code>@export</code> 시그니처로 타입이 붙은 TypeScript 바인딩을 생성하고, Bun FFI / koffi로 컴파일된 공유 라이브러리를 로드합니다.</li>
               <li class="lang-en"><code>@xz-lang/agent</code> — drives the LLM → <code>xz check-json</code> → repair loop with a bounded retry budget; never silently accepts a failing module.</li>
-              <li class="lang-kr"><code>@xz-lang/agent</code> — LLM → <code>xz check-json</code> → 수정 루프를 제한된 재시도 예산으로 돌립니다. 실패한 모듈을 조용히 받아들이지 않습니다.</li>
+              <li class="lang-kr"><code>@xz-lang/agent</code>: LLM → <code>xz check-json</code> → 수정 루프를 제한된 재시도 예산으로 돌립니다. 실패한 모듈을 조용히 받아들이지 않습니다.</li>
               <li class="lang-en"><code>@xz-lang/audit</code> — a <code>/___audit</code> overlay that renders contract and effect badges for human approval.</li>
-              <li class="lang-kr"><code>@xz-lang/audit</code> — 사람의 승인을 위한 계약·이펙트 배지를 렌더링하는 <code>/___audit</code> 오버레이.</li>
+              <li class="lang-kr"><code>@xz-lang/audit</code>: 사람의 승인을 위한 계약·이펙트 배지를 렌더링하는 <code>/___audit</code> 오버레이.</li>
             </ul>
 
             <h2><span class="lang-en">Status</span><span class="lang-kr">현재 상태</span></h2>
             <p class="lang-en">v0.1.0-draft — the PRD, architecture, and subsystem specs are in place; the bridge, agent loop, and audit UI are the work in progress.</p>
-            <p class="lang-kr">v0.1.0-draft — PRD, 아키텍처, 서브시스템 스펙이 준비됐고 브리지, 에이전트 루프, 감사 UI를 작업 중입니다.</p>
+            <p class="lang-kr">v0.1.0-draft. PRD와 아키텍처, 서브시스템 스펙은 준비됐고, 브리지와 에이전트 루프, 감사 UI를 작업하고 있습니다.</p>
 
             <div class="flex flex-wrap gap-3 mt-2">
               <a href="https://github.com/x1zzdev/next-xz" target="_blank" rel="noopener noreferrer" class="btn">next.xz on GitHub ↗</a>
@@ -406,7 +407,7 @@ Xz Core (.xz)  ── LLVM 17 native / shared library</code></pre>
             </p>
             <p class="lang-kr">
               <strong>Ruby on Rails</strong>와 <strong>Xz</strong> 언어를 잇는 하이브리드 Rails 툴킷입니다. gem 모음과
-              마운트 가능한 Engine으로 이루어진, Rails 위에 얹는 툴킷이며 포크가 아닙니다.
+              마운트 가능한 Engine으로 이루어져 있고, Rails를 포크하는 게 아니라 위에 얹는 방식입니다.
             </p>
 
             <h2><span class="lang-en">How it works</span><span class="lang-kr">동작 방식</span></h2>
@@ -419,18 +420,18 @@ rails.xz  ── bridge · agent · audit engine
 Xz core (.xz)  ── LLVM native / shared library</code></pre>
             <ul>
               <li class="lang-en"><code>rails-xz-bridge</code> — generates Ruby bindings from <code>@export</code> signatures and loads Xz shared libraries through Fiddle/ffi.</li>
-              <li class="lang-kr"><code>rails-xz-bridge</code> — <code>@export</code> 시그니처로 Ruby 바인딩을 생성하고 Fiddle/ffi로 Xz 공유 라이브러리를 로드합니다.</li>
+              <li class="lang-kr"><code>rails-xz-bridge</code>: <code>@export</code> 시그니처로 Ruby 바인딩을 생성하고 Fiddle/ffi로 Xz 공유 라이브러리를 로드합니다.</li>
               <li class="lang-en"><code>rails-xz-agent</code> — runs the LLM → <code>xz check-json</code> → repair loop inside an ActiveJob with a bounded retry budget.</li>
-              <li class="lang-kr"><code>rails-xz-agent</code> — LLM → <code>xz check-json</code> → 수정 루프를 ActiveJob 안에서 제한된 재시도 예산으로 실행합니다.</li>
+              <li class="lang-kr"><code>rails-xz-agent</code>: LLM → <code>xz check-json</code> → 수정 루프를 ActiveJob 안에서 제한된 재시도 예산으로 실행합니다.</li>
               <li class="lang-en"><code>rails-xz</code> — a Rails Engine providing the <code>Xz::Module</code> service DSL and the <code>/xz_audit</code> approval dashboard.</li>
-              <li class="lang-kr"><code>rails-xz</code> — <code>Xz::Module</code> 서비스 DSL과 <code>/xz_audit</code> 승인 대시보드를 제공하는 Rails Engine.</li>
+              <li class="lang-kr"><code>rails-xz</code>: <code>Xz::Module</code> 서비스 DSL과 <code>/xz_audit</code> 승인 대시보드를 제공하는 Rails Engine.</li>
               <li class="lang-en">Split: I own the bridge, binding generation, and compiler integration; <a href="https://github.com/imrubydev" target="_blank" rel="noopener noreferrer">imrubydev</a> owns the Engine and developer experience.</li>
               <li class="lang-kr">역할 분담: 브리지, 바인딩 생성, 컴파일러 통합은 제가, Engine과 개발자 경험은 <a href="https://github.com/imrubydev" target="_blank" rel="noopener noreferrer">imrubydev</a>가 맡습니다.</li>
             </ul>
 
             <h2><span class="lang-en">Status</span><span class="lang-kr">현재 상태</span></h2>
             <p class="lang-en">v0.1.0-draft — the PRD, architecture, subsystem specs, and gem skeletons are in place; the Ruby bridge, agent loop, and Engine are in progress.</p>
-            <p class="lang-kr">v0.1.0-draft — PRD, 아키텍처, 서브시스템 스펙, gem 스켈레톤이 준비됐고 Ruby 브리지, 에이전트 루프, Engine을 작업 중입니다.</p>
+            <p class="lang-kr">v0.1.0-draft. PRD와 아키텍처, 서브시스템 스펙, gem 스켈레톤은 준비됐고, Ruby 브리지와 에이전트 루프, Engine을 작업하고 있습니다.</p>
 
             <div class="flex flex-wrap gap-3 mt-2">
               <a href="https://github.com/imrubydev/rails-xz" target="_blank" rel="noopener noreferrer" class="btn">rails.xz on GitHub ↗</a>
@@ -451,8 +452,9 @@ Xz core (.xz)  ── LLVM native / shared library</code></pre>
               compiler engineering, and type system research.
             </p>
             <p class="lang-kr">
-              Xazz로 성장한 최초의 데이터 파이프라인 DSL입니다. <code>.xzz</code> 스크립트를 최적화된 Polars LazyFrame
-              실행 계획으로 컴파일합니다. 언어 설계, 컴파일러 엔지니어링, 타입 시스템 연구가 목적이었습니다.
+              Xazz의 전신이 된 데이터 파이프라인 DSL입니다. <code>.xzz</code> 스크립트를 최적화된 Polars LazyFrame
+              실행 계획으로 컴파일합니다. 언어 설계와 컴파일러 엔지니어링, 타입 시스템 연구를 하려고 만든
+              프로젝트였습니다.
             </p>
 
             <h2><span class="lang-en">What it demonstrates</span><span class="lang-kr">보여주는 것</span></h2>
@@ -462,7 +464,7 @@ Xz core (.xz)  ── LLVM native / shared library</code></pre>
               <li class="lang-en">Auto schema inference (<code>x1zz import</code>), EUC-KR/CP949 CSV decoding</li>
               <li class="lang-kr">자동 스키마 추론(<code>x1zz import</code>), EUC-KR/CP949 CSV 디코딩</li>
               <li class="lang-en">Dependency isolation — the CLI never links Polars (2–5 MB)</li>
-              <li class="lang-kr">의존성 격리 — CLI는 Polars를 링크하지 않음 (2–5 MB)</li>
+              <li class="lang-kr">의존성 격리. CLI는 Polars를 링크하지 않습니다(2–5 MB).</li>
             </ul>
           </div>
 
@@ -479,8 +481,8 @@ Xz core (.xz)  ── LLVM native / shared library</code></pre>
               <code>.xzz</code> scripts. Hand-porting is repetitive; this does it automatically.
             </p>
             <p class="lang-kr">
-              Python 데이터·딥러닝 파이프라인(pandas / PyTorch)을 <code>.xzz</code> 스크립트로 변환하는 Rust CLI 도구입니다.
-              수동 이식은 반복적이라 자동화했습니다.
+              Python 데이터와 딥러닝 파이프라인(pandas, PyTorch)을 <code>.xzz</code> 스크립트로 변환하는 Rust CLI
+              도구입니다. 수동 이식은 반복 작업이라 자동화했습니다.
             </p>
 
             <h2><span class="lang-en">How it works</span><span class="lang-kr">동작 방식</span></h2>
@@ -508,8 +510,8 @@ Xz core (.xz)  ── LLVM native / shared library</code></pre>
               How much energy does it actually save — and does the saving hold up as precision drops?
             </p>
             <p class="lang-kr">
-              가중치 양자화(FP16 → INT8 → INT4)는 LLM 추론 비용에 대한 표준 해법입니다.
-              실제로 에너지를 얼마나 아끼고, 정밀도가 낮아질수록 절감 효과는 유지될까요?
+              가중치 양자화(FP16 → INT8 → INT4)는 LLM 추론 비용의 표준 해법입니다. 그런데 실제로 에너지를 얼마나
+              아끼는지, 정밀도가 낮아지면 그 절감이 유지되는지는 별로 이야기되지 않습니다.
             </p>
 
             <h2><span class="lang-en">What the metric shows</span><span class="lang-kr">지표가 보여주는 것</span></h2>
@@ -529,8 +531,8 @@ Xz core (.xz)  ── LLVM native / shared library</code></pre>
               since this was done without GPU access. The GPU measurement harness is written and in progress.
             </p>
             <p class="lang-kr">
-              GPU가 없는 환경이라 분석은 문헌 기반 참조값(<code>Source=Reference-Literature</code>)입니다.
-              GPU 측정 하네스는 작성되어 진행 중입니다.
+              GPU가 없는 환경에서 진행한 연구라 분석은 문헌 기반 참조값(<code>Source=Reference-Literature</code>)입니다.
+              GPU 측정 하네스는 이미 작성해 뒀고 진행 중입니다.
             </p>
 
             <div class="flex flex-wrap gap-3 mt-2">
@@ -553,9 +555,9 @@ Xz core (.xz)  ── LLVM native / shared library</code></pre>
               — but nobody asked "is it safe to run this code?"
             </p>
             <p class="lang-kr">
-              데이터 파이프라인 DSL에는 보안이 없었습니다. PII와 시크릿이 CSV에서 출력까지 그대로 흐를 수 있었고,
-              <code>/etc/passwd</code>를 읽는 것도 막을 수 없었어요. 타입 체커는 "이 코드가 돌아가나?"를 답하지만,
-              "이 코드를 돌려도 안전한가?"를 묻는 사람은 없었습니다.
+              데이터 파이프라인 DSL에는 보안이 없었습니다. PII와 시크릿이 CSV에서 출력까지 그대로 흘러갈 수 있었고,
+              <code>/etc/passwd</code>를 읽는 것도 막을 방법이 없었어요. 타입 체커는 이 코드가 돌아가는지를 답하지만,
+              이 코드를 돌려도 되는지를 묻는 사람은 없었습니다.
             </p>
 
             <h2><span class="lang-en">Approach</span><span class="lang-kr">접근</span></h2>
@@ -565,16 +567,17 @@ Xz core (.xz)  ── LLVM native / shared library</code></pre>
               not substring matching.
             </p>
             <p class="lang-kr">
-              <code>xazz-compiler</code>에 정책 기반(policy-as-code) 계층을 두고 실행 전에 스캔하며, <strong>fail-closed</strong>입니다.
-              정책을 못 불러오면 실행을 거부합니다. 스캐너는 직접 구현했고, 부분 문자열이 아닌 정규화 후 정확 일치를 씁니다.
+              <code>xazz-compiler</code>에 정책 기반(policy-as-code) 계층을 두고 실행 전에 스캔합니다.
+              <strong>fail-closed</strong>라서 정책을 못 불러오면 실행 자체를 거부합니다. 스캐너는 직접 구현했고,
+              부분 문자열이 아니라 정규화 후 정확 일치로 찾습니다.
             </p>
             <ul>
               <li class="lang-en">RRN: form + checksum validated — a checksum mismatch is not flagged</li>
-              <li class="lang-kr">주민번호: 형식 + 체크섬 검증 — 체크섬이 틀리면 탐지하지 않음</li>
+              <li class="lang-kr">주민번호: 형식과 체크섬을 모두 검증합니다. 체크섬이 틀리면 탐지하지 않습니다.</li>
               <li class="lang-en">Cards: 13–19 digits + Luhn + issuer prefix; timestamps and order numbers excluded</li>
               <li class="lang-kr">카드: 13–19자리 + Luhn + 발급사 접두사; 타임스탬프·주문번호는 제외</li>
               <li class="lang-en">Three gate points — the final one sits inside <code>xazz-exec</code>, the only place Polars runs</li>
-              <li class="lang-kr">3중 게이트 — 마지막 게이트는 Polars가 실행되는 유일한 곳인 <code>xazz-exec</code> 내부</li>
+              <li class="lang-kr">게이트는 세 곳입니다. 마지막 게이트는 Polars가 실행되는 유일한 곳인 <code>xazz-exec</code> 내부에 둡니다.</li>
             </ul>
           </div>
 
@@ -592,8 +595,8 @@ Xz core (.xz)  ── LLVM native / shared library</code></pre>
               the AST against Polars/Burn. Two passes, two chances to diverge.
             </p>
             <p class="lang-kr">
-              초기 버전은 원시 AST를 두 번 해석했습니다. CLI가 소스를 다시 파싱하고, 런타임이 AST를 Polars/Burn에 다시 매핑했습니다.
-              두 번 해석하니 두 번 어긋날 수 있었습니다.
+              초기 버전은 원시 AST를 두 번 해석했습니다. CLI가 소스를 다시 파싱하고, 런타임이 그 AST를 Polars/Burn에
+              다시 매핑했습니다. 두 번 해석하니 어긋날 여지도 두 번 있었습니다.
             </p>
 
             <h2><span class="lang-en">Fix</span><span class="lang-kr">해결</span></h2>
@@ -603,7 +606,7 @@ Xz core (.xz)  ── LLVM native / shared library</code></pre>
             </p>
             <p class="lang-kr">
               단일 <strong>타입드 IR</strong>로 정리했습니다. <code>.xzz</code>는 IR로 한 번 컴파일되고, 런타임은 IR을 한 번만 소비합니다.
-              IR 위의 옵티마이저는 의미를 보존하며 백엔드와 무관합니다.
+              IR 위의 옵티마이저는 의미를 보존하면서 백엔드와 무관하게 동작합니다.
             </p>
             <pre><code>{irOpt}</code></pre>
           </div>
@@ -621,7 +624,8 @@ Xz core (.xz)  ── LLVM native / shared library</code></pre>
               The CLI linked Polars directly, so a <code>--help</code> command shipped ~35 MB of binary the CLI never used.
             </p>
             <p class="lang-kr">
-              CLI가 Polars를 직접 링크해서, <code>--help</code> 한 번에 쓸 일 없는 ~35 MB 바이너리가 배포됐습니다.
+              CLI가 Polars를 직접 링크하는 바람에, <code>--help</code> 한 번에 쓸 일 없는 ~35 MB짜리 바이너리가
+              배포됐습니다.
             </p>
 
             <h2><span class="lang-en">Fix</span><span class="lang-kr">해결</span></h2>
@@ -630,15 +634,15 @@ Xz core (.xz)  ── LLVM native / shared library</code></pre>
               Communication is CLI arguments only — no IPC protocol.
             </p>
             <p class="lang-kr">
-              카고 워크스페이스에 명확한 규칙을 세웠습니다. CLI는 Polars/Tokio를 절대 링크하지 않고, 실행은 스폰된 서브프로세스에서 합니다.
-              통신은 CLI 인자뿐이고 IPC 프로토콜이 없습니다.
+              카고 워크스페이스에 규칙을 세웠습니다. CLI는 Polars/Tokio를 절대 링크하지 않고, 실행은 별도 서브프로세스에서
+              합니다. 통신은 CLI 인자뿐이라 IPC 프로토콜이 없습니다.
             </p>
             <pre><code>{tree}</code></pre>
             <ul>
               <li class="lang-en">CLI: ~2–5 MB (was ~35 MB)</li>
-              <li class="lang-kr">CLI: ~2–5 MB (이전 ~35 MB)</li>
+              <li class="lang-kr">CLI는 ~2–5 MB입니다(이전에는 ~35 MB).</li>
               <li class="lang-en">The runner enforces an execution timeout and resolves the engine without PATH fallback (fail-closed)</li>
-              <li class="lang-kr">러너가 실행 타임아웃을 적용하고, PATH 폴백 없이 엔진을 찾음(fail-closed)</li>
+              <li class="lang-kr">러너가 실행 타임아웃을 적용하고, PATH 폴백 없이 엔진을 찾습니다(fail-closed).</li>
             </ul>
           </div>
 
@@ -705,7 +709,7 @@ Xz core (.xz)  ── LLVM native / shared library</code></pre>
               <span class="chip">Rust</span>
             </div>
 
-            <h2><span class="lang-en">Featured — Min / Max scatter / select_assign</span><span class="lang-kr">대표 기여 — Min / Max scatter / select_assign</span></h2>
+            <h2><span class="lang-en">Featured — Min / Max scatter / select_assign</span><span class="lang-kr">대표 기여 · Min / Max scatter / select_assign</span></h2>
             <p class="lang-en">
               The largest-scope contribution. Element-wise <code>scatter</code> / <code>select_assign</code>
               supported only <code>Assign</code>, <code>Add</code>, and <code>Mul</code>; <code>Min</code> /
@@ -715,10 +719,10 @@ Xz core (.xz)  ── LLVM native / shared library</code></pre>
               <a href="https://github.com/tracel-ai/burn/pull/5582" target="_blank" rel="noopener noreferrer">PR #5582</a>.
             </p>
             <p class="lang-kr">
-              범위가 가장 큰 기여입니다. 요소별 <code>scatter</code> / <code>select_assign</code>은
+              범위가 가장 컸던 기여입니다. 요소별 <code>scatter</code> / <code>select_assign</code>은
               <code>Assign</code>, <code>Add</code>, <code>Mul</code>만 지원했고 <code>Min</code> / <code>Max</code>는
-              모든 백엔드에서 <code>unimplemented!</code>에 걸렸습니다 (<code>scatter_nd</code>는 이미 다섯 변형을 모두
-              구현했는데도요). 빠진 변형을 네 백엔드 전부와 autodiff backward까지 end-to-end로 구현했습니다.
+              모든 백엔드에서 <code>unimplemented!</code>에 걸렸습니다. <code>scatter_nd</code>는 다섯 변형을 전부
+              구현해 두고서요. 빠진 변형을 네 백엔드 전부와 autodiff backward까지 end-to-end로 구현했습니다.
               <a href="https://github.com/tracel-ai/burn/pull/5582" target="_blank" rel="noopener noreferrer">PR #5582</a>로 머지됐습니다.
             </p>
 
@@ -727,11 +731,11 @@ Xz core (.xz)  ── LLVM native / shared library</code></pre>
               <li class="lang-en"><strong>All four backends</strong>: ndarray primitives; <code>flex</code> helpers sharing the existing update walkers; <code>cubecl</code> entries reusing the <code>BinaryMinOp</code> / <code>BinaryMaxOp</code> kernels; <code>tch</code> via <code>scatter_reduce</code> / <code>index_reduce_</code> (<code>"amin"</code> / <code>"amax"</code>).</li>
               <li class="lang-kr"><strong>네 백엔드 전부</strong>: ndarray 프리미티브; 기존 업데이트 워커를 공유하는 <code>flex</code> 헬퍼; <code>BinaryMinOp</code> / <code>BinaryMaxOp</code> 커널을 재사용하는 <code>cubecl</code>; <code>scatter_reduce</code> / <code>index_reduce_</code>(<code>"amin"</code> / <code>"amax"</code>)를 쓰는 <code>tch</code>.</li>
               <li class="lang-en"><strong>Autodiff</strong>: backward passes for <code>Min</code> / <code>Max</code> <code>scatter</code> and <code>select_assign</code>, mirroring the <code>scatter_nd</code> Min/Max gradient — winner masks from comparisons, ties credited to both operands, unique indices required.</li>
-              <li class="lang-kr"><strong>Autodiff</strong>: <code>Min</code> / <code>Max</code> <code>scatter</code>와 <code>select_assign</code>의 backward 패스를 <code>scatter_nd</code> Min/Max 그래디언트와 동일하게 구현 — 비교 기반 winner 마스크, 동률은 양쪽 입력에 귀속, unique index 요구.</li>
+              <li class="lang-kr"><strong>Autodiff</strong>: <code>Min</code> / <code>Max</code> <code>scatter</code>와 <code>select_assign</code>의 backward 패스를 <code>scatter_nd</code> Min/Max 그래디언트와 같은 방식으로 구현했습니다. 비교로 winner 마스크를 만들고, 동률은 양쪽 입력에 귀속시키고, unique index를 요구합니다.</li>
               <li class="lang-en">Dispatch matches now enumerate every <code>IndexingUpdateOp</code> variant, so an unsupported combination fails at compile time instead of panicking at runtime.</li>
               <li class="lang-kr">dispatch match가 모든 <code>IndexingUpdateOp</code> 변형을 열거하므로, 지원되지 않는 조합은 런타임 panic 대신 컴파일 타임에 실패합니다.</li>
               <li class="lang-en">Verified with 1839 tensor + 572 autodiff tests (<code>--features ndarray</code>) and clippy-clean on <code>burn-ndarray</code>, <code>burn-flex</code>, <code>burn-autodiff</code>, <code>burn-cubecl</code>; confirmed the new autodiff tests fail with the old <code>unimplemented!</code> when the backward is removed.</li>
-              <li class="lang-kr"><code>--features ndarray</code>로 텐서 1839 + autodiff 572 테스트 통과, <code>burn-ndarray</code>·<code>burn-flex</code>·<code>burn-autodiff</code>·<code>burn-cubecl</code> clippy 클린; backward를 제거하면 새 autodiff 테스트가 기존 <code>unimplemented!</code>로 실패함도 확인했습니다.</li>
+              <li class="lang-kr"><code>--features ndarray</code>로 텐서 1839개 + autodiff 572개 테스트를 통과했고, <code>burn-ndarray</code>·<code>burn-flex</code>·<code>burn-autodiff</code>·<code>burn-cubecl</code>은 clippy 클린입니다. backward를 제거하면 새 autodiff 테스트가 기존 <code>unimplemented!</code>로 실패하는 것도 확인했습니다.</li>
             </ul>
 
             <div class="flex flex-wrap gap-3 mt-2 mb-2">
@@ -747,17 +751,17 @@ Xz core (.xz)  ── LLVM native / shared library</code></pre>
             </p>
             <p class="lang-kr">
               백엔드 디스패치 <em>이전에</em> 실행되는 공개 텐서 API 검증 레이어인 <code>TensorCheck</code>에
-              matmul 배치 브로드캐스트 검증을 추가해, 모든 백엔드가 일관된 <code>Tensor Operation Error</code>를
-              받도록 했습니다 (기존에는 백엔드마다 제각각 다른 panic이 발생).
+              matmul 배치 브로드캐스트 검증을 추가했습니다. 이제 모든 백엔드가 일관된 <code>Tensor Operation Error</code>를
+              받습니다. 전에는 백엔드마다 제각각 다른 panic이 났습니다.
               <a href="https://github.com/tracel-ai/burn/pull/5555" target="_blank" rel="noopener noreferrer">PR #5555</a>로 머지됐습니다.
             </p>
 
             <h2><span class="lang-en">How</span><span class="lang-kr">과정</span></h2>
             <ul>
               <li class="lang-en">Regression test that fails if the check is removed; narrowed after review to exercise exactly this path (not a pre-existing inner-dimension check).</li>
-              <li class="lang-kr">검증을 제거하면 실패하는 회귀 테스트를 작성하고, 리뷰 후 이 경로만 정확히 검증하도록 범위를 조정했습니다 (기존 inner-dimension 검증이 아닌).</li>
+              <li class="lang-kr">검증을 제거하면 실패하는 회귀 테스트를 작성했고, 리뷰 후에는 이 경로만 정확히 검증하도록 범위를 좁혔습니다(기존 inner-dimension 검증과는 겹치지 않게).</li>
               <li class="lang-en">First PR was rejected as backend-local (ndarray is deprecated) with a hot-path allocation; reworked onto the shared layer per maintainer direction.</li>
-              <li class="lang-kr">첫 PR은 백엔드 로컬(ndarray는 deprecated) + 핫패스 힙 할당으로 거절 → 메인테이너가 제시한 방향대로 공통 레이어로 재작업했습니다.</li>
+              <li class="lang-kr">첫 PR은 백엔드 로컬(ndarray는 deprecated)이면서 핫패스 힙 할당을 써서 거절당했고, 메인테이너가 제시한 방향대로 공통 레이어로 재작업했습니다.</li>
               <li class="lang-en">Merged directly by the maintainer.</li>
               <li class="lang-kr">메인테이너가 직접 머지했습니다.</li>
             </ul>
@@ -766,7 +770,7 @@ Xz core (.xz)  ── LLVM native / shared library</code></pre>
               <a href="https://github.com/tracel-ai/burn/pull/5555" target="_blank" rel="noopener noreferrer" class="btn">PR #5555 ↗</a>
             </div>
 
-            <h2><span class="lang-en">Also — element-wise binary ops</span><span class="lang-kr">추가 — 요소별 이항 연산</span></h2>
+            <h2><span class="lang-en">Also — element-wise binary ops</span><span class="lang-kr">추가 · 요소별 이항 연산</span></h2>
             <p class="lang-en">
               Applied the <code>binary_ops_ew</code> TensorCheck (device + broadcast) to five element-wise ops —
               <code>remainder</code>, <code>powi</code>, <code>powf</code>, <code>hypot</code>, <code>atan2</code> —
@@ -775,7 +779,7 @@ Xz core (.xz)  ── LLVM native / shared library</code></pre>
             </p>
             <p class="lang-kr">
               요소별 이항 연산 5개(<code>remainder</code>, <code>powi</code>, <code>powf</code>, <code>hypot</code>,
-              <code>atan2</code>)에 <code>binary_ops_ew</code> 텐서 검증(device + 브로드캐스트)을 적용했습니다.
+              <code>atan2</code>)에 <code>binary_ops_ew</code> 텐서 검증(device와 브로드캐스트)을 적용했습니다.
               기존에는 검증을 건너뛰고 백엔드마다 다른 panic이 났습니다.
               <a href="https://github.com/tracel-ai/burn/pull/5564" target="_blank" rel="noopener noreferrer">PR #5564</a>로 머지됐습니다.
             </p>
@@ -790,7 +794,7 @@ Xz core (.xz)  ── LLVM native / shared library</code></pre>
               <a href="https://github.com/tracel-ai/burn/pull/5564" target="_blank" rel="noopener noreferrer" class="btn">PR #5564 ↗</a>
             </div>
 
-            <h2><span class="lang-en">Also — matmul rank validation</span><span class="lang-kr">추가 — matmul rank 검증</span></h2>
+            <h2><span class="lang-en">Also — matmul rank validation</span><span class="lang-kr">추가 · matmul rank 검증</span></h2>
             <p class="lang-en">
               Rank-1 <code>matmul</code> calls previously bypassed <code>TensorCheck</code> (a <code>D &lt; 2</code>
               short-circuit) and failed inconsistently per backend: ndarray panicked with
@@ -800,17 +804,18 @@ Xz core (.xz)  ── LLVM native / shared library</code></pre>
               Merged as <a href="https://github.com/tracel-ai/burn/pull/5580" target="_blank" rel="noopener noreferrer">PR #5580</a>.
             </p>
             <p class="lang-kr">
-              rank-1 <code>matmul</code> 호출이 기존에 <code>TensorCheck</code>를 (<code>D &lt; 2</code>
-              short-circuit으로) 우회해 백엔드마다 제각각 실패했습니다: ndarray는 <code>attempt to subtract with overflow</code>
-              (<code>ndims == 1</code>에서 <code>shape_lhs[ndims - 2]</code> 언더플로), tch는 1D×1D를 dot product로
-              처리해 <code>Tensor&lt;1&gt;</code> 출력 rank와 모순되는 0차원 스칼라 반환, cubecl은 유효한 커널 입력 없음.
+              rank-1 <code>matmul</code> 호출이 기존에는 <code>TensorCheck</code>를 우회했고(<code>D &lt; 2</code>
+              short-circuit) 백엔드마다 제각각 실패했습니다. ndarray는 <code>attempt to subtract with overflow</code>
+              (<code>ndims == 1</code>에서 <code>shape_lhs[ndims - 2]</code> 언더플로)로 panic을 냈고, tch는 1D×1D를
+              dot product로 처리해 <code>Tensor&lt;1&gt;</code> 출력 rank와 모순되는 0차원 스칼라를 돌려줬고, cubecl은
+              유효한 커널 입력이 없었습니다.
               <a href="https://github.com/tracel-ai/burn/pull/5580" target="_blank" rel="noopener noreferrer">PR #5580</a>로 머지됐습니다.
             </p>
             <ul>
               <li class="lang-en"><code>TensorCheck::matmul</code> now registers a clear error for ranks &lt; 2, mirroring the <code>tri()</code> check.</li>
-              <li class="lang-kr"><code>TensorCheck::matmul</code>이 <code>tri()</code> 검증처럼 rank &lt; 2에 명확한 에러를 등록합니다.</li>
+              <li class="lang-kr"><code>TensorCheck::matmul</code>이 <code>tri()</code> 검증처럼 rank &lt; 2에 대해 명확한 에러를 등록합니다.</li>
               <li class="lang-en">Regression test <code>float_should_panic_when_rank_is_less_than_2</code> in <code>burn-backend-tests/tests/tensor/float/ops/matmul.rs</code> — verified to fail with the backend overflow panic (not the expected message) when the check is removed.</li>
-              <li class="lang-kr"><code>burn-backend-tests/tests/tensor/float/ops/matmul.rs</code>에 회귀 테스트 <code>float_should_panic_when_rank_is_less_than_2</code> 추가 — 검증 제거 시 기대 메시지가 아닌 백엔드 overflow panic으로 실패함을 확인했습니다.</li>
+              <li class="lang-kr"><code>burn-backend-tests/tests/tensor/float/ops/matmul.rs</code>에 회귀 테스트 <code>float_should_panic_when_rank_is_less_than_2</code>를 추가했습니다. 검증을 제거하면 기대 메시지가 아니라 백엔드 overflow panic으로 실패하는 것도 확인했습니다.</li>
               <li class="lang-en">Merged directly by the maintainer.</li>
               <li class="lang-kr">메인테이너가 직접 머지했습니다.</li>
             </ul>
@@ -819,7 +824,7 @@ Xz core (.xz)  ── LLVM native / shared library</code></pre>
               <a href="https://github.com/tracel-ai/burn/pull/5580" target="_blank" rel="noopener noreferrer" class="btn">PR #5580 ↗</a>
             </div>
 
-            <h2><span class="lang-en">Also — no-std vec! macro fix</span><span class="lang-kr">추가 — no-std vec! 매크로 수정</span></h2>
+            <h2><span class="lang-en">Also — no-std vec! macro fix</span><span class="lang-kr">추가 · no-std vec! 매크로 수정</span></h2>
             <p class="lang-en">
               The no-std test job failed to compile <code>burn-std</code>: <code>layout.rs</code> (added in #5625)
               imports <code>use alloc::vec::Vec;</code> but never the <code>vec!</code> macro, and its
@@ -828,15 +833,15 @@ Xz core (.xz)  ── LLVM native / shared library</code></pre>
               <a href="https://github.com/tracel-ai/burn/pull/5639" target="_blank" rel="noopener noreferrer">PR #5639</a>.
             </p>
             <p class="lang-kr">
-              no-std 테스트 잡이 <code>burn-std</code>를 컴파일하지 못했습니다: <code>layout.rs</code>(#5625에서 추가)는
+              no-std 테스트 잡이 <code>burn-std</code> 컴파일에 실패했습니다. <code>layout.rs</code>(#5625에서 추가)는
               <code>use alloc::vec::Vec;</code>만 임포트하고 <code>vec!</code> 매크로는 임포트하지 않았는데, 그
-              <code>#[cfg(test)]</code> 모듈이 <code>vec![...]</code>를 사용합니다 — std 프렐류드가 있을 때만 컴파일됩니다.
+              <code>#[cfg(test)]</code> 모듈은 std 프렐류드가 있어야만 컴파일되는 <code>vec![...]</code>를 사용합니다.
               <code>use alloc::vec;</code>를 추가했습니다.
               <a href="https://github.com/tracel-ai/burn/pull/5639" target="_blank" rel="noopener noreferrer">PR #5639</a>로 머지됐습니다.
             </p>
             <ul>
               <li class="lang-en">Reproduced locally: <code>cargo test --no-default-features --release -p burn-std</code> produced 4 <code>cannot find macro vec</code> errors; after the fix, 168 unit tests pass.</li>
-              <li class="lang-kr">로컬 재현: <code>cargo test --no-default-features --release -p burn-std</code>가 <code>cannot find macro vec</code> 오류 4건을 냈고, 수정 후 168개 유닛 테스트가 통과합니다.</li>
+              <li class="lang-kr">로컬에서 재현해 보면 <code>cargo test --no-default-features --release -p burn-std</code>가 <code>cannot find macro vec</code> 오류 4건을 냈고, 수정 후에는 168개 유닛 테스트가 통과합니다.</li>
               <li class="lang-en">Merged directly by the maintainer.</li>
               <li class="lang-kr">메인테이너가 직접 머지했습니다.</li>
             </ul>
@@ -867,19 +872,19 @@ Xz core (.xz)  ── LLVM native / shared library</code></pre>
             <p class="lang-kr">
               IPC run-ends 재인코딩(<code>into_zero_offset_run_array</code>, arrow-ipc writer)에 쓰던
               <code>BufferBuilder</code>를 <code>Vec</code>으로 교체했습니다. 유지보수자들이
-              "Rust의 최적화된 <code>Vec</code>이 빌더 추상화보다 우세하다"고 관찰한
-              <a href="https://github.com/apache/arrow-rs/issues/10245" target="_blank" rel="noopener noreferrer">#10245</a>의
-              전환 작업 중 main에 실제로 남은 마지막 callsite였습니다 (목록의 다른 후보들은 이미 변환돼 있어서, 변환된 곳을
-              다시 고치는 대신 진짜 남은 경로를 찾아 작업했습니다).
+              "Rust의 최적화된 <code>Vec</code>이 빌더 추상화보다 낫다"고 관찰한
+              <a href="https://github.com/apache/arrow-rs/issues/10245" target="_blank" rel="noopener noreferrer">#10245</a> 전환
+              작업에서 main에 실제로 남아 있던 마지막 callsite였습니다. 목록의 다른 후보들은 이미 변환돼 있었기 때문에,
+              변환된 곳을 다시 고치는 대신 진짜 남은 경로를 찾아 작업했습니다.
               <a href="https://github.com/apache/arrow-rs/pull/11005" target="_blank" rel="noopener noreferrer">PR #11005</a>로 머지됐습니다.
             </p>
 
             <h2><span class="lang-en">How</span><span class="lang-kr">과정</span></h2>
             <ul>
               <li class="lang-en">No behavior change: the re-encoded run-ends buffer is byte-identical.</li>
-              <li class="lang-kr">행동 변화 없음: 재인코딩된 run-ends 버퍼는 바이트 단위로 동일합니다.</li>
+              <li class="lang-kr">동작 변화는 없습니다. 재인코딩된 run-ends 버퍼는 바이트 단위로 동일합니다.</li>
               <li class="lang-en">Verified with the full <code>arrow-ipc</code> suite — the run-array roundtrip tests exercise the re-encoding path for every slice length and both slice offsets.</li>
-              <li class="lang-kr"><code>arrow-ipc</code> 전체 테스트로 검증 — run-array 라운드트립 테스트가 모든 슬라이스 길이와 양쪽 slice offset에 대해 재인코딩 경로를 검사합니다.</li>
+              <li class="lang-kr"><code>arrow-ipc</code> 전체 테스트로 검증했습니다. run-array 라운드트립 테스트가 모든 슬라이스 길이와 양쪽 slice offset에 대해 재인코딩 경로를 검사합니다.</li>
               <li class="lang-en">Approved by two maintainers and merged.</li>
               <li class="lang-kr">메인테이너 2명의 승인 후 머지됐습니다.</li>
             </ul>
@@ -888,7 +893,7 @@ Xz core (.xz)  ── LLVM native / shared library</code></pre>
               <a href="https://github.com/apache/arrow-rs/pull/11005" target="_blank" rel="noopener noreferrer" class="btn">PR #11005 ↗</a>
             </div>
 
-            <h2><span class="lang-en">Also — interval parsing follow-up</span><span class="lang-kr">추가 — interval 파싱 후속</span></h2>
+            <h2><span class="lang-en">Also — interval parsing follow-up</span><span class="lang-kr">추가 · interval 파싱 후속</span></h2>
             <p class="lang-en">
               A follow-up (<a href="https://github.com/apache/arrow-rs/pull/11006" target="_blank" rel="noopener noreferrer">PR #11006</a>,
               under review) relaxes interval parsing so bare units like <code>"5 day hour"</code> parse as

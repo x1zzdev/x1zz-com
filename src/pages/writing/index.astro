@@ -4,7 +4,7 @@ import GithubIcon from '../../components/GithubIcon.astro';
 ---
 
 <Layout
-  title="writing — Xazz의 Typed IR · x1zz"
+  title="writing · Xazz의 Typed IR · x1zz"
   description="Why Xazz has a typed IR — notes from the v0.3.0 rewrite."
   lang="en"
   dataLang="en"
@@ -27,8 +27,8 @@ import GithubIcon from '../../components/GithubIcon.astro';
       </p>
       <p class="lang-kr">
         Xazz 초기 버전은 소스를 두 번 해석했습니다. CLI가 <code>.xzz</code> 파일을 AST로 파싱하고, 실행 엔진이 그 AST를
-        다시 Polars와 Burn에 맞춰 해석했어요. 두 번 해석한다는 건 두 쪽이 서로 어긋날 여지가 두 번이라는 뜻이었고,
-        컬럼 이름 하나가 체커와 런타임에서 다르게 읽히면 그 불일치는 런타임에나 드러났습니다.
+        Polars와 Burn에 다시 맞춰 해석했어요. 두 번 해석한다는 건 어긋날 여지도 두 번이라는 뜻입니다. 컬럼 이름 하나를
+        체커와 런타임이 다르게 읽으면 그 불일치는 런타임에나 드러났습니다.
       </p>
 
       <p class="lang-en">
@@ -36,8 +36,8 @@ import GithubIcon from '../../components/GithubIcon.astro';
         The compiler produces the IR once, and the runtime consumes the IR once. There is nothing left to re-interpret.
       </p>
       <p class="lang-kr">
-        v0.3.0에서 파이프라인을 평평하게 만들었습니다: 렉서 → 파서 → 정적 체커 → <strong>타입드 IR</strong> → 옵티마이저.
-        컴파일러가 IR을 한 번 만들고, 런타임은 그 IR을 한 번만 소비합니다. 다시 해석할 게 남아있지 않죠.
+        v0.3.0에서 파이프라인을 단순하게 만들었습니다. 렉서, 파서, 정적 체커, <strong>타입드 IR</strong>, 옵티마이저.
+        컴파일러가 IR을 한 번 만들고, 런타임은 그 IR을 한 번만 소비합니다. 다시 해석할 부분이 남지 않았습니다.
       </p>
 
       <p class="lang-en">
@@ -49,11 +49,12 @@ import GithubIcon from '../../components/GithubIcon.astro';
         by zero is never folded, either — folding it would change runtime behavior.
       </p>
       <p class="lang-kr">
-        IR은 옵티마이저가 자리할 곳을 만들어줬습니다. <code>opt.rs</code>의 세 패스 — 상수 폴딩, 연속 select 병합,
-        select 앞으로의 filter 푸시다운 — 모두 의미를 보존합니다. 흥미로웠던 부분은 널 의미론이었어요. 이 DSL에서
-        filter는 식이 true인 행만 남기고 null은 false로 취급합니다. 그래서 filter는 자신이 읽는 모든 컬럼이 이동
-        경계 반대편에도 존재할 때만 select나 withColumn을 건너갈 수 있어요. 새로 만든 컬럼을 참조하는 filter는
-        움직이지 않습니다. 0으로 나누는 것도 폴딩하지 않습니다 — 폴딩하면 런타임 동작이 달라지니까요.
+        IR이 있으니 옵티마이저도 들어갈 자리가 생겼습니다. <code>opt.rs</code>에는 세 가지 패스가 있습니다.
+        상수 폴딩, 연속 select 병합, select 앞으로의 filter 푸시다운. 전부 의미를 보존합니다. 까다로웠던 건 널
+        의미론이었어요. 이 DSL에서 filter는 식이 true인 행만 남기고 null은 false로 취급합니다. 그래서 filter는
+        자기가 읽는 모든 컬럼이 이동 경계 반대편에도 존재할 때만 select나 withColumn을 건너뛸 수 있습니다.
+        새로 만든 컬럼을 참조하는 filter는 움직이지 않습니다. 0으로 나누는 것도 절대 폴딩하지 않습니다.
+        폴딩하면 런타임 동작이 달라지기 때문입니다.
       </p>
 
       <p class="lang-en">
@@ -61,8 +62,8 @@ import GithubIcon from '../../components/GithubIcon.astro';
         Polars or Burn. So when a GPU backend eventually lands, the passes keep working without changes.
       </p>
       <p class="lang-kr">
-        잘했다고 생각하는 결정은 IR을 백엔드와 무관하게 둔 것입니다. 옵티마이저는 Polars나 Burn이 아니라 타입드 IR
-        위에서 동작합니다. 그래서 나중에 GPU 백엔드가 추가되어도 패스는 그대로 동작할 겁니다.
+        돌아보면 잘한 결정은 IR을 백엔드와 무관하게 둔 것입니다. 옵티마이저는 Polars나 Burn이 아니라 타입드 IR
+        위에서 동작합니다. 나중에 GPU 백엔드가 붙어도 패스는 그대로 동작할 겁니다.
       </p>
 
       <p class="lang-en">
@@ -70,7 +71,7 @@ import GithubIcon from '../../components/GithubIcon.astro';
         just execute it.
       </p>
       <p class="lang-kr">
-        이 리팩터링의 핵심은 결국 하나였습니다. 프로그램의 의미를 한 곳에서 정하고, 나머지는 그저 실행만 하면 된다는 것.
+        이번 리팩터링의 핵심은 하나였습니다. 프로그램의 의미는 한 곳에서 정하고, 나머지는 실행만 하게 하자.
       </p>
     </div>
 

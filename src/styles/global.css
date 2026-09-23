@@ -253,18 +253,8 @@ html[data-lang="kr"] .lang-en { display: none; }
   fill: var(--color-dim);
 }
 
-/* ── Background grid (docs/DESIGN.md §4, v2.2) ───────────────── */
-/* Instrument grid behind hero + key visual only. Fades downward. */
-.bg-grid {
-  background-image:
-    linear-gradient(to right, #262A31 1px, transparent 1px),
-    linear-gradient(to bottom, #262A31 1px, transparent 1px);
-  background-size: 72px 72px;
-  opacity: 0.45;
-  -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 96%);
-  mask-image: linear-gradient(to bottom, black 40%, transparent 96%);
-  pointer-events: none;
-}
+/* ── Signal background ───────────────────────────────────────── */
+/* Oscilloscope trace behind hero + key visual. See SignalBg.astro. */
 
 /* ── Channel label (docs/DESIGN.md §4, v2.2) ─────────────────── */
 /* CH1/CH2 — echoes the oscilloscope HUD in the key visual. */

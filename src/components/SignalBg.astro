@@ -1,0 +1,121 @@
+---
+// Ambient oscilloscope background for the hero band.
+// A slow signal trace drawn like a scope beam, with persistence trails.
+// Static single frame under prefers-reduced-motion.
+---
+
+<canvas class="signal-bg" aria-hidden="true"></canvas>
+
+<style>
+  .signal-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: -1;
+    -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 96%);
+    mask-image: linear-gradient(to bottom, black 40%, transparent 96%);
+    pointer-events: none;
+  }
+</style>
+
+<script>
+  (function () {
+    var canvas = document.querySelector('canvas.signal-bg');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    var W = 0;
+    var H = 0;
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var t = 0;
+    var lastTs = 0;
+
+    function resize() {
+      var r = canvas.parentElement.getBoundingClientRect();
+      W = Math.max(1, Math.floor(r.width));
+      H = Math.max(1, Math.floor(r.height));
+      canvas.width = Math.floor(W * dpr);
+      canvas.height = Math.floor(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.fillStyle = '#0E1013';
+      ctx.fillRect(0, 0, W, H);
+      if (reduced) frame(8.7);
+    }
+
+    function yAt(x, time) {
+      var u = x / W;
+      var a = H * 0.16;
+      return (
+        H * 0.52 +
+        a * Math.sin(u * 6.8 + time * 0.55) +
+        a * 0.55 * Math.sin(u * 11.9 - time * 0.9) +
+        a * 0.3 * Math.sin(u * 23.7 + time * 1.9)
+      );
+    }
+
+    function strokeTrace(time, style, width, dy) {
+      ctx.beginPath();
+      for (var x = 0; x <= W; x += 3) {
+        var yy = yAt(x, time) + dy;
+        if (x === 0) ctx.moveTo(x, yy);
+        else ctx.lineTo(x, yy);
+      }
+      ctx.strokeStyle = style;
+      ctx.lineWidth = width;
+      ctx.stroke();
+    }
+
+    function frame(time) {
+      // persistence fade (trails)
+      ctx.fillStyle = 'rgba(14,16,19,0.09)';
+      ctx.fillRect(0, 0, W, H);
+
+      // cool ghost echo
+      strokeTrace(time + 2.4, 'rgba(242,244,248,0.05)', 1, 5);
+
+      // dim full trace
+      strokeTrace(time, 'rgba(0,255,163,0.15)', 1, 0);
+
+      // scope beam: bright short segment sweeping across
+      var span = 160;
+      var sweep = ((time * 110) % (W + span * 2)) - span;
+      var x0 = Math.max(0, Math.floor(sweep));
+      var x1 = Math.min(W, Math.ceil(sweep + span));
+      if (x1 > x0) {
+        ctx.beginPath();
+        for (var x = x0; x <= x1; x += 3) {
+          var yy = yAt(x, time);
+          if (x === x0) ctx.moveTo(x, yy);
+          else ctx.lineTo(x, yy);
+        }
+        ctx.strokeStyle = 'rgba(0,255,163,0.35)';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+        ctx.strokeStyle = 'rgba(140,255,200,0.6)';
+        ctx.lineWidth = 1.4;
+        ctx.stroke();
+      }
+    }
+
+    function loop(ts) {
+      requestAnimationFrame(loop);
+      if (ts - lastTs < 33) return; // ~30fps
+      lastTs = ts;
+      t += 0.033;
+      frame(t);
+    }
+
+    var rT;
+    window.addEventListener('resize', function () {
+      clearTimeout(rT);
+      rT = setTimeout(resize, 120);
+    });
+
+    resize();
+    if (!reduced) requestAnimationFrame(loop);
+  })();
+</script>

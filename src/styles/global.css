@@ -23,6 +23,9 @@
 
   --font-mono: 'JetBrains Mono', 'Noto Sans Mono CJK KR', 'D2Coding', ui-monospace, 'SF Mono', 'Menlo', Consolas, monospace;
   --font-sans: 'Inter', 'Noto Sans KR', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* motion */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @layer base {
@@ -94,6 +97,8 @@
   }
   .btn.btn-accent { border-color: var(--color-accent); color: var(--color-accent); }
   .btn.btn-accent:hover { background: var(--color-accent); color: #06120C; }
+  .btn.btn-accent2 { border-color: var(--color-accent2); color: var(--color-accent2); }
+  .btn.btn-accent2:hover { background: var(--color-accent2); color: #06120C; }
   .btn.btn-ghost { border-color: var(--color-line); color: var(--color-mut); }
   .btn.btn-ghost:hover { color: var(--color-fg); border-color: var(--color-fg); background: transparent; }
 
@@ -170,6 +175,61 @@
 /* ── Language toggle visibility ──────────────────────────────── */
 html[data-lang="en"] .lang-kr { display: none; }
 html[data-lang="kr"] .lang-en { display: none; }
+
+/* ═══════════════════════════════════════════════════════════════
+   Landing · Flat Phosphor components (docs/DESIGN.md §4)
+   Motion budget: scroll fade + hover only. No gradients, no loops.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Scroll reveal ───────────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.5s var(--ease-out-expo), transform 0.5s var(--ease-out-expo);
+  transition-delay: var(--reveal-delay, 0s);
+}
+.reveal.in { opacity: 1; transform: none; }
+
+/* ── Card hover (border only, no shadow glow) ────────────────── */
+.card-hover {
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.card-hover:hover {
+  border-color: var(--color-line2);
+  transform: translateY(-2px);
+}
+
+/* ── Compile pipeline (static) ───────────────────────────────── */
+.pipeline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.35rem;
+}
+.pipeline-step {
+  border: 1px solid var(--color-line);
+  padding: 0.4rem 0.8rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--color-sub);
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.pipeline-step:hover { border-color: var(--color-line2); color: var(--color-fg); }
+.pipeline-step.final {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  font-weight: 600;
+}
+.pipeline-arrow { color: var(--color-dim); font-family: var(--font-mono); font-size: 0.78rem; }
+
+/* ── Key visual frame ────────────────────────────────────────── */
+.keyvisual {
+  border: 1px solid var(--color-line);
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #0A0C0F;
+}
 
 /* ── IDE file tree ───────────────────────────────────────────── */
 .tree-item {

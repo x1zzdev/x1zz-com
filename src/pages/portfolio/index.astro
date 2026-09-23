@@ -113,6 +113,8 @@ const irOpt = `// xazz-compiler/src/opt.rs
           <div id="dir-projects">
             <div class="tree-item" data-file="proj-xazz" style="padding-left:2rem"><span class="text-accent">■</span> Xazz.md</div>
             <div class="tree-item" data-file="proj-xz" style="padding-left:2rem"><span class="text-accent2">■</span> Xz.md</div>
+            <div class="tree-item" data-file="proj-nextxz" style="padding-left:2rem"><span class="text-accent">■</span> next.xz.md</div>
+            <div class="tree-item" data-file="proj-railsxz" style="padding-left:2rem"><span class="text-accent2">■</span> rails.xz.md</div>
             <div class="tree-item" data-file="proj-x1zzlang" style="padding-left:2rem"><span class="text-accent2">■</span> x1zzLang.md</div>
             <div class="tree-item" data-file="proj-py2xzz" style="padding-left:2rem"><span class="text-accent2">■</span> py2xzz.md</div>
             <div class="tree-item" data-file="proj-llm" style="padding-left:2rem"><span class="text-warn">■</span> llm-pcag-research.md</div>
@@ -142,6 +144,8 @@ const irOpt = `// xazz-compiler/src/opt.rs
               <option value="readme">README.md</option>
               <option value="proj-xazz">projects/Xazz.md</option>
               <option value="proj-xz">projects/Xz.md</option>
+              <option value="proj-nextxz">projects/next.xz.md</option>
+              <option value="proj-railsxz">projects/rails.xz.md</option>
               <option value="proj-x1zzlang">projects/x1zzLang.md</option>
               <option value="proj-py2xzz">projects/py2xzz.md</option>
               <option value="proj-llm">projects/llm-pcag-research.md</option>
@@ -340,6 +344,96 @@ const irOpt = `// xazz-compiler/src/opt.rs
 
             <div class="flex flex-wrap gap-3 mt-2">
               <a href="https://github.com/x1zzdev/Xz" target="_blank" rel="noopener noreferrer" class="btn">Xz on GitHub ↗</a>
+            </div>
+          </div>
+
+          <!-- ═══ projects/next.xz.md ═══ -->
+          <div id="pane-proj-nextxz" class="tab-pane markdown-body hidden max-w-3xl mx-auto px-6 md:px-10 py-10">
+            <h1>projects/next.xz.md</h1>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="chip on">Next.js × Xz bridge</span><span class="chip">TypeScript · Bun</span><span class="chip">Solo project</span>
+            </div>
+
+            <h2><span class="lang-en">What it is</span><span class="lang-kr">무엇인가</span></h2>
+            <p class="lang-en">
+              A hybrid web framework and orchestration toolkit that bridges <strong>Next.js (TypeScript)</strong> with the
+              <strong>Xz</strong> language. Next.js owns the UI and routing shell; Xz owns the backend business logic that
+              must be explicit, verifiable, and safely AI-generatable.
+            </p>
+            <p class="lang-kr">
+              <strong>Next.js(TypeScript)</strong>와 <strong>Xz</strong> 언어를 잇는 하이브리드 웹 프레임워크이자 오케스트레이션
+              툴킷입니다. Next.js가 UI와 라우팅 셸을 맡고, 명시적이고 검증 가능하며 AI가 안전하게 생성할 수 있어야 하는 백엔드
+              비즈니스 로직은 Xz가 맡습니다.
+            </p>
+
+            <h2><span class="lang-en">How it works</span><span class="lang-kr">동작 방식</span></h2>
+            <pre><code>Next.js App Router (TS/JS)
+        │  Server Actions / generated bindings
+        ▼
+next.xz  ── bridge · agent · audit
+        │  C ABI / Bun FFI
+        ▼
+Xz Core (.xz)  ── LLVM 17 native / shared library</code></pre>
+            <ul>
+              <li class="lang-en"><code>@xz-lang/bridge</code> — generates typed TypeScript bindings from <code>@export</code> signatures and loads the compiled shared library over Bun FFI / koffi.</li>
+              <li class="lang-kr"><code>@xz-lang/bridge</code> — <code>@export</code> 시그니처로 타입이 붙은 TypeScript 바인딩을 생성하고, Bun FFI / koffi로 컴파일된 공유 라이브러리를 로드합니다.</li>
+              <li class="lang-en"><code>@xz-lang/agent</code> — drives the LLM → <code>xz check-json</code> → repair loop with a bounded retry budget; never silently accepts a failing module.</li>
+              <li class="lang-kr"><code>@xz-lang/agent</code> — LLM → <code>xz check-json</code> → 수정 루프를 제한된 재시도 예산으로 돌립니다. 실패한 모듈을 조용히 받아들이지 않습니다.</li>
+              <li class="lang-en"><code>@xz-lang/audit</code> — a <code>/___audit</code> overlay that renders contract and effect badges for human approval.</li>
+              <li class="lang-kr"><code>@xz-lang/audit</code> — 사람의 승인을 위한 계약·이펙트 배지를 렌더링하는 <code>/___audit</code> 오버레이.</li>
+            </ul>
+
+            <h2><span class="lang-en">Status</span><span class="lang-kr">현재 상태</span></h2>
+            <p class="lang-en">v0.1.0-draft — the PRD, architecture, and subsystem specs are in place; the bridge, agent loop, and audit UI are the work in progress.</p>
+            <p class="lang-kr">v0.1.0-draft — PRD, 아키텍처, 서브시스템 스펙이 준비됐고 브리지, 에이전트 루프, 감사 UI를 작업 중입니다.</p>
+
+            <div class="flex flex-wrap gap-3 mt-2">
+              <a href="https://github.com/x1zzdev/next-xz" target="_blank" rel="noopener noreferrer" class="btn">next.xz on GitHub ↗</a>
+            </div>
+          </div>
+
+          <!-- ═══ projects/rails.xz.md ═══ -->
+          <div id="pane-proj-railsxz" class="tab-pane markdown-body hidden max-w-3xl mx-auto px-6 md:px-10 py-10">
+            <h1>projects/rails.xz.md</h1>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="chip on">Rails × Xz toolkit</span><span class="chip">Ruby · Rails</span><span class="chip">With imrubydev</span>
+            </div>
+
+            <h2><span class="lang-en">What it is</span><span class="lang-kr">무엇인가</span></h2>
+            <p class="lang-en">
+              A hybrid Rails toolkit that bridges <strong>Ruby on Rails</strong> with the <strong>Xz</strong> language. It is a
+              set of gems plus a mountable Engine — a toolkit on top of Rails, not a fork of it.
+            </p>
+            <p class="lang-kr">
+              <strong>Ruby on Rails</strong>와 <strong>Xz</strong> 언어를 잇는 하이브리드 Rails 툴킷입니다. gem 모음과
+              마운트 가능한 Engine으로 이루어진, Rails 위에 얹는 툴킷이며 포크가 아닙니다.
+            </p>
+
+            <h2><span class="lang-en">How it works</span><span class="lang-kr">동작 방식</span></h2>
+            <pre><code>Rails web layer (Controllers · ActiveRecord · Hotwire)
+        │  Ruby Native FFI (Fiddle / ffi)
+        ▼
+rails.xz  ── bridge · agent · audit engine
+        │  C ABI shared library (.so)
+        ▼
+Xz core (.xz)  ── LLVM native / shared library</code></pre>
+            <ul>
+              <li class="lang-en"><code>rails-xz-bridge</code> — generates Ruby bindings from <code>@export</code> signatures and loads Xz shared libraries through Fiddle/ffi.</li>
+              <li class="lang-kr"><code>rails-xz-bridge</code> — <code>@export</code> 시그니처로 Ruby 바인딩을 생성하고 Fiddle/ffi로 Xz 공유 라이브러리를 로드합니다.</li>
+              <li class="lang-en"><code>rails-xz-agent</code> — runs the LLM → <code>xz check-json</code> → repair loop inside an ActiveJob with a bounded retry budget.</li>
+              <li class="lang-kr"><code>rails-xz-agent</code> — LLM → <code>xz check-json</code> → 수정 루프를 ActiveJob 안에서 제한된 재시도 예산으로 실행합니다.</li>
+              <li class="lang-en"><code>rails-xz</code> — a Rails Engine providing the <code>Xz::Module</code> service DSL and the <code>/xz_audit</code> approval dashboard.</li>
+              <li class="lang-kr"><code>rails-xz</code> — <code>Xz::Module</code> 서비스 DSL과 <code>/xz_audit</code> 승인 대시보드를 제공하는 Rails Engine.</li>
+              <li class="lang-en">Split: I own the bridge, binding generation, and compiler integration; <a href="https://github.com/imrubydev" target="_blank" rel="noopener noreferrer">imrubydev</a> owns the Engine and developer experience.</li>
+              <li class="lang-kr">역할 분담: 브리지, 바인딩 생성, 컴파일러 통합은 제가, Engine과 개발자 경험은 <a href="https://github.com/imrubydev" target="_blank" rel="noopener noreferrer">imrubydev</a>가 맡습니다.</li>
+            </ul>
+
+            <h2><span class="lang-en">Status</span><span class="lang-kr">현재 상태</span></h2>
+            <p class="lang-en">v0.1.0-draft — the PRD, architecture, subsystem specs, and gem skeletons are in place; the Ruby bridge, agent loop, and Engine are in progress.</p>
+            <p class="lang-kr">v0.1.0-draft — PRD, 아키텍처, 서브시스템 스펙, gem 스켈레톤이 준비됐고 Ruby 브리지, 에이전트 루프, Engine을 작업 중입니다.</p>
+
+            <div class="flex flex-wrap gap-3 mt-2">
+              <a href="https://github.com/imrubydev/rails-xz" target="_blank" rel="noopener noreferrer" class="btn">rails.xz on GitHub ↗</a>
             </div>
           </div>
 
@@ -887,6 +981,8 @@ const irOpt = `// xazz-compiler/src/opt.rs
       readme: 'README.md',
       'proj-xazz': 'Xazz.md',
       'proj-xz': 'Xz.md',
+      'proj-nextxz': 'next.xz.md',
+      'proj-railsxz': 'rails.xz.md',
       'proj-x1zzlang': 'x1zzLang.md',
       'proj-py2xzz': 'py2xzz.md',
       'proj-llm': 'llm-pcag-research.md',

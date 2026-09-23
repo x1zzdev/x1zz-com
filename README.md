@@ -1,6 +1,9 @@
 # x1zz.com
 
-Personal site of Sewoo Jang — compilers and data pipeline tools in Rust.
+Technology studio site — compilers, type systems, and data infrastructure in Rust.
+
+The root (`/`) is the x1zz brand page. The personal page of founder Sewoo Jang
+lives at `/founder`.
 
 ## Structure
 
@@ -8,9 +11,11 @@ Personal site of Sewoo Jang — compilers and data pipeline tools in Rust.
 src/
   layouts/Layout.astro    shared head, SEO meta, fonts, lang persistence
   pages/
-    index.astro           landing: hero, featured Xazz, projects, research
-    portfolio/index.astro IDE-style project log
+    index.astro           brand landing: mission, products, bridges, research, open source
+    founder/index.astro   founder page: bio, featured projects, language lab, bridges, research, contributions
+    portfolio/index.astro IDE-style project log (includes next.xz / rails.xz)
     writing/index.astro   engineering notes
+    blog/                 notes on compilers, Rust, and ML tooling
    404.astro
   styles/global.css        design tokens + components
 public/                   favicons, robots.txt, sitemap.xml, assets

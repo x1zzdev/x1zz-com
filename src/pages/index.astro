@@ -2,21 +2,8 @@
 import Layout from '../layouts/Layout.astro';
 import GithubIcon from '../components/GithubIcon.astro';
 
-const xazzPipeline = ['Lexer', 'Parser', 'Type Checker', 'Typed IR', 'Codegen', 'Runtime'];
-
+const xazzPipeline = ['Lexer', 'Parser', 'Type Checker', 'Typed IR', 'Codegen', 'Polars'];
 const xzPipeline = ['Lexer', 'Parser', 'Type Checker', 'Contract Check', 'Intent Verify', 'LLVM'];
-
-const xzCode = `/// Computes the Euclidean distance between two points.
-/// @intent  Returns the straight-line distance from a to b.
-/// @ensures result is ok implies result.value >= 0.0
-/// @effects none
-func distance(a: Point, b: Point) -> Result[Float, DomainError]
-    post result is ok implies result.value >= 0.0
-{
-    let dx = b.x - a.x
-    let dy = b.y - a.y
-    ok(sqrt(dx * dx + dy * dy)?)
-}`;
 
 const xazzCode = `type AirData = {
   station: string,
@@ -34,33 +21,96 @@ model AirPredictor {
 v trained = dataset
     |> train(AirPredictor, target: "pm10", epochs: 10)`;
 
-const projects = [
+const xzCode = `/// Computes the Euclidean distance between two points.
+/// @intent  Returns the straight-line distance from a to b.
+/// @ensures result is ok implies result.value >= 0.0
+func distance(a: Point, b: Point) -> Result[Float, DomainError]
+    post result is ok implies result.value >= 0.0
+{
+    let dx = b.x - a.x
+    let dy = b.y - a.y
+    ok(sqrt(dx * dx + dy * dy)?)
+}`;
+
+const products = [
   {
-    name: 'x1zzLang',
-    url: 'https://github.com/x1zzdev/x1zzLang',
-    cat: 'Data pipeline DSL',
-    catKr: '데이터 파이프라인 DSL',
-    en: 'The original data-pipeline DSL that evolved into Xazz. Compiles `.xzz` into Polars LazyFrame plans with a null-safe `Option<T>` type system.',
-    kr: 'Xazz로 성장한 최초의 데이터 파이프라인 DSL입니다. `.xzz`를 Polars LazyFrame 계획으로 컴파일하고, 널 안전 `Option<T>` 타입 시스템을 갖췄습니다.',
-    stack: 'Rust · Polars · clap',
+    name: 'Xazz',
+    url: 'https://github.com/x1zzdev/Xazz',
+    tagEn: 'DSL compiler for data & ML pipelines',
+    tagKr: '데이터·ML 파이프라인 DSL 컴파일러',
+    en: 'A from-scratch compiler with its own lexer, parser, type checker, Typed IR, and codegen — lowering one .xzz script to Polars for data and Burn for deep learning.',
+    kr: '처음부터 구현한 컴파일러입니다. 직접 만든 렉서, 파서, 타입 체커, Typed IR, 코드 생성을 거쳐 하나의 .xzz 스크립트가 Polars(데이터)와 Burn(딥러닝)으로 하강됩니다.',
+    pipeline: xazzPipeline,
+    code: xazzCode,
+    file: 'demo.xzz',
+    stack: 'Rust · Polars · Burn · Axum',
+    accent: 'accent' as const,
   },
   {
-    name: 'py2xzz',
-    url: 'https://github.com/x1zzdev/py2xzz',
-    cat: 'Transpiler',
-    catKr: '트랜스파일러',
-    en: 'A compiler pipeline from Python to `.xzz`: Python 3 is parsed with its own lexer/parser and mapped onto the xazz-core AST, then emitted back as source.',
-    kr: 'Python에서 `.xzz`로 가는 컴파일러 파이프라인입니다. 자체 렉서/파서로 Python 3를 읽어 xazz-core AST로 매핑한 뒤 소스로 출력합니다.',
-    stack: 'Rust · serde',
+    name: 'Xz',
+    url: 'https://github.com/x1zzdev/Xz',
+    tagEn: 'AI-written, Human-reviewed language',
+    tagKr: 'AI가 쓰고 사람이 검증하는 언어',
+    en: 'An experimental language built on one thesis: machine-generated code must be readable and verifiable. Every contract visible, every failure path typed — claims are proven, trusted, or rejected. Never silently ignored.',
+    kr: '하나의 명제 위에 세운 실험적 언어입니다. 기계가 생성한 코드는 읽히고 검증될 수 있어야 합니다. 모든 계약이 보이고, 모든 실패 경로가 타입이며, 주장은 증명·신뢰·거부 중 하나입니다. 조용히 무시되지 않습니다.',
+    pipeline: xzPipeline,
+    code: xzCode,
+    file: 'contracts.xz',
+    stack: 'Rust · LLVM 17 · inkwell',
+    accent: 'accent2' as const,
+  },
+];
+
+const bridges = [
+  {
+    name: 'next.xz',
+    url: 'https://github.com/x1zzdev/next-xz',
+    tagEn: 'Next.js × Xz',
+    tagKr: 'Next.js × Xz',
+    en: 'Carries Xz into the App Router. Server Actions call compiled Xz shared libraries over a typed Bun/Node FFI binding, an agent drives the LLM → xz check-json → repair loop, and a /___audit overlay shows a human the contract badges before anything ships.',
+    kr: 'Xz를 App Router로 이식합니다. Server Action이 타입이 붙은 Bun/Node FFI 바인딩으로 컴파일된 Xz 공유 라이브러리를 호출하고, 에이전트가 LLM → xz check-json → 수정 루프를 돌리며, /___audit 오버레이가 배포 전 계약 배지를 사람에게 보여줍니다.',
+    pipeline: ['Next.js', 'Server Action', 'Binding', 'liborder.so'],
+    stack: 'TypeScript · Bun · Next.js',
+    accent: 'accent' as const,
+    note: 'Solo project',
+    noteKr: '단독 프로젝트',
   },
   {
-    name: 'Visual IDE',
-    url: 'https://github.com/x1zzdev/x1zzLang-visual-ide',
-    cat: 'Graphical editor',
-    catKr: '그래픽 에디터',
-    en: 'A React-based editor that turns connected nodes into `.xzz` code in real time and runs it against the backend.',
-    kr: '노드를 연결하면 실시간으로 `.xzz` 코드가 생성되고 백엔드로 실행되는 React 기반 에디터입니다.',
-    stack: 'React 18 · Vite · @xyflow/react',
+    name: 'rails.xz',
+    url: 'https://github.com/imrubydev/rails-xz',
+    tagEn: 'Rails × Xz',
+    tagKr: 'Rails × Xz',
+    en: 'Brings Xz into Rails as a toolkit, not a fork. A gem loads compiled Xz modules over Ruby FFI, and a mountable Engine renders an /xz_audit dashboard so every generated module gets human approval. Built together with imrubydev.',
+    kr: 'Rails를 포크하지 않고 툴킷으로 Xz를 이식합니다. gem이 Ruby FFI로 컴파일된 Xz 모듈을 로드하고, 마운트 가능한 Engine이 /xz_audit 대시보드를 렌더링해 생성된 모든 모듈에 사람의 승인을 받습니다. imrubydev와 함께 만듭니다.',
+    pipeline: ['Rails', 'Service object', 'Binding', 'liborder.so'],
+    stack: 'Ruby · Rails',
+    accent: 'accent2' as const,
+    note: 'With imrubydev',
+    noteKr: 'imrubydev와 공동',
+  },
+];
+
+const principles = [
+  {
+    n: '01',
+    en: 'Move errors to compile time',
+    kr: '에러를 컴파일 타임으로',
+    descEn: 'If a mistake can be caught before the program runs, it must be. Type systems, contract checks, and typed IR exist to make runtime surprises impossible.',
+    descKr: '프로그램이 실행되기 전에 잡을 수 있는 실수는 반드시 전에 잡습니다. 타입 시스템, 계약 검사, Typed IR은 런타임 놀람을 원천 차단하기 위해 존재합니다.',
+  },
+  {
+    n: '02',
+    en: 'AI-written, human-reviewed',
+    kr: 'AI가 쓰고, 사람이 검증한다',
+    descEn: 'Machine-generated code should be more trustworthy than handwritten, not less. Documented intent is proven by the compiler or rejected in strict builds.',
+    descKr: '기계가 생성한 코드는 손으로 쓴 코드보다 더 신뢰할 수 있어야 합니다. 문서화된 인텐트는 컴파일러가 증명하거나, strict 빌드에서 거부됩니다.',
+  },
+  {
+    n: '03',
+    en: 'One meaning, one place',
+    kr: '의미는 한 곳에서',
+    descEn: 'A program means what its typed IR says — decided once, consumed once. Backends execute it; nothing re-interprets it.',
+    descKr: '프로그램의 의미는 Typed IR이 말하는 것입니다 — 한 번 정해지고, 한 번만 소비됩니다. 백엔드는 그저 실행할 뿐, 다시 해석하지 않습니다.',
   },
 ];
 
@@ -73,238 +123,154 @@ const findings = [
 ---
 
 <Layout
-  title="x1zz — Sewoo Jang · Rust data pipeline tools"
-  description="Sewoo Jang — building compilers and data infrastructure in Rust. Xazz: a from-scratch Rust DSL compiler targeting Polars and Burn."
+  title="x1zz — compilers and data infrastructure in Rust"
+  description="x1zz is a technology studio building compilers, type systems, and data infrastructure in Rust. Xazz and Xz move errors from runtime to compile time; next.xz and rails.xz carry Xz into Next.js and Rails."
   lang="en"
   dataLang="en"
   path="/"
 >
   <!-- ─── HEADER ─────────────────────────────────────────────── -->
-  <header class="w-full px-5 md:px-8 py-4 flex items-center justify-between gap-3 border-b border-line">
-    <a href="/" class="text-lg font-bold tracking-tight text-fg" style="font-family: var(--font-mono);">
-      x1zz<span class="text-accent">.</span>
-    </a>
-    <nav class="flex items-center gap-3 text-sm">
-      <a href="/blog" class="text-mut hover:text-fg transition-colors">blog</a>
-      <a href="/portfolio" class="text-mut hover:text-fg transition-colors">portfolio</a>
-      <a
-        href="https://github.com/x1zzdev/Xazz"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="inline-flex items-center gap-2 border border-line2 text-fg px-3 py-1.5 hover:border-accent hover:text-accent transition-colors"
-        style="font-family: var(--font-mono); font-size: 0.8rem;"
-      >
-        <GithubIcon size={15} /> GitHub
+  <header class="w-full border-b border-line">
+    <div class="max-w-6xl mx-auto px-5 md:px-8 py-4 flex items-center justify-between gap-3">
+      <a href="/" class="text-lg font-bold tracking-tight text-fg" style="font-family: var(--font-mono);">
+        x1zz<span class="text-accent">.</span>
       </a>
-      <button
-        id="lang-toggle"
-        aria-label="Toggle language"
-        class="btn btn-ghost text-[0.8rem] px-3 py-1 cursor-pointer"
-      >
-        <span class="lang-en">EN → KR</span>
-        <span class="lang-kr">KR → EN</span>
-      </button>
-    </nav>
-  </header>
-
-  <main class="w-full max-w-4xl mx-auto px-5 md:px-8">
-
-    <!-- ─── HERO ─────────────────────────────────────────────── -->
-    <section class="py-16 md:py-24">
-      <p class="text-sm font-semibold text-accent mb-4" style="font-family: var(--font-mono);">
-        <span class="lang-en">Sewoo Jang</span>
-        <span class="lang-kr">장서우</span>
-      </p>
-      <p class="text-sm text-dim mb-5 -mt-2" style="font-family: var(--font-mono);">
-        <span class="lang-en">high-school student in Korea</span>
-        <span class="lang-kr">한국의 고등학생</span>
-      </p>
-
-      <h1 class="text-3xl md:text-5xl font-bold leading-tight tracking-tight text-fg mb-5">
-        <span class="lang-en">I build data pipeline tools in Rust.</span>
-        <span class="lang-kr">Rust로 데이터 파이프라인 도구를 만듭니다.</span>
-      </h1>
-      <p class="text-lg text-sub leading-relaxed max-w-2xl">
-        <span class="lang-en">Focused on compilers, type systems, and data infrastructure.</span>
-        <span class="lang-kr">컴파일러, 타입 시스템, 데이터 인프라에 집중하고 있습니다.</span>
-      </p>
-
-      <div class="mt-7">
+      <nav class="flex items-center gap-3 md:gap-4 text-sm">
+        <a href="#products" class="hidden sm:inline text-mut hover:text-fg transition-colors">products</a>
+        <a href="#bridges" class="hidden sm:inline text-mut hover:text-fg transition-colors">bridges</a>
+        <a href="#research" class="hidden sm:inline text-mut hover:text-fg transition-colors">research</a>
+        <a href="/blog" class="hidden sm:inline text-mut hover:text-fg transition-colors">blog</a>
+        <a href="/founder" class="text-mut hover:text-fg transition-colors">founder</a>
         <a
-          href="https://github.com/ax1s-x1zz"
+          href="https://github.com/x1zzdev"
           target="_blank"
           rel="noopener noreferrer"
-          class="btn btn-accent text-base px-5 py-2.5"
+          class="inline-flex items-center gap-2 border border-line2 text-fg px-3 py-1.5 hover:border-accent hover:text-accent transition-colors"
+          style="font-family: var(--font-mono); font-size: 0.8rem;"
         >
-          <GithubIcon size={18} /> github.com/ax1s-x1zz
+          <GithubIcon size={15} /> GitHub
+        </a>
+        <button
+          id="lang-toggle"
+          aria-label="Toggle language"
+          class="btn btn-ghost text-[0.8rem] px-3 py-1 cursor-pointer"
+        >
+          <span class="lang-en">EN → KR</span>
+          <span class="lang-kr">KR → EN</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="w-full">
+
+    <!-- ─── HERO ─────────────────────────────────────────────── -->
+    <section class="max-w-6xl mx-auto px-5 md:px-8 pt-16 md:pt-24 pb-12 md:pb-16">
+      <h1 class="text-4xl md:text-[3.25rem] font-bold leading-[1.12] tracking-tight text-fg max-w-3xl mb-6">
+        <span class="lang-en">
+          Compilers that move errors from runtime to compile time.
+        </span>
+        <span class="lang-kr">
+          에러를 런타임에서 컴파일 타임으로 옮기는 컴파일러.
+        </span>
+      </h1>
+
+      <p class="text-lg text-sub leading-relaxed max-w-2xl mb-8">
+        <span class="lang-en">
+          x1zz builds languages, type systems, and data infrastructure in Rust —
+          and the bridges that carry them into Next.js and Rails — so machine-written
+          code becomes something you can read, verify, and trust.
+        </span>
+        <span class="lang-kr">
+          x1zz는 Rust로 언어, 타입 시스템, 데이터 인프라를 만들고,
+          이를 Next.js와 Rails로 이어주는 브리지를 만듭니다 —
+          기계가 쓴 코드를 읽고, 검증하고, 신뢰할 수 있도록.
+        </span>
+      </p>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <a href="#products" class="btn btn-accent text-base px-5 py-2.5">
+          <span class="lang-en">Products</span>
+          <span class="lang-kr">제품</span>
+        </a>
+        <a href="/founder" class="btn text-base px-5 py-2.5">
+          <span class="lang-en">Founder</span>
+          <span class="lang-kr">창업자</span>
         </a>
       </div>
     </section>
 
-    <!-- ─── FEATURED · XAZZ ──────────────────────────────────── -->
-    <section class="pb-16 md:pb-20">
-      <div class="border-b border-line pb-3 mb-6">
-        <span class="seclabel">
-          <span class="lang-en">Featured Project</span>
-          <span class="lang-kr">대표 프로젝트</span>
-        </span>
-      </div>
-
-      <div class="border border-line2 bg-panel">
-        <div class="p-6 md:p-8">
-
-          <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-4">
-            <h2 class="text-2xl font-bold text-fg">Xazz</h2>
-            <span class="text-sm text-accent font-semibold" style="font-family: var(--font-mono);">
-              <span class="lang-en">Rust-based DSL compiler</span>
-              <span class="lang-kr">Rust 기반 DSL 컴파일러</span>
-            </span>
-          </div>
-
-          <p class="text-lg text-sub leading-relaxed mb-4 lang-en">
-            A from-scratch compiler for data and ML pipelines. Its own lexer, parser, type checker, Typed IR,
-            and codegen lower one `.xzz` script to Polars (data) and Burn (deep learning).
-          </p>
-          <p class="text-lg text-sub leading-relaxed mb-4 lang-kr">
-            데이터·ML 파이프라인용 컴파일러를 처음부터 구현했습니다. 직접 만든 렉서, 파서, 타입 체커, Typed IR,
-            코드 생성을 통해 하나의 `.xzz` 스크립트를 Polars(데이터)와 Burn(딥러닝)으로 하강시킵니다.
-          </p>
-
-          <!-- pipeline -->
-          <div class="flex flex-wrap items-center gap-2 my-6 text-sm" style="font-family: var(--font-mono);">
-            {
-              xazzPipeline.map((s, i) => (
-                <span class="flex items-center gap-2">
-                  <span class={i === 5 ? 'border border-accent text-accent px-3 py-1.5 font-semibold' : 'border border-line text-sub px-3 py-1.5'}>
-                    {s}
-                  </span>
-                  {i < xazzPipeline.length - 1 && <span class="text-dim">→</span>}
-                </span>
-              ))
-            }
-          </div>
-          <p class="text-sm text-mut mb-6" style="font-family: var(--font-mono);">
-            <span class="lang-en">// compiled to a typed IR once; the runtime consumes it once</span>
-            <span class="lang-kr">// IR로 한 번 컴파일되고, 런타임은 IR을 한 번만 소비</span>
-          </p>
-
-          <div class="terminal mb-6">
-            <div class="terminal-titlebar">
-              <span class="term-dot" style="background:#E06C6C"></span>
-              <span class="term-dot" style="background:#E8B35B"></span>
-              <span class="term-dot" style="background:#00FFA3"></span>
-              <span class="ml-2 text-sm text-sub" style="font-family: var(--font-mono);">demo.xzz</span>
-            </div>
-            <pre class="px-5 py-4 text-[0.84rem] leading-[1.7] overflow-x-auto" style="font-family: var(--font-mono);">{xazzCode}</pre>
-          </div>
-
-          <div class="flex flex-wrap items-center justify-between gap-4">
-            <div class="flex flex-wrap gap-2">
-              <span class="chip">Rust · Polars · Burn · Axum</span>
-              <span class="chip">Apache-2.0</span>
-            </div>
-            <a href="https://github.com/x1zzdev/Xazz" target="_blank" rel="noopener noreferrer" class="btn btn-accent">GitHub <span aria-hidden="true">↗</span></a>
-          </div>
-        </div>
-      </div>
+    <!-- ─── KEY VISUAL ───────────────────────────────────────── -->
+    <section class="max-w-6xl mx-auto px-5 md:px-8 pb-16 md:pb-24">
+      <img
+        src="/hero-wave.jpg"
+        alt="Oscilloscope trace of a Lissajous signal in x1zz green"
+        width="1440"
+        height="810"
+        loading="eager"
+        fetchpriority="high"
+        class="keyvisual"
+      />
     </section>
 
-    <!-- ─── LANGUAGE LAB · XZ ────────────────────────────────── -->
-    <section class="pb-16 md:pb-20">
-      <div class="border-b border-line pb-3 mb-6">
-        <span class="seclabel" style="color: var(--color-accent2);">
-          <span class="lang-en">Language Lab</span>
-          <span class="lang-kr">언어 연구</span>
-        </span>
-      </div>
-
-      <div class="border border-line bg-panel">
-        <div class="p-6 md:p-8">
-
-          <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-4">
-            <h2 class="text-2xl font-bold text-fg">Xz</h2>
-            <span class="text-sm font-semibold" style="font-family: var(--font-mono); color: var(--color-accent2);">
-              <span class="lang-en">experimental general-purpose language</span>
-              <span class="lang-kr">실험적 범용 프로그래밍 언어</span>
-            </span>
-          </div>
-
-          <p class="text-lg text-sub leading-relaxed mb-4 lang-en">
-            Built around one thesis: <strong>AI-written, Human-reviewed.</strong> Xz makes machine-generated code
-            readable, verifiable, and trustworthy — every behavior explicit, every contract visible, every failure
-            path typed. Its differentiator is intent verification: a documented claim is proven by the compiler,
-            trusted by a human, or rejected in strict builds.
-          </p>
-          <p class="text-lg text-sub leading-relaxed mb-4 lang-kr">
-            <strong>AI-written, Human-reviewed</strong>라는 하나의 명제로 설계한 언어입니다. 기계가 생성한 코드를
-            읽고 검증하고 신뢰할 수 있도록 — 모든 동작을 명시적이고, 모든 계약을 가시적이며, 모든 실패 경로를
-            타입으로 만듭니다. 핵심 차별점은 인텐트 검증으로, 문서의 주장을 컴파일러가 증명하거나 사람이
-            신뢰하거나, strict 빌드에서 거부합니다.
-          </p>
-
-          <!-- pipeline -->
-          <div class="flex flex-wrap items-center gap-2 my-6 text-sm" style="font-family: var(--font-mono);">
-            {
-              xzPipeline.map((s, i) => (
-                <span class="flex items-center gap-2">
-                  <span class={i === 5 ? 'border border-accent2 text-accent2 px-3 py-1.5 font-semibold' : 'border border-line text-sub px-3 py-1.5'}>
-                    {s}
-                  </span>
-                  {i < xzPipeline.length - 1 && <span class="text-dim">→</span>}
-                </span>
-              ))
-            }
-          </div>
-          <p class="text-sm text-mut mb-6" style="font-family: var(--font-mono);">
-            <span class="lang-en">// claims are proven, trusted, or rejected — never silently ignored</span>
-            <span class="lang-kr">// 주장은 증명·신뢰·거부 중 하나 — 조용히 무시되지 않음</span>
-          </p>
-
-          <div class="terminal mb-6">
-            <div class="terminal-titlebar">
-              <span class="term-dot" style="background:#E06C6C"></span>
-              <span class="term-dot" style="background:#E8B35B"></span>
-              <span class="term-dot" style="background:#38C8FF"></span>
-              <span class="ml-2 text-sm text-sub" style="font-family: var(--font-mono);">contracts.xz</span>
-            </div>
-            <pre class="px-5 py-4 text-[0.84rem] leading-[1.7] overflow-x-auto" style="font-family: var(--font-mono);">{xzCode}</pre>
-          </div>
-
-          <div class="flex flex-wrap items-center justify-between gap-4">
-            <div class="flex flex-wrap gap-2">
-              <span class="chip">Rust · LLVM 17 · inkwell</span>
-              <span class="chip">Phases 1–4 · FFI underway</span>
-            </div>
-            <a href="https://github.com/x1zzdev/Xz" target="_blank" rel="noopener noreferrer" class="btn">GitHub <span aria-hidden="true">↗</span></a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ─── PROJECTS ─────────────────────────────────────────── -->
-    <section class="pb-16 md:pb-20">
-      <div class="border-b border-line pb-3 mb-6">
+    <!-- ─── PRODUCTS ─────────────────────────────────────────── -->
+    <section id="products" class="max-w-6xl mx-auto px-5 md:px-8 pb-16 md:pb-24 scroll-mt-6">
+      <div class="reveal flex flex-wrap items-baseline justify-between gap-3 border-b border-line pb-3 mb-8">
         <span class="seclabel">
-          <span class="lang-en">Projects</span>
-          <span class="lang-kr">프로젝트</span>
+          <span class="lang-en">Products</span>
+          <span class="lang-kr">제품</span>
+        </span>
+        <span class="text-sm text-dim" style="font-family: var(--font-mono);">
+          <span class="lang-en">// two languages, one philosophy</span>
+          <span class="lang-kr">// 두 언어, 하나의 철학</span>
         </span>
       </div>
-      <div class="space-y-4">
+
+      <div class="space-y-6">
         {
-          projects.map((p) => (
-            <div class="border border-line bg-panel p-6">
-              <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-2">
-                <h3 class="text-lg font-bold text-fg">{p.name}</h3>
-                <span class="text-sm text-mut" style="font-family: var(--font-mono);">
-                  <span class="lang-en">{p.cat}</span>
-                  <span class="lang-kr">{p.catKr}</span>
-                </span>
-              </div>
-              <p class="text-sub leading-relaxed mb-4 lang-en">{p.en}</p>
-              <p class="text-sub leading-relaxed mb-4 lang-kr">{p.kr}</p>
-              <div class="flex flex-wrap items-center justify-between gap-3">
-                <span class="chip">{p.stack}</span>
-                <a href={p.url} target="_blank" rel="noopener noreferrer" class="text-sm text-mut hover:text-accent transition-colors" style="font-family: var(--font-mono);">GitHub ↗</a>
+          products.map((p, i) => (
+            <div class="reveal card-hover border border-line bg-panel" style={`--reveal-delay:${i * 0.06}s`}>
+              <div class="grid lg:grid-cols-[1fr_1fr]">
+                <div class="p-6 md:p-8">
+                  <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-4">
+                    <h2 class="text-2xl font-bold text-fg">{p.name}</h2>
+                    <span class="text-sm font-semibold" style={`font-family: var(--font-mono); color: var(--color-${p.accent});`}>
+                      <span class="lang-en">{p.tagEn}</span>
+                      <span class="lang-kr">{p.tagKr}</span>
+                    </span>
+                  </div>
+
+                  <p class="text-sub leading-relaxed mb-6 lang-en">{p.en}</p>
+                  <p class="text-sub leading-relaxed mb-6 lang-kr">{p.kr}</p>
+
+                  <div class="pipeline mb-6">
+                    {p.pipeline.map((s, j) => (
+                      <>
+                        <span class={`pipeline-step ${j === p.pipeline.length - 1 ? 'final' : ''}`}>{s}</span>
+                        {j < p.pipeline.length - 1 && <span class="pipeline-arrow">→</span>}
+                      </>
+                    ))}
+                  </div>
+
+                  <div class="flex flex-wrap items-center justify-between gap-3">
+                    <span class="chip">{p.stack}</span>
+                    <a href={p.url} target="_blank" rel="noopener noreferrer" class={`btn btn-${p.accent}`}>
+                      GitHub <span aria-hidden="true">↗</span>
+                    </a>
+                  </div>
+                </div>
+
+                <div class="border-t lg:border-t-0 lg:border-l border-line bg-canvas/60 flex items-center">
+                  <div class="terminal border-0 w-full">
+                    <div class="terminal-titlebar">
+                      <span class="term-dot" style="background:#E06C6C"></span>
+                      <span class="term-dot" style="background:#E8B35B"></span>
+                      <span class="term-dot" style="background:#00FFA3"></span>
+                      <span class="ml-2 text-sm text-sub" style="font-family: var(--font-mono);">{p.file}</span>
+                    </div>
+                    <pre class="px-5 py-4 text-[0.8rem] leading-[1.75] overflow-x-auto h-full" style="font-family: var(--font-mono);">{p.code}</pre>
+                  </div>
+                </div>
               </div>
             </div>
           ))
@@ -312,35 +278,122 @@ const findings = [
       </div>
     </section>
 
+    <!-- ─── BRIDGES ──────────────────────────────────────────── -->
+    <section id="bridges" class="max-w-6xl mx-auto px-5 md:px-8 pb-16 md:pb-24 scroll-mt-6">
+      <div class="reveal flex flex-wrap items-baseline justify-between gap-3 border-b border-line pb-3 mb-8">
+        <span class="seclabel" style="color: var(--color-accent2);">
+          <span class="lang-en">Bridges</span>
+          <span class="lang-kr">브리지</span>
+        </span>
+        <span class="text-sm text-dim" style="font-family: var(--font-mono);">
+          <span class="lang-en">// Xz, carried into web frameworks</span>
+          <span class="lang-kr">// Xz를 웹 프레임워크로</span>
+        </span>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        {
+          bridges.map((b, i) => (
+            <div class="reveal card-hover border border-line bg-panel p-6 md:p-8 flex flex-col" style={`--reveal-delay:${i * 0.06}s`}>
+              <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-2 mb-4">
+                <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                  <h3 class="text-2xl font-bold text-fg">{b.name}</h3>
+                  <span class="text-sm font-semibold" style={`font-family: var(--font-mono); color: var(--color-${b.accent});`}>
+                    <span class="lang-en">{b.tagEn}</span>
+                    <span class="lang-kr">{b.tagKr}</span>
+                  </span>
+                </div>
+                <span class="chip">
+                  <span class="lang-en">{b.note}</span>
+                  <span class="lang-kr">{b.noteKr}</span>
+                </span>
+              </div>
+
+              <p class="text-sub leading-relaxed mb-6 lang-en">{b.en}</p>
+              <p class="text-sub leading-relaxed mb-6 lang-kr">{b.kr}</p>
+
+              <div class="pipeline mb-6">
+                {b.pipeline.map((s, j) => (
+                  <>
+                    <span class={`pipeline-step ${j === b.pipeline.length - 1 ? 'final' : ''}`}>{s}</span>
+                    {j < b.pipeline.length - 1 && <span class="pipeline-arrow">→</span>}
+                  </>
+                ))}
+              </div>
+
+              <div class="mt-auto flex flex-wrap items-center justify-between gap-3">
+                <span class="chip">{b.stack}</span>
+                <a href={b.url} target="_blank" rel="noopener noreferrer" class={`btn btn-${b.accent}`}>
+                  GitHub <span aria-hidden="true">↗</span>
+                </a>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- ─── PHILOSOPHY ───────────────────────────────────────── -->
+    <section class="max-w-6xl mx-auto px-5 md:px-8 pb-16 md:pb-24">
+      <div class="reveal border-b border-line pb-3 mb-8">
+        <span class="seclabel" style="color: var(--color-accent2);">
+          <span class="lang-en">Philosophy</span>
+          <span class="lang-kr">철학</span>
+        </span>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-4">
+        {
+          principles.map((pr, i) => (
+            <div class="reveal card-hover border border-line bg-panel p-6" style={`--reveal-delay:${i * 0.06}s`}>
+              <p class="text-sm mb-3" style={`font-family: var(--font-mono); color: var(--color-${i === 1 ? 'accent2' : 'accent'});`}>{pr.n}</p>
+              <h3 class="text-lg font-bold text-fg mb-2">
+                <span class="lang-en">{pr.en}</span>
+                <span class="lang-kr">{pr.kr}</span>
+              </h3>
+              <p class="text-sm text-sub leading-relaxed lang-en">{pr.descEn}</p>
+              <p class="text-sm text-sub leading-relaxed lang-kr">{pr.descKr}</p>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
     <!-- ─── RESEARCH ─────────────────────────────────────────── -->
-    <section class="pb-16 md:pb-24">
-      <div class="border-b border-line pb-3 mb-6">
+    <section id="research" class="max-w-6xl mx-auto px-5 md:px-8 pb-16 md:pb-24 scroll-mt-6">
+      <div class="reveal border-b border-line pb-3 mb-8">
         <span class="seclabel">
           <span class="lang-en">Research</span>
           <span class="lang-kr">연구</span>
         </span>
       </div>
 
-      <div class="border border-line bg-panel p-6">
-        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-3">
-          <h3 class="text-lg font-bold text-fg">LLM-PCAG</h3>
-          <span class="text-sm text-mut" style="font-family: var(--font-mono);">
-            <span class="lang-en">energy efficiency of LLM quantization</span>
-            <span class="lang-kr">LLM 양자화의 에너지 효율</span>
-          </span>
+      <div class="reveal card-hover border border-line bg-panel p-6 md:p-8">
+        <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 mb-4">
+          <div class="flex flex-wrap items-baseline gap-x-3">
+            <h3 class="text-xl font-bold text-fg">LLM-PCAG</h3>
+            <span class="text-sm text-mut" style="font-family: var(--font-mono);">
+              <span class="lang-en">energy efficiency of LLM quantization</span>
+              <span class="lang-kr">LLM 양자화의 에너지 효율</span>
+            </span>
+          </div>
+          <div class="flex items-center gap-3">
+            <a href="https://github.com/ax1s-x1zz/llm-pcag-research/blob/main/docs/main_paper.md" target="_blank" rel="noopener noreferrer" class="text-sm text-mut hover:text-accent transition-colors" style="font-family: var(--font-mono);">paper draft ↗</a>
+            <a href="https://github.com/ax1s-x1zz/llm-pcag-research" target="_blank" rel="noopener noreferrer" class="btn">Repository <span aria-hidden="true">↗</span></a>
+          </div>
         </div>
 
-        <p class="text-sub leading-relaxed mb-5 lang-en">
-          Quantifies how much energy weight quantization actually saves. The PCAG metric shows that savings
-          collapse faster than accuracy loss, and a power wall at INT4→INT3 was verified through three independent
-          paths. The Jevons paradox is proved in closed form.
+        <p class="text-sub leading-relaxed mb-6 max-w-3xl lang-en">
+          Quantifies how much energy weight quantization actually saves. The PCAG metric shows savings collapse
+          faster than accuracy loss; a power wall at INT4→INT3 was verified through three independent paths, and the
+          Jevons paradox is proved in closed form.
         </p>
-        <p class="text-sub leading-relaxed mb-5 lang-kr">
-          가중치 양자화가 에너지를 실제로 얼마나 아끼는지 정량화합니다. PCAG 지표로 절감 효과가 정확도 손실보다
-          먼저 붕괴함을 보이고, INT4→INT3의 파워 월을 세 경로로 검증했어요. 제본스 역설도 닫힌 형태로 증명했습니다.
+        <p class="text-sub leading-relaxed mb-6 max-w-3xl lang-kr">
+          가중치 양자화가 에너지를 실제로 얼마나 아끼는지 정량화합니다. PCAG 지표로 절감 효과가 정확도 손실보다 먼저
+          붕괴함을 보이고, INT4→INT3의 파워 월을 세 경로로 검증했습니다. 제본스 역설도 닫힌 형태로 증명했습니다.
         </p>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {
             findings.map((f) => (
               <div class="border border-line p-4">
@@ -353,268 +406,99 @@ const findings = [
             ))
           }
         </div>
-
-        <div id="formula-pcag" class="text-center text-lg text-fg py-3 mb-5 overflow-x-auto"></div>
-
-        <div class="border border-line overflow-hidden mb-5">
-          <div class="px-4 py-2 border-b border-line text-sm text-mut" style="font-family: var(--font-mono);">
-            <span class="lang-en">PCAG power wall — INT4 → INT3</span>
-            <span class="lang-kr">PCAG 파워 월 — INT4 → INT3</span>
-          </div>
-          <img src="/pcag-power-wall.png" alt="PCAG power wall chart at INT4 to INT3" class="w-full h-auto object-contain bg-canvas" loading="lazy" />
-        </div>
-
-        <p class="text-sm text-dim mb-5" style="font-family: var(--font-mono);">
-          <span class="lang-en">current status — literature-anchored analysis · GPU measurement harness in progress</span>
-          <span class="lang-kr">현재 상태 — 문헌 기반 분석 · GPU 측정 하네스 진행 중</span>
-        </p>
-
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <span class="chip">Python · NumPy · SciPy · SymPy</span>
-          <div class="flex flex-wrap items-center gap-3">
-            <a href="https://github.com/ax1s-x1zz/llm-pcag-research/blob/main/docs/main_paper.md" target="_blank" rel="noopener noreferrer" class="text-sm text-mut hover:text-accent transition-colors" style="font-family: var(--font-mono);">paper draft ↗</a>
-            <a href="https://github.com/ax1s-x1zz/llm-pcag-research" target="_blank" rel="noopener noreferrer" class="btn">Repository <span aria-hidden="true">↗</span></a>
-          </div>
-        </div>
       </div>
     </section>
 
     <!-- ─── OPEN SOURCE ──────────────────────────────────────── -->
-    <section class="pb-16 md:pb-24">
-      <div class="border-b border-line pb-3 mb-6">
+    <section class="max-w-6xl mx-auto px-5 md:px-8 pb-16 md:pb-24">
+      <div class="reveal border-b border-line pb-3 mb-8">
         <span class="seclabel">
           <span class="lang-en">Open Source</span>
           <span class="lang-kr">오픈소스</span>
         </span>
       </div>
 
-      <div class="border border-accent bg-panel p-6">
-        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-2">
-          <h3 class="text-lg font-bold text-fg">tracel-ai/burn</h3>
-          <span class="text-sm text-mut" style="font-family: var(--font-mono);">
-            <span class="lang-en">Rust deep learning framework · 15k★</span>
-            <span class="lang-kr">Rust 딥러닝 프레임워크 · 15k★</span>
-          </span>
+      <div class="reveal card-hover border border-line bg-panel p-6 md:p-8">
+        <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-2 mb-4">
+          <div class="flex flex-wrap items-baseline gap-x-3">
+            <h3 class="text-xl font-bold text-fg">tracel-ai/burn</h3>
+            <span class="text-sm text-mut" style="font-family: var(--font-mono);">Rust deep learning framework · 15k★</span>
+          </div>
+          <a href="https://github.com/tracel-ai/burn/pull/5582" target="_blank" rel="noopener noreferrer" class="btn btn-accent">PR #5582 <span aria-hidden="true">↗</span></a>
         </div>
-        <div class="flex flex-wrap gap-2 mb-3">
+        <div class="flex flex-wrap gap-2 mb-4">
           <span class="chip on">
             <span class="lang-en">Main contribution · all backends + autodiff</span>
             <span class="lang-kr">대표 기여 · 전 백엔드 + autodiff</span>
           </span>
         </div>
 
-        <p class="text-sub leading-relaxed mb-3 lang-en">
-          Merged <strong>PR #5582</strong>: the largest-scope contribution — implemented the missing
-          <code>Min</code> / <code>Max</code> variants for element-wise <code>scatter</code> / <code>select_assign</code>
-          across all four backends (<strong>ndarray, flex, cubecl, tch</strong>) plus autodiff backward passes,
-          closing the last gap left by #5522. Dispatch matches now enumerate every <code>IndexingUpdateOp</code> variant,
-          so an unsupported combination fails at compile time instead of panicking at runtime. Verified with
-          1839 tensor + 572 autodiff tests.
+        <p class="text-sub leading-relaxed max-w-3xl lang-en">
+          Merged PR #5582: implemented the missing Min / Max variants for element-wise scatter / select_assign across
+          all four backends (ndarray, flex, cubecl, tch) plus autodiff backward passes. Unsupported combinations now
+          fail at compile time instead of panicking at runtime — verified with 1839 tensor + 572 autodiff tests.
         </p>
-        <p class="text-sub leading-relaxed mb-3 lang-kr">
-          <strong>PR #5582</strong> 머지: 범위가 가장 큰 기여입니다. 요소별 <code>scatter</code> / <code>select_assign</code>에서
-          빠져 있던 <code>Min</code> / <code>Max</code> 변형을 네 백엔드(<strong>ndarray, flex, cubecl, tch</strong>)와
-          autodiff backward까지 end-to-end로 구현해 #5522의 마지막 공백을 채웠습니다. 이제 dispatch match가 모든
-          <code>IndexingUpdateOp</code> 변형을 열거해, 지원되지 않는 조합은 런타임 panic 대신 컴파일 타임에 실패합니다.
-          텐서 1839 + autodiff 572 테스트로 검증했습니다.
+        <p class="text-sub leading-relaxed max-w-3xl lang-kr">
+          PR #5582 머지: 요소별 scatter / select_assign에서 빠져 있던 Min / Max 변형을 네 백엔드(ndarray, flex,
+          cubecl, tch)와 autodiff backward까지 구현했습니다. 지원되지 않는 조합은 런타임 panic 대신 컴파일 타임에
+          실패합니다 — 텐서 1839 + autodiff 572 테스트로 검증했습니다.
         </p>
-
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <span class="chip">scatter Min/Max · 4 backends · autodiff · Rust</span>
-          <a href="https://github.com/tracel-ai/burn/pull/5582" target="_blank" rel="noopener noreferrer" class="btn btn-accent">PR #5582 <span aria-hidden="true">↗</span></a>
-        </div>
-      </div>
-
-      <div class="border border-line bg-panel p-6 mt-4">
-        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-3">
-          <h3 class="text-lg font-bold text-fg">tracel-ai/burn</h3>
-          <span class="text-sm text-mut" style="font-family: var(--font-mono);">
-            <span class="lang-en">Rust deep learning framework · 15k★</span>
-            <span class="lang-kr">Rust 딥러닝 프레임워크 · 15k★</span>
-          </span>
-        </div>
-
-        <p class="text-sub leading-relaxed mb-3 lang-en">
-          Merged <strong>PR #5555</strong>: added matmul batch-broadcast validation to <code>TensorCheck</code>,
-          the public tensor-API check layer that runs before backend dispatch — so every backend reports a
-          consistent <code>Tensor Operation Error</code> instead of an inconsistent backend-specific panic.
-        </p>
-        <p class="text-sub leading-relaxed mb-3 lang-kr">
-          <strong>PR #5555</strong> 머지: 백엔드 디스패치 이전에 실행되는 공개 텐서 API 검증 레이어인
-          <code>TensorCheck</code>에 matmul 배치 브로드캐스트 검증을 추가해, 모든 백엔드가 일관된
-          <code>Tensor Operation Error</code>를 받도록 했습니다 (기존에는 백엔드마다 제각각 다른 panic이 발생).
-        </p>
-
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <span class="chip">TensorCheck · Rust · merged by maintainer</span>
-          <a href="https://github.com/tracel-ai/burn/pull/5555" target="_blank" rel="noopener noreferrer" class="btn btn-accent">PR #5555 <span aria-hidden="true">↗</span></a>
-        </div>
-      </div>
-
-      <div class="border border-line bg-panel p-6 mt-4">
-        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-3">
-          <h3 class="text-lg font-bold text-fg">tracel-ai/burn</h3>
-          <span class="text-sm text-mut" style="font-family: var(--font-mono);">
-            <span class="lang-en">Rust deep learning framework · 15k★</span>
-            <span class="lang-kr">Rust 딥러닝 프레임워크 · 15k★</span>
-          </span>
-        </div>
-
-        <p class="text-sub leading-relaxed mb-3 lang-en">
-          Merged <strong>PR #5564</strong>: applied the <code>binary_ops_ew</code> TensorCheck (device + broadcast
-          validation) to five element-wise ops — <code>remainder</code>, <code>powi</code>, <code>powf</code>,
-          <code>hypot</code>, <code>atan2</code> — so mismatches surface as a consistent
-          <code>Tensor Operation Error</code> instead of backend-specific panics.
-        </p>
-        <p class="text-sub leading-relaxed mb-3 lang-kr">
-          <strong>PR #5564</strong> 머지: 요소별 이항 연산 5개(<code>remainder</code>, <code>powi</code>,
-          <code>powf</code>, <code>hypot</code>, <code>atan2</code>)에 <code>binary_ops_ew</code> 텐서 검증
-          (device + 브로드캐스트)를 적용해, 불일치가 백엔드별 panic이 아닌 일관된 <code>Tensor Operation Error</code>로
-          나타나도록 했습니다.
-        </p>
-
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <span class="chip">binary_ops_ew · Rust · merged by maintainer</span>
-          <a href="https://github.com/tracel-ai/burn/pull/5564" target="_blank" rel="noopener noreferrer" class="btn btn-accent">PR #5564 <span aria-hidden="true">↗</span></a>
-        </div>
-      </div>
-
-      <div class="border border-line bg-panel p-6 mt-4">
-        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-3">
-          <h3 class="text-lg font-bold text-fg">tracel-ai/burn</h3>
-          <span class="text-sm text-mut" style="font-family: var(--font-mono);">
-            <span class="lang-en">Rust deep learning framework · 15k★</span>
-            <span class="lang-kr">Rust 딥러닝 프레임워크 · 15k★</span>
-          </span>
-        </div>
-
-        <p class="text-sub leading-relaxed mb-3 lang-en">
-          Merged <strong>PR #5580</strong>: rank-1 <code>matmul</code> calls previously bypassed
-          <code>TensorCheck</code> (a <code>D &lt; 2</code> short-circuit) and failed inconsistently per backend —
-          ndarray panicked with <code>attempt to subtract with overflow</code>, tch returned a 0-dim dot-product
-          scalar, cubecl had no valid kernel input. <code>TensorCheck::matmul</code> now rejects ranks &lt; 2 with a
-          clear error, mirroring the <code>tri()</code> check.
-        </p>
-        <p class="text-sub leading-relaxed mb-3 lang-kr">
-          <strong>PR #5580</strong> 머지: rank-1 <code>matmul</code> 호출이 기존에 <code>TensorCheck</code>를
-          (<code>D &lt; 2</code> short-circuit으로) 우회해 백엔드마다 제각각 실패했습니다 — ndarray는
-          <code>attempt to subtract with overflow</code>로 panic, tch는 0차원 dot-product 스칼라 반환, cubecl은
-          유효한 커널 입력 없음. <code>TensorCheck::matmul</code>이 이제 <code>tri()</code> 검증처럼 rank &lt; 2를
-          명확한 에러로 거부합니다.
-        </p>
-
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <span class="chip">TensorCheck rank check · Rust · merged by maintainer</span>
-          <a href="https://github.com/tracel-ai/burn/pull/5580" target="_blank" rel="noopener noreferrer" class="btn btn-accent">PR #5580 <span aria-hidden="true">↗</span></a>
-        </div>
-      </div>
-
-      <div class="border border-line bg-panel p-6 mt-4">
-        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-3">
-          <h3 class="text-lg font-bold text-fg">apache/arrow-rs</h3>
-          <span class="text-sm text-mut" style="font-family: var(--font-mono);">
-            <span class="lang-en">Apache Arrow &amp; Parquet in Rust · 3.6k★</span>
-            <span class="lang-kr">Rust로 구현한 Apache Arrow &amp; Parquet · 3.6k★</span>
-          </span>
-        </div>
-
-        <p class="text-sub leading-relaxed mb-3 lang-en">
-          Merged <strong>PR #11005</strong>: replaced the <code>BufferBuilder</code> used to re-encode sliced
-          IPC run-ends with <code>Vec</code> — the one callsite still using the builder on current main (see
-          <a href="https://github.com/apache/arrow-rs/issues/10245" target="_blank" rel="noopener noreferrer">#10245</a>,
-          where maintainers noted Rust's optimized <code>Vec</code> typically wins over the builder abstraction).
-        </p>
-        <p class="text-sub leading-relaxed mb-3 lang-kr">
-          <strong>PR #11005</strong> 머지: IPC run-ends 재인코딩에 쓰던 <code>BufferBuilder</code>를 <code>Vec</code>으로
-          교체했습니다 (유지보수자들이 "Rust의 최적화된 <code>Vec</code>이 빌더 추상화보다 우세하다"고 언급한
-          <a href="https://github.com/apache/arrow-rs/issues/10245" target="_blank" rel="noopener noreferrer">#10245</a>의
-          전환 작업 중 main에 실제로 남은 마지막 callsite).
-        </p>
-
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <span class="chip">Vec vs BufferBuilder · Rust · merged by maintainer</span>
-          <a href="https://github.com/apache/arrow-rs/pull/11005" target="_blank" rel="noopener noreferrer" class="btn btn-accent">PR #11005 <span aria-hidden="true">↗</span></a>
-        </div>
-      </div>
-
-      <div class="border border-line bg-panel p-6 mt-4">
-        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-3">
-          <h3 class="text-lg font-bold text-fg">tracel-ai/burn</h3>
-          <span class="text-sm text-mut" style="font-family: var(--font-mono);">
-            <span class="lang-en">Rust deep learning framework · 15k★</span>
-            <span class="lang-kr">Rust 딥러닝 프레임워크 · 15k★</span>
-          </span>
-        </div>
-
-        <p class="text-sub leading-relaxed mb-3 lang-en">
-          Merged <strong>PR #5639</strong>: fixed a no-std build break in <code>burn-std</code>. The
-          <code>#[cfg(test)]</code> module in <code>layout.rs</code> used <code>vec![...]</code> without importing
-          the <code>vec!</code> macro, so <code>cargo test --no-default-features -p burn-std</code> failed to
-          compile. Added <code>use alloc::vec;</code> — 168 unit tests pass.
-        </p>
-        <p class="text-sub leading-relaxed mb-3 lang-kr">
-          <strong>PR #5639</strong> 머지: <code>burn-std</code>의 no-std 빌드 실패를 수정했습니다.
-          <code>layout.rs</code>의 <code>#[cfg(test)]</code> 모듈이 <code>vec!</code> 매크로를 임포트하지 않고
-          <code>vec![...]</code>를 써서 <code>cargo test --no-default-features -p burn-std</code>가 컴파일되지
-          않았습니다. <code>use alloc::vec;</code>를 추가해 168개 유닛 테스트가 통과합니다.
-        </p>
-
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <span class="chip">no-std · vec! macro · Rust · merged by maintainer</span>
-          <a href="https://github.com/tracel-ai/burn/pull/5639" target="_blank" rel="noopener noreferrer" class="btn btn-accent">PR #5639 <span aria-hidden="true">↗</span></a>
-        </div>
       </div>
     </section>
 
-    <!-- ─── ABOUT ────────────────────────────────────────────── -->
-    <section class="pb-16">
-      <div class="border-b border-line pb-3 mb-6">
-        <span class="seclabel">
-          <span class="lang-en">About</span>
-          <span class="lang-kr">소개</span>
-        </span>
+    <!-- ─── FOUNDER ──────────────────────────────────────────── -->
+    <section class="max-w-6xl mx-auto px-5 md:px-8 pb-16 md:pb-24">
+      <div class="reveal card-hover border border-line bg-panel p-6 md:p-8 flex flex-wrap items-center justify-between gap-6">
+        <div class="max-w-xl">
+          <p class="text-sm font-semibold mb-2" style="font-family: var(--font-mono); color: var(--color-accent);">
+            <span class="lang-en">Sewoo Jang · founder</span>
+            <span class="lang-kr">장서우 · 창업자</span>
+          </p>
+          <p class="text-sub leading-relaxed lang-en">
+            x1zz is founded and built by Sewoo Jang. The full story — projects, research, open-source contributions,
+            and writing — lives on the founder page.
+          </p>
+          <p class="text-sub leading-relaxed lang-kr">
+            x1zz는 장서우가 창업하고 만들고 있습니다. 프로젝트, 연구, 오픈소스 기여, 글은 창업자 페이지에 정리돼 있습니다.
+          </p>
+        </div>
+        <a href="/founder" class="btn btn-accent">
+          <span class="lang-en">Meet the founder</span>
+          <span class="lang-kr">창업자 보기</span>
+        </a>
       </div>
-
-      <p class="text-sub leading-relaxed lang-en">
-        I study compilers and systems engineering and build them as working software. The Xazz toolchain is a
-        single family of languages — a DSL, a transpiler, and a visual editor — that share one typed AST and one
-        philosophy: move errors from runtime to compile time.
-      </p>
-      <p class="text-sub leading-relaxed lang-kr">
-        컴파일러와 시스템 엔지니어링을 공부하고, 그것을 동작하는 소프트웨어로 만듭니다. Xazz 툴체인은 하나의 타입드 AST와
-        "에러를 런타임에서 컴파일 타임으로 옮긴다"는 철학을 공유하는 DSL, 트랜스파일러, 비주얼 에디터의 한 가족입니다.
-      </p>
     </section>
 
     <!-- ─── CONTACT ──────────────────────────────────────────── -->
-    <section class="pb-16">
+    <section class="max-w-6xl mx-auto px-5 md:px-8 pb-20">
       <div class="flex flex-wrap items-center gap-3">
         <a href="mailto:ax1s@x1zz.com" class="btn">ax1s@x1zz.com</a>
-        <a href="https://github.com/x1zzdev/Xazz" target="_blank" rel="noopener noreferrer" class="btn">
+        <a href="https://github.com/x1zzdev" target="_blank" rel="noopener noreferrer" class="btn">
           <GithubIcon size={15} /> GitHub
         </a>
-        <a href="/portfolio" class="btn btn-ghost">portfolio</a>
+        <a href="/blog" class="btn btn-ghost">blog</a>
       </div>
     </section>
+  </main>
 
-    <!-- ─── FOOTER ───────────────────────────────────────────── -->
-    <footer class="py-8 border-t border-line flex flex-wrap items-center justify-between gap-4 text-sm">
+  <!-- ─── FOOTER ─────────────────────────────────────────────── -->
+  <footer class="border-t border-line">
+    <div class="max-w-6xl mx-auto px-5 md:px-8 py-8 flex flex-wrap items-center justify-between gap-4 text-sm">
       <div class="flex items-center gap-5">
         <span class="text-fg" style="font-family: var(--font-mono);">x1zz.com</span>
+        <a href="/founder" class="text-mut hover:text-accent transition-colors" style="font-family: var(--font-mono);">founder</a>
         <a href="/blog" class="text-mut hover:text-accent transition-colors" style="font-family: var(--font-mono);">blog</a>
-        <a href="/writing" class="text-mut hover:text-accent transition-colors" style="font-family: var(--font-mono);">writing</a>
-        <a href="https://github.com/x1zzdev/Xazz" target="_blank" rel="noopener noreferrer" class="text-mut hover:text-accent transition-colors inline-flex items-center gap-1.5" style="font-family: var(--font-mono);">
+        <a href="/portfolio" class="text-mut hover:text-accent transition-colors" style="font-family: var(--font-mono);">portfolio</a>
+        <a href="https://github.com/x1zzdev" target="_blank" rel="noopener noreferrer" class="text-mut hover:text-accent transition-colors inline-flex items-center gap-1.5" style="font-family: var(--font-mono);">
           <GithubIcon size={14} /> github
         </a>
       </div>
       <span class="text-dim" style="font-family: var(--font-mono);">© 2026</span>
-    </footer>
-  </main>
-
-  <script slot="head" is:inline defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
-  <link slot="head" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+    </div>
+  </footer>
 
   <script>
+    // lang toggle
     (function () {
       var btn = document.getElementById('lang-toggle');
       if (!btn) return;
@@ -628,18 +512,22 @@ const findings = [
       });
     })();
 
+    // scroll reveal (single observer, fires once)
     (function () {
-      function render() {
-        var katex = window.katex;
-        if (!katex) return;
-        var el = document.getElementById('formula-pcag');
-        if (el) katex.render('\\text{PCAG}_k = \\dfrac{(P_0-P_k)/P_0}{(A_0-A_k)/A_0}', el, { displayMode: true, throwOnError: false });
+      var els = document.querySelectorAll('.reveal');
+      if (!('IntersectionObserver' in window)) {
+        els.forEach(function (el) { el.classList.add('in'); });
+        return;
       }
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', render);
-      } else {
-        render();
-      }
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) {
+            e.target.classList.add('in');
+            io.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.1 });
+      els.forEach(function (el) { io.observe(el); });
     })();
   </script>
 </Layout>

@@ -44,6 +44,11 @@ Cloudflare Pages — the build output directory is `dist` (see `wrangler.json`).
 
 ## Language
 
-The site defaults to English. `localStorage['x1zz-lang']` remembers the
-KR/EN choice across visits. English and Korean strings live side by side as
-`lang-en` / `lang-kr` spans; a plain-CSS toggle shows one set at a time.
+English and Korean strings live side by side as `lang-en` / `lang-kr` spans;
+a plain-CSS toggle shows one set at a time. The toggle stores the choice in
+`localStorage['x1zz-lang']`, which wins on every later visit.
+
+On a first visit (no saved choice) the language is picked automatically: the
+browser locale gives an instant, flash-free guess, then Cloudflare's
+`/cdn-cgi/trace` endpoint provides the visitor's country from their IP —
+`loc=KR` switches the page to Korean, anything else stays English.

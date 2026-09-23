@@ -74,19 +74,19 @@ const irOpt = `// xazz-compiler/src/opt.rs
 
     <!-- ── TITLE BAR ─────────────────────────────────────────── -->
     <div class="flex items-center gap-3 px-3 h-11 border-b border-line bg-raised shrink-0 select-none">
-      <div class="flex items-center gap-1.5">
+      <div class="flex items-center gap-1.5 shrink-0">
         <span class="term-dot" style="background:#E06C6C"></span>
         <span class="term-dot" style="background:#E8B35B"></span>
         <span class="term-dot" style="background:#00FFA3"></span>
       </div>
-      <div class="mx-auto flex items-center gap-2 text-[0.8rem] tracking-wide" style="font-family: var(--font-mono);">
+      <div class="mx-auto hidden sm:flex items-center gap-2 min-w-0 text-[0.8rem] tracking-wide" style="font-family: var(--font-mono);">
         <a href="/" class="text-fg hover:text-accent transition-colors">x1zz</a>
         <span class="text-dim">//</span>
         <span class="text-fg">portfolio</span>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 shrink-0">
         <a href="https://github.com/x1zzdev/Xazz" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-xs text-mut hover:text-fg transition-colors" style="font-family: var(--font-mono);">
-          <GithubIcon size={14} /> github
+          <GithubIcon size={14} /> <span class="hidden sm:inline">github</span>
         </a>
         <button
           id="lang-toggle"
@@ -950,19 +950,6 @@ Xz core (.xz)  ── LLVM native / shared library</code></pre>
   <link slot="head" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
 
   <script>
-    (function () {
-      var btn = document.getElementById('lang-toggle');
-      if (!btn) return;
-      btn.addEventListener('click', function () {
-        var html = document.documentElement;
-        var current = html.getAttribute('data-lang') || 'en';
-        var next = current === 'en' ? 'kr' : 'en';
-        html.setAttribute('data-lang', next);
-        html.setAttribute('lang', next === 'en' ? 'en' : 'ko');
-        try { localStorage.setItem('x1zz-lang', next); } catch (e) {}
-      });
-    })();
-
     // file tree toggle
     (function () {
       document.querySelectorAll('.tree-dir').forEach(function (el) {

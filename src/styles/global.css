@@ -112,7 +112,8 @@
     font-family: var(--font-mono);
     font-size: 0.78rem;
     color: var(--color-mut);
-    white-space: nowrap;
+    max-width: 100%;
+    overflow-wrap: anywhere;
     background: rgba(255,255,255,0.02);
   }
   .chip.on { border-color: var(--color-accent); color: var(--color-accent); font-weight: 600; }
@@ -129,6 +130,13 @@
     gap: 0.5rem;
     border-bottom: 1px solid var(--color-line);
     padding: 0.55rem 0.9rem;
+  }
+  .term-dot {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
   }
 
   /* ── Data table ───────────────────────────────────────────── */

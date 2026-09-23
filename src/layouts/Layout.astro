@@ -58,13 +58,55 @@ const ogImage = site + '/og-main.png';
 
     <script is:inline>
       (function () {
-        try {
-          var saved = localStorage.getItem('x1zz-lang');
-          if (saved === 'kr') {
-            document.documentElement.setAttribute('data-lang', 'kr');
-            document.documentElement.setAttribute('lang', 'ko');
-          }
-        } catch (e) {}
+        var html = document.documentElement;
+        var touched = false;
+
+        function apply(lang) {
+          html.setAttribute('data-lang', lang);
+          html.setAttribute('lang', lang === 'kr' ? 'ko' : 'en');
+        }
+        function remember(lang) {
+          try { localStorage.setItem('x1zz-lang', lang); } catch (e) {}
+        }
+
+        var saved = null;
+        try { saved = localStorage.getItem('x1zz-lang'); } catch (e) {}
+
+        if (saved === 'kr' || saved === 'en') {
+          apply(saved);
+        } else {
+          // Provisional guess from the browser locale — synchronous, so no flash
+          // for visitors whose browser is already in Korean.
+          var nav = (navigator.language || navigator.userLanguage || '').toLowerCase();
+          if (nav.indexOf('ko') === 0) apply('kr');
+
+          // Cloudflare exposes /cdn-cgi/trace on proxied domains; `loc` is the
+          // visitor's ISO country from their IP. Use it as the source of truth.
+          try {
+            fetch('/cdn-cgi/trace', { cache: 'no-store' })
+              .then(function (r) { return r.ok ? r.text() : ''; })
+              .then(function (text) {
+                if (touched) return;
+                var m = /^loc=([A-Z]{2})/m.exec(text || '');
+                if (!m) return;
+                var lang = m[1] === 'KR' ? 'kr' : 'en';
+                apply(lang);
+                remember(lang);
+              })
+              .catch(function () {});
+          } catch (e) {}
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+          var btn = document.getElementById('lang-toggle');
+          if (!btn) return;
+          btn.addEventListener('click', function () {
+            touched = true;
+            var next = (html.getAttribute('data-lang') || 'en') === 'en' ? 'kr' : 'en';
+            apply(next);
+            remember(next);
+          });
+        });
       })();
     </script>
     <slot name="head" />

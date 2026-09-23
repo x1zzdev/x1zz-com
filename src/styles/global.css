@@ -222,6 +222,56 @@ html[data-lang="kr"] .lang-en { display: none; }
 }
 .pipeline-arrow { color: var(--color-dim); font-family: var(--font-mono); font-size: 0.78rem; }
 
+/* ── Arch diagram (docs/DESIGN.md §5, v2.2) ──────────────────── */
+/* Vertical signal-path SVG for bridge cards. Static, no interaction. */
+.arch-diagram {
+  display: block;
+  width: 100%;
+  max-width: 340px;
+  height: auto;
+}
+.arch-diagram text {
+  font-family: var(--font-mono);
+  user-select: none;
+}
+.arch-label {
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  fill: var(--color-sub);
+}
+.arch-sub {
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  fill: var(--color-dim);
+}
+
+/* ── Background grid (docs/DESIGN.md §4, v2.2) ───────────────── */
+/* Instrument grid behind hero + key visual only. Fades downward. */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, #262A31 1px, transparent 1px),
+    linear-gradient(to bottom, #262A31 1px, transparent 1px);
+  background-size: 72px 72px;
+  opacity: 0.45;
+  -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 96%);
+  mask-image: linear-gradient(to bottom, black 40%, transparent 96%);
+  pointer-events: none;
+}
+
+/* ── Channel label (docs/DESIGN.md §4, v2.2) ─────────────────── */
+/* CH1/CH2 — echoes the oscilloscope HUD in the key visual. */
+.ch-label {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--color-line);
+  padding: 0.14rem 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--color-mut);
+  white-space: nowrap;
+}
+
 /* ── Key visual frame ────────────────────────────────────────── */
 .keyvisual {
   border: 1px solid var(--color-line);

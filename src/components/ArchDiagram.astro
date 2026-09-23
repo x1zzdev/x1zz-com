@@ -1,0 +1,94 @@
+---
+interface Layer {
+  label: string;
+  sub?: string;
+}
+interface Props {
+  layers: Layer[];
+  boundary?: { after: number; label: string };
+  accent?: 'accent' | 'accent2';
+}
+
+const { layers, boundary, accent = 'accent' } = Astro.props;
+
+// geometry (docs/DESIGN.md §5 · arch-diagram spec)
+const W = 320;
+const NODE_H = 42;
+const GAP = 20;
+const BGAP = 34;
+const PAD = 14;
+
+const ys: number[] = [];
+let y = PAD;
+for (let i = 0; i < layers.length; i++) {
+  ys.push(y);
+  y += NODE_H;
+  if (i < layers.length - 1) y += boundary && i === boundary.after ? BGAP : GAP;
+}
+const H = y + PAD;
+const bY = boundary ? ys[boundary.after] + NODE_H + BGAP / 2 : 0;
+const bW = boundary ? boundary.label.length * 6 + 16 : 0;
+const acc = `var(--color-${accent})`;
+---
+
+<svg class="arch-diagram" viewBox={`0 0 ${W} ${H}`} aria-hidden="true">
+  {
+    layers.map((l, i) => {
+      const last = i === layers.length - 1;
+      return (
+        <g>
+          <rect
+            x="4"
+            y={ys[i]}
+            width={W - 8}
+            height={NODE_H}
+            fill="var(--color-panel)"
+            stroke={last ? acc : 'var(--color-line)'}
+            stroke-width="1"
+          />
+          <text
+            x="16"
+            y={ys[i] + 19}
+            class="arch-label"
+            style={last ? `fill: ${acc}; font-weight: 600;` : undefined}
+          >
+            {l.label}
+          </text>
+          {l.sub && <text x="16" y={ys[i] + 33} class="arch-sub">{l.sub}</text>}
+        </g>
+      );
+    })
+  }
+  {
+    layers.slice(0, -1).map((_, i) => {
+      const x = W / 2;
+      const y1 = ys[i] + NODE_H + 2;
+      const y2 = ys[i + 1] - 1;
+      return (
+        <g>
+          <line x1={x} y1={y1} x2={x} y2={y2 - 5} stroke="#3A424E" stroke-width="1" />
+          <polygon points={`${x - 4},${y2 - 5} ${x + 4},${y2 - 5} ${x},${y2}`} fill="#3A424E" />
+        </g>
+      );
+    })
+  }
+  {
+    boundary && (
+      <g>
+        <line
+          x1="14"
+          y1={bY}
+          x2={W - 14}
+          y2={bY}
+          stroke="var(--color-line2)"
+          stroke-width="1"
+          stroke-dasharray="4 4"
+        />
+        <rect x={W / 2 - bW / 2} y={bY - 8} width={bW} height="16" fill="var(--color-canvas)" />
+        <text x={W / 2} y={bY + 3.5} text-anchor="middle" class="arch-sub">
+          {boundary.label}
+        </text>
+      </g>
+    )
+  }
+</svg>

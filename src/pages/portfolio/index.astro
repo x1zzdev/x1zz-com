@@ -232,7 +232,7 @@ const irOpt = `// xazz-compiler/src/opt.rs
               <li class="lang-en">Data crosses language walls (pandas → NumPy → PyTorch) → Apache Arrow buffers are handed directly to Burn; the remaining copies are explicit in the memory model.</li>
               <li class="lang-kr">데이터가 언어 경계(pandas → NumPy → PyTorch)를 건너며 복사됨 → Apache Arrow 버퍼를 Burn에 직접 전달하고, 남는 복사 지점을 명시화했습니다.</li>
               <li class="lang-en">No security layer in the pipeline → policy-as-code guardrails, differential privacy, and a SHA-256 audit log are part of the runtime.</li>
-              <li class="lang-kr">파이프라인에 보안 계층이 없음 → 폴리시 애즈 코드 가드레일, 차등 프라이버시, SHA-256 감사 로그를 런타임에 포함했습니다.</li>
+              <li class="lang-kr">파이프라인에 보안 계층이 없음 → 정책 기반(policy-as-code) 가드레일, 차등 프라이버시, SHA-256 감사 로그를 런타임에 포함했습니다.</li>
             </ul>
 
             <h2><span class="lang-en">How it's built</span><span class="lang-kr">구조</span></h2>
@@ -565,7 +565,7 @@ Xz core (.xz)  ── LLVM native / shared library</code></pre>
               not substring matching.
             </p>
             <p class="lang-kr">
-              <code>xazz-compiler</code>에 폴리시 애즈 코드 계층을 두고 실행 전에 스캔하며, <strong>fail-closed</strong>입니다.
+              <code>xazz-compiler</code>에 정책 기반(policy-as-code) 계층을 두고 실행 전에 스캔하며, <strong>fail-closed</strong>입니다.
               정책을 못 불러오면 실행을 거부합니다. 스캐너는 직접 구현했고, 부분 문자열이 아닌 정규화 후 정확 일치를 씁니다.
             </p>
             <ul>
@@ -592,7 +592,7 @@ Xz core (.xz)  ── LLVM native / shared library</code></pre>
               the AST against Polars/Burn. Two passes, two chances to diverge.
             </p>
             <p class="lang-kr">
-              초기 버전은 원시 AST를 두 번 해석했습니다. CLI가 소스를 다시 파싱하고, 런타임이 AST를 Polars/Burn에 다시 매핑했어요.
+              초기 버전은 원시 AST를 두 번 해석했습니다. CLI가 소스를 다시 파싱하고, 런타임이 AST를 Polars/Burn에 다시 매핑했습니다.
               두 번 해석하니 두 번 어긋날 수 있었습니다.
             </p>
 

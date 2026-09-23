@@ -1,5 +1,5 @@
 // Generates brand imagery (docs/DESIGN.md §5).
-//   public/hero-wave.png  1440x810 — oscilloscope key visual
+//   public/hero-wave.jpg  1440x810 — oscilloscope key visual (v3: multi-channel + crosshair + cursors)
 //   public/og-main.png    1200x630 — social card
 // Run: node scripts/gen-art.mjs
 import sharp from 'sharp';
@@ -43,9 +43,6 @@ function defs(W, H) {
       <stop offset="1" stop-color="#000" stop-opacity="0.4"/>
     </radialGradient>
     <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
-    <linearGradient id="fade" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#00FFA3"/><stop offset="1" stop-color="#00FFA3" stop-opacity="0.15"/>
-    </linearGradient>
   </defs>`;
 }
 
@@ -60,21 +57,52 @@ function texture(W, H) {
 const HUD = `
   font-family="JetBrains Mono, DejaVu Sans Mono, Menlo, monospace" fill="#5A6470" font-size="15" letter-spacing="2"`;
 
+// ── instrument layers: crosshair + measurement cursors ───────
+function crosshair(cx, cy, W, H) {
+  return `
+  <g stroke="#20262E" stroke-width="1" stroke-dasharray="2 6">
+    <line x1="90" y1="${cy}" x2="${W - 90}" y2="${cy}"/>
+    <line x1="${cx}" y1="80" x2="${cx}" y2="${H - 80}"/>
+  </g>
+  <g stroke="#2A313B" stroke-width="1">
+    <circle cx="${cx}" cy="${cy}" r="5" fill="none"/>
+    <line x1="${cx - 12}" y1="${cy}" x2="${cx - 5}" y2="${cy}"/>
+    <line x1="${cx + 5}" y1="${cy}" x2="${cx + 12}" y2="${cy}"/>
+    <line x1="${cx}" y1="${cy - 12}" x2="${cx}" y2="${cy - 5}"/>
+    <line x1="${cx}" y1="${cy + 5}" x2="${cx}" y2="${cy + 12}"/>
+  </g>`;
+}
+
+function cursors(xA, xB, yTop, yBottom, delta) {
+  const mid = (xA + xB) / 2;
+  return `
+  <g stroke="#39414D" stroke-width="1" stroke-dasharray="3 5">
+    <line x1="${xA}" y1="${yTop}" x2="${xA}" y2="${yBottom}"/>
+    <line x1="${xB}" y1="${yTop}" x2="${xB}" y2="${yBottom}"/>
+  </g>
+  <text x="${xA}" y="${yTop - 10}" text-anchor="middle" ${HUD}>A</text>
+  <text x="${xB}" y="${yTop - 10}" text-anchor="middle" ${HUD}>B</text>
+  <text x="${mid}" y="${yTop - 10}" text-anchor="middle" font-family="JetBrains Mono, DejaVu Sans Mono, Menlo, monospace" fill="#00FFA3" fill-opacity="0.8" font-size="15" letter-spacing="2">${delta}</text>`;
+}
+
 // ── hero: 1440x810 ────────────────────────────────────────────
 const HW = 1440, HH = 810;
+const cx = HW / 2, cy = HH / 2 + 10;
 const heroSvg = `<svg width="${HW}" height="${HH}" viewBox="0 0 ${HW} ${HH}" xmlns="http://www.w3.org/2000/svg">
-  ${defs(HW)}
+  ${defs(HW, HH)}
   <rect width="${HW}" height="${HH}" fill="#0A0C0F"/>
+  ${crosshair(cx, cy, HW, HH)}
   <g>
-    ${scopeLayers(HW / 2, HH / 2 + 10, 520, 300, Math.PI / 2, 1.0)}
-    <path d="${lissajous({ cx: HW / 2, cy: HH / 2 + 10, ax: 430, ay: 250, fx: 5, fy: 4, phase: Math.PI / 4, points: 1100 })}"
+    ${scopeLayers(cx, cy, 520, 300, Math.PI / 2, 1.0)}
+    <path d="${lissajous({ cx, cy, ax: 430, ay: 250, fx: 5, fy: 4, phase: Math.PI / 4, points: 1100 })}"
       fill="none" stroke="#00E896" stroke-opacity="0.45" stroke-width="1.2"/>
-    <path d="${lissajous({ cx: HW / 2, cy: HH / 2 + 10, ax: 300, ay: 185, fx: 2, fy: 3, phase: Math.PI / 3, points: 900 })}"
+    <path d="${lissajous({ cx, cy, ax: 300, ay: 185, fx: 2, fy: 3, phase: Math.PI / 3, points: 900 })}"
       fill="none" stroke="#00FFA3" stroke-opacity="0.35" stroke-width="1.2"/>
   </g>
+  ${cursors(cx - 268, cx + 312, 78, HH - 78, 'Δ 12.4 ms')}
   <!-- scope ticks -->
   <g stroke="#2A313B" stroke-width="1">
-    ${Array.from({ length: 29 }, (_, i) => `<line x1="${(HW / 2 - 560) + i * 40}" y1="${HH / 2 + 6}" x2="${(HW / 2 - 560) + i * 40}" y2="${HH / 2 + 10 + (i % 7 === 0 ? 8 : 4)}"/>`).join('')}
+    ${Array.from({ length: 29 }, (_, i) => `<line x1="${(cx - 560) + i * 40}" y1="${cy - 4}" x2="${(cx - 560) + i * 40}" y2="${cy + (i % 7 === 0 ? 8 : 4)}"/>`).join('')}
   </g>
   <!-- HUD labels -->
   <text x="44" y="52" ${HUD}>CH1 · x1zz</text>
@@ -89,6 +117,7 @@ const OW = 1200, OH = 630;
 const ogSvg = `<svg width="${OW}" height="${OH}" viewBox="0 0 ${OW} ${OH}" xmlns="http://www.w3.org/2000/svg">
   ${defs(OW, OH)}
   <rect width="${OW}" height="${OH}" fill="#0A0C0F"/>
+  ${cursors(300, 560, 96, OH - 96, 'Δ 12.4 ms')}
   <g>
     <path d="${lissajous({ cx: OW + 140, cy: OH - 60, ax: 620, ay: 420, fx: 3, fy: 2, phase: Math.PI / 2, points: 1300 })}"
       fill="none" stroke="#00FFA3" stroke-opacity="0.18" stroke-width="6" filter="url(#blur)"/>
